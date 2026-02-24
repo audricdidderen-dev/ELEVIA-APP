@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, ReferenceLine } from "recharts";
 
 /* ═══ INLINE SVG ICONS ═══ */
@@ -14,6 +14,8 @@ const IcBottle=({size=18,color="#C6A05B"})=><svg width={size} height={size} view
 const IcAcorn=({size=18,color="#C6A05B"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2"><path d="M1.62 21.75c.05.14.14.28.25.38.11.11.24.19.38.25 7.38 2.77 12.25.11 17.11-4.76L6.38 4.64c-4.87 4.86-7.53 9.73-4.76 17.11z"/><path d="M23.18 3.11a1.08 1.08 0 0 0 0-1.53l-.76-.76a1.08 1.08 0 0 0-1.53 0l-2.34 2.34a8.5 8.5 0 0 0-6.32-2.12 8.5 8.5 0 0 0-6.2 2.45c-.17.16-.18.43-.02.6L19.74 18c.17.17.44.16.6-.01a8.5 8.5 0 0 0 2.45-6.2 8.5 8.5 0 0 0-2.12-6.32l2.34-2.34z"/></svg>;
 const IcStar=({size=14,color="#C6A05B"})=><svg width={size} height={size} viewBox="0 0 24 24" fill={color} stroke="none"><path d="M16.37 12.56a1.18 1.18 0 0 0 .3-1.38l-1.11-2.55a.24.24 0 0 1 .06-.28l2-1.94a1.19 1.19 0 0 0 .28-1.31 1.18 1.18 0 0 0-1.11-.72h-2.25a.25.25 0 0 1-.23-.15L13.1 1.57A1.22 1.22 0 0 0 12 .88a1.22 1.22 0 0 0-1.1.69L9.69 4.23a.25.25 0 0 1-.23.15H7.2a1.17 1.17 0 0 0-1.11.72 1.2 1.2 0 0 0 .29 1.32l2 1.93a.24.24 0 0 1 .06.28l-1.11 2.55a1.18 1.18 0 0 0 .3 1.38 1.22 1.22 0 0 0 1.43.16l2.82-1.59a.25.25 0 0 1 .24 0l2.82 1.59a1.21 1.21 0 0 0 1.43-.16z"/></svg>;
 
+const IcMonoE=({size=16,color="#C6A05B",letter="É"})=><span style={{fontSize:size,fontWeight:800,fontStyle:"italic",color,fontFamily:"'Playfair Display','Georgia','Times New Roman',serif",lineHeight:1,display:"flex",alignItems:"center",justifyContent:"center"}}>{letter}</span>;
+
 const IcInfoEq=({size=14,color="rgba(198,160,91,.5)"})=><svg width={size} height={size} viewBox="-0.25 -0.25 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2"><circle cx="11.75" cy="11.75" r="10.77"/><path d="M11.69 16.5v-6a.86.86 0 0 0-.25-.61.86.86 0 0 0-.61-.25h-.86"/><circle cx="11.26" cy="7.35" r=".43"/><path d="M9.97 16.5h3.55"/></svg>;
 const IcInfo=({size=14,color="#3B82F6"})=><svg width={size} height={size} viewBox="-0.25 -0.25 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2"><circle cx="11.75" cy="11.75" r="10.77"/><path d="M11.69 16.5v-6a.86.86 0 0 0-.25-.61.86.86 0 0 0-.61-.25h-.86"/><circle cx="11.26" cy="7.35" r=".43"/><path d="M9.97 16.5h3.55"/></svg>;
 const IcLogo=({height=16})=><svg height={height} viewBox="70 125 250 100" fill="none"><g transform="translate(192,126)"><g fill="#f6f3ee"><g transform="translate(1.54,83.04)"><path d="M.63-48.84h10.89l11.51 37.19h.42l11.44-37.19h10.89L30.14.06H16.27z"/></g><g transform="translate(43.9,83.04)"><path d="M4.11-48.84h10.97V0H4.11z"/></g><g transform="translate(57.58,83.04)"><path d="M31.41-11.3H15.77L12.28 0H1.25l17.38-48.84h10.12L45.98 0H34.95zM28.75-19.61l-5.03-15.77h-.41l-4.89 15.77z"/></g></g></g><g transform="translate(78,142)"><g fill="#f6f3ee"><g transform="translate(1.29,77.92)"><path d="M20.56-33.45c2.84 0 5.23-.17 7.16-.52 1.93-.34 3.46-.88 4.59-1.62 1.14-.74 1.96-1.69 2.45-2.85.5-1.15.75-2.52.75-4.11h2.77v21.59h-2.77c0-1.58-.22-2.95-.67-4.11-.45-1.16-1.24-2.13-2.38-2.89-1.13-.77-2.66-1.35-4.59-1.75-1.92-.39-4.36-.59-7.31-.59v17.88c0 1.74.21 3.18.63 4.31.42 1.14 1.15 2.07 2.19 2.78 1.03.71 2.38 1.21 4.06 1.5 1.69.28 3.77.42 6.25.42 2.8 0 5.18-.2 7.13-.59 1.94-.39 3.58-1.07 4.89-2.02 1.32-.94 2.38-2.2 3.17-3.75.79-1.55 1.45-3.49 1.98-5.81h3l-1.19 15.58H3.56v-3c1.85-.05 3.33-.21 4.47-.47 1.13-.27 2.02-.72 2.64-1.36.63-.63 1.06-1.53 1.27-2.69.22-1.16.33-2.66.33-4.5v-36.86c0-1.84-.09-3.33-.28-4.47-.19-1.13-.56-2.03-1.11-2.69-.55-.66-1.36-1.11-2.42-1.34-1.05-.24-2.42-.41-4.11-.52v-3.02h45.72l.72 13.92h-2.77c-.32-2.1-.84-3.83-1.55-5.17-.71-1.34-1.68-2.41-2.92-3.2-1.24-.79-2.81-1.34-4.72-1.66-1.9-.32-4.19-.48-6.87-.48h-10.05c-.9 0-1.34.45-1.34 1.34z"/></g><g transform="translate(53.17,77.92)"><path d="M16.53-12.34c0 2.01.08 3.62.24 4.84.15 1.21.48 2.16.98 2.84.51.68 1.22 1.15 2.14 1.42.93.26 2.15.42 3.67.47v2.77H1.73v-2.77c1.58-.05 2.85-.22 3.8-.52.94-.29 1.69-.75 2.25-1.37.56-.63.93-1.52 1.11-2.66.19-1.13.28-2.62.28-4.47v-34.09c0-2.84-.04-5.23-.13-7.16-.07-1.93-.18-3.24-.34-3.92-.26-1.21-.88-2.03-1.86-2.44-.98-.43-2.73-.64-5.26-.64v-2.69l14.95-2.92z"/></g><g transform="translate(73.34,77.92)"><path d="M41.28-7.36c-4.48 5.44-10.04 8.16-16.69 8.16-3.1 0-5.92-.52-8.45-1.55-2.53-1.03-4.71-2.48-6.53-4.34-1.82-1.88-3.23-4.12-4.23-6.72s-1.5-5.5-1.5-8.67c0-3.22.52-6.2 1.58-8.94 1.06-2.74 2.55-5.08 4.47-7.03 1.93-1.96 4.22-3.49 6.88-4.59 2.66-1.1 5.58-1.66 8.75-1.66 5.11 0 9.07 1.39 11.86 4.16 2.8 2.76 4.2 6.72 4.2 11.89 0 .74-.15 1.19-.44 1.34-.29.16-.96.24-2.01.24H13.13c-.11.43-.19.95-.24 1.55-.05.6-.08 1.28-.08 2.01 0 2.74.33 5.23.98 7.48.67 2.24 1.62 4.15 2.86 5.74 1.24 1.57 2.71 2.8 4.42 3.67 1.72.87 3.63 1.3 5.74 1.3 2.22 0 4.27-.48 6.17-1.45 1.89-.98 3.84-2.58 5.84-4.8zM28.23-28.72c1.05 0 1.89-.02 2.53-.08.63-.05 1.11-.16 1.42-.31.32-.16.54-.38.64-.67.1-.29.16-.67.16-1.14 0-2.43-.78-4.37-2.34-5.81-1.55-1.46-3.67-2.19-6.36-2.19-5.7 0-9.23 3.4-10.59 10.21z"/></g></g></g></svg>;
@@ -28,6 +30,10 @@ const B = {
   green: "#34C759", greenSoft: "rgba(52,199,89,.12)",
   red: "#FF3B30", blue: "#3B82F6", blueSoft: "rgba(59,130,246,.1)",
 };
+
+/* Muted secondary color — no aggressive blue */
+const SEC_COLOR = "#6B8299"; // desaturated navy-blue
+const SEC_BG = "rgba(107,130,153,.1)";
 
 const CLIENT = { firstName: "Dupont", programme: "Perte de poids", heightCm: 178 };
 const WEEK_TARGETS = { kcal: 16450, p: 588, l: 637, g: 2093 };
@@ -262,6 +268,7 @@ function EqIcon({eqId,size=18,color="#C6A05B"}){const Ic=EQ_ICONS[eqId];if(Ic)re
 /* ═══ CSS ═══ */
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700;1,800&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
 html{height:100%;-webkit-text-size-adjust:100%}
 body{font-family:'DM Sans',-apple-system,sans-serif;background:#F7F7F7;overflow:hidden}
@@ -302,7 +309,7 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:#F7F7F7;overflow:
 .advice-item{background:#fff;border:1px solid rgba(198,160,91,.18);border-radius:18px;padding:14px;margin-bottom:8px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.04)}
 .advice-title{font-size:14px;font-weight:700;color:#1A1A1A}.advice-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 8px;border-radius:99px}
-.badge-pri{background:rgba(255,59,48,.1);color:#E5342D}.badge-sec{background:rgba(59,130,246,.1);color:#3B82F6}
+.badge-pri{background:rgba(198,160,91,.12);color:#C6A05B}.badge-sec{background:rgba(107,130,153,.1);color:#6B8299}
 .badge-st{background:rgba(15,30,46,.06);color:#6B7280}.badge-al{background:rgba(198,160,91,.12);color:#C6A05B}
 .badge-unread{background:#C6A05B;color:#fff}.badge-read{background:rgba(52,199,89,.12);color:#34C759}
 .tip-banner{background:linear-gradient(135deg,rgba(198,160,91,.08),rgba(198,160,91,.04));border:1px solid rgba(198,160,91,.22);border-radius:20px;padding:14px;margin-bottom:10px}
@@ -340,6 +347,8 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:#F7F7F7;overflow:
 .btn-text{background:none;border:none;color:#C6A05B;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:10px;display:block;text-align:center;width:100%}
 .snackbar{position:absolute;bottom:100px;left:50%;transform:translateX(-50%);background:#0E1E2E;color:#C6A05B;padding:10px 22px;border-radius:99px;font-size:13px;font-weight:700;z-index:300;animation:fadeUp .3s ease-out;box-shadow:0 4px 24px rgba(0,0,0,.25);white-space:nowrap}
 @keyframes fadeUp{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes splashLogo{from{opacity:0;transform:scale(.8) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes splashTag{from{opacity:0;transform:translateY(8px)}60%{opacity:0}to{opacity:1;transform:translateY(0)}}
 .eq-cat-header{font-size:11px;font-weight:800;color:#6B7280;text-transform:uppercase;letter-spacing:.5px;margin:12px 0 6px;padding-left:4px}
 .profile-card{background:linear-gradient(135deg,#0E1E2E,#1A2E40);border-radius:20px;padding:18px;color:#fff;margin-bottom:14px}
 .kpi-row{display:flex;gap:8px;margin-top:12px}
@@ -539,6 +548,7 @@ function PlanTab({logs,onAddLog}){
         return <div className="slot" key={slot.id} style={sl.length>0?{borderColor:"rgba(198,160,91,.15)"}:{}}>
           <div className="slot-header"><div className="slot-left"><div><div className="slot-name">{slot.label}</div><div className="slot-time">{sl.length>0?<><span style={{color:"rgba(15,30,46,.35)"}}>Dernier ajout {mockTimes[slot.id]}</span><span style={{color:"#C6A05B",fontWeight:600}}> · {Math.round(sk)} kcal</span></>:slot.time}</div></div></div><button className="slot-add" onClick={()=>setAddSlot(slot.id)}>+</button></div>
           {sl.length>0&&<div style={{marginTop:6}}>{sl.map(l=><div className="log-item" key={l.id}><div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:0}}><span style={{width:22,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><EqIcon eqId={l.eqId} size={17}/></span><span className="log-name">{getLogLabel(l.eqId,l.itemId)}</span>{l.isOutOfPlan&&<span className="chip-hp">HP</span>}</div><div style={{textAlign:"right",flexShrink:0,paddingLeft:8,display:"flex",alignItems:"baseline",gap:6}}><span style={{fontSize:12,fontWeight:700,color:"#1A1A1A"}}>{l.kcal}</span><span style={{fontSize:10,color:l.qtyPortion===1?"rgba(198,160,91,.7)":"#E8863A",fontWeight:600,minWidth:38}}>{l.qtyPortion===1?"1 port.":l.qtyPortion+" port."}</span></div></div>)}</div>}
+          {sl.length===0&&<div style={{padding:"10px 0 2px",fontSize:12,color:"rgba(15,30,46,.25)",fontStyle:"italic"}}>Appuie sur + pour ajouter</div>}
         </div>
       })}
     </>:<WeekView logs={logs} onAdd={setAddSlot}/>}
@@ -555,7 +565,7 @@ function WeekView({logs,onAdd}){
   const hpLogs=logs.filter(l=>l.isOutOfPlan);const hpKcal=hpLogs.reduce((s,l)=>s+l.kcal,0);
 
   return <>
-    <div className="alert-card alert-soft"><span style={{fontSize:20}}>⚡</span><div style={{flex:1}}><div className="alert-title">Fruits en retard cette semaine</div><div className="alert-msg">Il te reste surtout les fruits à placer. Ajoute 1–2 options simples par jour.</div><div className="alert-link">En savoir plus →</div></div></div>
+    <div className="alert-card alert-soft"><span style={{display:"flex",flexShrink:0,marginTop:2}}><IcBulb size={20} color="#C6A05B"/></span><div style={{flex:1}}><div className="alert-title">Fruits en retard cette semaine</div><div className="alert-msg">Il te reste surtout les fruits à placer. Ajoute 1–2 options simples par jour.</div><div className="alert-link">En savoir plus →</div></div></div>
     <div className="card">
       <div className="flex-between"><span className="card-title">Bilan semaine</span><span style={{fontSize:12,fontWeight:700,color:"#6B7280"}}>4 jours restants</span></div>
       <div className="flex-between mt8"><span style={{fontSize:22,fontWeight:800,color:"#1A1A1A"}}>{wk.kcal.toLocaleString()}</span><span style={{fontSize:13,color:"#6B7280"}}>/ {WEEK_TARGETS.kcal.toLocaleString()} kcal</span></div>
@@ -563,7 +573,7 @@ function WeekView({logs,onAdd}){
       <div className="macros"><MPill letter="P" value={wk.p} target={WEEK_TARGETS.p}/><MPill letter="L" value={wk.l} target={WEEK_TARGETS.l}/><MPill letter="G" value={wk.g} target={WEEK_TARGETS.g}/></div>
     </div>
     {hpKcal>0&&<div className="card" style={{borderColor:"rgba(232,134,58,.4)"}}>
-      <div className="flex-between"><span style={{fontSize:13,fontWeight:700,color:"#E8863A"}}>🟠 Hors plan</span><span style={{fontSize:13,fontWeight:800,color:"#E8863A"}}>{hpKcal} kcal</span></div>
+      <div className="flex-between"><span style={{fontSize:13,fontWeight:700,color:"#E8863A",display:"flex",alignItems:"center",gap:6}}><span style={{width:8,height:8,borderRadius:4,background:"#E8863A",flexShrink:0}}/>Hors plan</span><span style={{fontSize:13,fontWeight:800,color:"#E8863A"}}>{hpKcal} kcal</span></div>
       <div style={{fontSize:11,color:"#6B7280",marginTop:4}}>{hpLogs.length} ajout{hpLogs.length>1?"s":""} · {Math.round(hpKcal/WEEK_TARGETS.kcal*100)}% de la cible</div>
     </div>}
     <input className="search" placeholder="Rechercher une équivalence…" value={search} onChange={e=>setSearch(e.target.value)}/>
@@ -573,8 +583,8 @@ function WeekView({logs,onAdd}){
       const col=done?(over?"#E8863A":"#34C759"):"#C6A05B";
       return <div className="eq-card" key={eq.eqId}>
         <span style={{width:36,display:"flex",alignItems:"center",justifyContent:"center"}}><EqIcon eqId={eq.eqId} size={22}/></span>
-        <div className="eq-body"><div className="eq-name">{eq.label}</div><div className="eq-progress">{c}/{t} sem.{done&&!over&&" ✓"}{over&&" — au-dessus"}{late&&" ⚠️ en retard"}</div><div className="eq-bar"><div className="eq-bar-fill" style={{width:`${Math.min(pct,100)}%`,background:col}}/></div></div>
-        {done?<span style={{fontSize:18,color:"#34C759"}}>✓</span>:<button className="eq-add-btn" onClick={()=>onAdd("hotMeal")}>+</button>}
+        <div className="eq-body"><div className="eq-name">{eq.label}</div><div className="eq-progress">{c}/{t} sem.{done&&!over&&" — complété"}{over&&" — au-dessus"}{late&&" — en retard"}</div><div className="eq-bar"><div className="eq-bar-fill" style={{width:`${Math.min(pct,100)}%`,background:col}}/></div></div>
+        {done?<span style={{display:"flex"}}><IcCheck size={16} color="#34C759"/></span>:<button className="eq-add-btn" onClick={()=>onAdd("hotMeal")}>+</button>}
       </div>
     })}
   </>
@@ -687,10 +697,10 @@ function HistoryTab({logs}){
       </div>
     })}</div>
     <div className="section-label">Ajouts récents</div>
-    {logs.slice().reverse().slice(0,8).map(l=><div className="card" key={l.id} style={{padding:12}}>
-      <div className="flex-between"><span style={{fontSize:13,fontWeight:700,color:"#1A1A1A"}}>{getLogLabel(l.eqId,l.itemId)}{l.isOutOfPlan&&<span className="chip-hp">HP</span>}</span><span style={{fontSize:12,fontWeight:700,color:"#6B7280"}}>{l.kcal} kcal</span></div>
-      <div style={{fontSize:11,color:"#6B7280",marginTop:3}}>{SLOTS.find(s=>s.id===l.slotId)?.label} · P{l.p} L{l.l} G{l.g}</div>
-    </div>)}
+    <div className="card" style={{padding:0,overflow:"hidden"}}>{logs.slice().reverse().slice(0,8).map((l,i,arr)=><div key={l.id} style={{padding:"10px 14px",borderBottom:i<arr.length-1?"1px solid rgba(15,30,46,.06)":"none"}}>
+      <div className="flex-between"><span style={{display:"flex",alignItems:"center",gap:8,fontSize:13,fontWeight:700,color:"#1A1A1A"}}><EqIcon eqId={l.eqId} size={15}/>{getLogLabel(l.eqId,l.itemId)}{l.isOutOfPlan&&<span className="chip-hp">HP</span>}</span><span style={{fontSize:12,fontWeight:700,color:"#6B7280"}}>{l.kcal} kcal</span></div>
+      <div style={{fontSize:11,color:"#6B7280",marginTop:2,paddingLeft:23}}>{SLOTS.find(s=>s.id===l.slotId)?.label} · P{l.p} L{l.l} G{l.g}</div>
+    </div>)}</div>
   </div>
 }
 
@@ -865,9 +875,10 @@ function ProfileTab(){
   if(subScreen==="guides") return <div className="page">
     <button className="hdr-back" onClick={()=>setSubScreen(null)} style={{marginBottom:12,padding:0}}>← Retour</button>
     <div className="page-title">Guides vidéo</div>
-    {[{t:"Comment fonctionne ton plan",d:"2 min",s:"Comprendre les équivalences."},{t:"Logger un repas en 15 sec",d:"1 min 30",s:"Ajouter rapidement."},{t:"Comprendre la vue Semaine",d:"2 min 30",s:"Lire tes barres et alertes."},{t:"Les conseils et le bilan",d:"2 min",s:"Évaluer et lire ton score."},{t:"Manger hors plan",d:"2 min",s:"Gérer restau et extras."},{t:"Suivi mesures",d:"1 min 30",s:"Peser, mesurer, comprendre."}].map((v,i)=>
-      <div key={i} className="menu-item"><span style={{fontSize:20,width:32,textAlign:"center"}}>▶️</span><div style={{flex:1}}><div style={{fontSize:14,fontWeight:600,color:"#1A1A1A"}}>{v.t}</div><div style={{fontSize:11,color:"#6B7280"}}>{v.d} · {v.s}</div></div><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
-    )}
+    {[{t:"Comment fonctionne ton plan",d:"2 min",s:"Comprendre les équivalences."},{t:"Logger un repas en 15 sec",d:"1 min 30",s:"Ajouter rapidement."},{t:"Comprendre la vue Semaine",d:"2 min 30",s:"Lire tes barres et alertes."},{t:"Les conseils et le bilan",d:"2 min",s:"Évaluer et lire ton score."},{t:"Manger hors plan",d:"2 min",s:"Gérer restau et extras."},{t:"Suivi mesures",d:"1 min 30",s:"Peser, mesurer, comprendre."}].map((v,i)=>{
+      const letters=["É","L","E","V","I","A"];
+      return <div key={i} className="menu-item"><span style={{width:28,height:28,borderRadius:8,background:"linear-gradient(135deg,rgba(198,160,91,.12),rgba(198,160,91,.06))",border:"1px solid rgba(198,160,91,.18)",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}><IcMonoE size={13} color="#C6A05B" letter={letters[i%6]}/></span><div style={{flex:1}}><div style={{fontSize:14,fontWeight:600,color:"#1A1A1A"}}>{v.t}</div><div style={{fontSize:11,color:"#6B7280"}}>{v.d} · {v.s}</div></div><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
+    })}
   </div>;
 
   if(subScreen==="settings") return <div className="page">
@@ -886,9 +897,11 @@ function ProfileTab(){
     {["Conditions d'utilisation","Politique de confidentialité","Licences open-source"].map((n,i)=><div key={i} className="menu-item"><span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>{n}</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>)}
   </div>;
 
+  const menuLetter=(ch)=><span style={{width:28,height:28,borderRadius:8,background:"linear-gradient(135deg,rgba(198,160,91,.12),rgba(198,160,91,.06))",border:"1px solid rgba(198,160,91,.18)",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}><IcMonoE size={13} color="#C6A05B" letter={ch}/></span>;
+
   return <div className="page">
     <div className="profile-card">
-      <div style={{fontSize:20,fontWeight:800}}>👤 Martin {CLIENT.firstName}</div>
+      <div style={{fontSize:20,fontWeight:800}}>Martin {CLIENT.firstName}</div>
       <div style={{fontSize:13,color:"rgba(255,255,255,.7)",marginTop:4}}>Programme : <span style={{color:"#C6A05B"}}>{CLIENT.programme}</span> · Taille : {CLIENT.heightCm} cm</div>
       <div style={{fontSize:13,color:"rgba(255,255,255,.7)",marginTop:2}}>Depuis : 12 jan. 2026 · Semaine 8</div>
       <div className="kpi-row">
@@ -897,16 +910,16 @@ function ProfileTab(){
         <div className="kpi-box"><div className="kpi-label">% MG</div><div className="kpi-val">{latest.bodyFatPct}</div><div className="kpi-delta">-{(first.bodyFatPct-latest.bodyFatPct).toFixed(1)}%</div></div>
       </div>
     </div>
-    <div className="menu-item" onClick={()=>setSubScreen("why")}><span style={{fontSize:20,width:32,textAlign:"center"}}>📋</span><span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Pourquoi ce plan est le tien</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
+    <div className="menu-item" onClick={()=>setSubScreen("why")}>{menuLetter("É")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Pourquoi ce plan est le tien</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
     <div className="section-label">Outils</div>
-    <div className="menu-item" onClick={()=>setSubScreen("measures")}><span style={{fontSize:20,width:32,textAlign:"center"}}>📊</span><span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Suivi mesures & graphiques</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
-    <div className="menu-item"><span style={{fontSize:20,width:32,textAlign:"center"}}>🍽️</span><span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Recettes du mois</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
-    <div className="menu-item"><span style={{fontSize:20,width:32,textAlign:"center"}}>💬</span><span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Contacter ton diététicien</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
+    <div className="menu-item" onClick={()=>setSubScreen("measures")}>{menuLetter("L")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Suivi mesures & graphiques</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
+    <div className="menu-item">{menuLetter("E")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Recettes du mois</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
+    <div className="menu-item">{menuLetter("V")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Contacter ton diététicien</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
     <div className="section-label">Apprendre</div>
-    <div className="menu-item" onClick={()=>setSubScreen("guides")}><span style={{fontSize:20,width:32,textAlign:"center"}}>🎬</span><span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Guides vidéo</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
-    <div className="menu-item"><span style={{fontSize:20,width:32,textAlign:"center"}}>📏</span><span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Guides de mesure</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
+    <div className="menu-item" onClick={()=>setSubScreen("guides")}>{menuLetter("I")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Guides & tutoriels</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
+    <div className="menu-item">{menuLetter("A")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Comprendre ton plan</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
     <div className="section-label">Réglages</div>
-    <div className="menu-item" onClick={()=>setSubScreen("settings")}><span style={{fontSize:20,width:32,textAlign:"center"}}>⚙️</span><span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Paramètres</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
+    <div className="menu-item" onClick={()=>setSubScreen("settings")}><span style={{width:28,height:28,borderRadius:8,background:"rgba(15,30,46,.04)",border:"1px solid rgba(15,30,46,.08)",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,color:"#6B7280"}}>⚙</span><span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Paramètres</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
     <div style={{textAlign:"center",marginTop:20,fontSize:11,color:"rgba(15,30,46,.42)"}}>Élevia v1.1.0 (build 42)</div>
   </div>
 }
@@ -915,14 +928,30 @@ function ProfileTab(){
 export default function EleviaApp(){
   const [tab,setTab]=useState("plan");
   const [logs,setLogs]=useState(INITIAL_LOGS);
+  const [splash,setSplash]=useState(true);
   const addLog=useCallback(l=>setLogs(prev=>[...prev,l]),[]);
   const tabIcons={plan:IcCalendar,advice:IcBulb,history:IcHistory,profile:IcProfile};
   const tabs=[{id:"plan",label:"Plan"},{id:"advice",label:"Conseils"},{id:"history",label:"Historique"},{id:"profile",label:"Profil"}];
 
+  useEffect(()=>{const t=setTimeout(()=>setSplash(false),2200);return()=>clearTimeout(t)},[]);
+
+  if(splash) return <>
+    <style>{css}</style>
+    <div style={{width:"100%",maxWidth:430,height:"100dvh",height:"100vh",margin:"0 auto",background:"linear-gradient(160deg,#0A1620 0%,#0E1E2E 40%,#122438 100%)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",position:"relative",overflow:"hidden"}}>
+      {/* Subtle gold gradient orb */}
+      <div style={{position:"absolute",width:300,height:300,borderRadius:"50%",background:"radial-gradient(circle,rgba(198,160,91,.08) 0%,transparent 70%)",top:"35%",left:"50%",transform:"translate(-50%,-50%)"}}/>
+      <div style={{animation:"splashLogo 1.2s ease-out",opacity:1}}>
+        <IcLogo height={22}/>
+      </div>
+      <div style={{marginTop:16,fontSize:11,fontWeight:600,letterSpacing:3,color:"rgba(198,160,91,.45)",textTransform:"uppercase",animation:"splashTag 1.4s ease-out"}}>Nutrition personnalisée</div>
+      <div style={{position:"absolute",bottom:40,fontSize:10,color:"rgba(255,255,255,.15)",letterSpacing:1}}>v1.1.0</div>
+    </div>
+  </>;
+
   return <>
     <style>{css}</style>
     <div className="app-shell">
-      <div className="hdr"><IcLogo height={14}/></div>
+      <div className="hdr"><IcLogo height={20}/></div>
       <div className="content">
         {tab==="plan"&&<PlanTab logs={logs} onAddLog={addLog}/>}
         {tab==="advice"&&<AdviceTab/>}
