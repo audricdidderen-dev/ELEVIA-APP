@@ -1,6 +1,23 @@
 import { useState, useMemo, useCallback } from "react";
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, ReferenceLine } from "recharts";
 
+/* ═══ INLINE SVG ICONS ═══ */
+const IcCalendar=({size=20,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5"><path d="M1.5 2.5h21c.55 0 1 .45 1 1v19c0 .55-.45 1-1 1h-21c-.55 0-1-.45-1-1v-19c0-.55.45-1 1-1z"/><path d="m5.5.5 0 5M18.5.5l0 5M.5 7.5h23M12 7.5v16M6 7.5v16M18 7.5v16M.5 15.5h23M.5 11.5h23M.5 19.5h23"/></svg>;
+const IcBulb=({size=20,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5"><path d="M15 17.24v2.72c0 1.42-1.2 2-3 2s-3-.58-3-2v-2.72"/><path d="M13 17.45v-6a1 1 0 1 1 1 1h-4a1 1 0 0 1 0-2 .95.95 0 0 1 1 1v6"/><path d="M14.5 17.45a6.34 6.34 0 0 0 4-6 6.62 6.62 0 0 0-6.5-6.5 6.62 6.62 0 0 0-6.5 6.5 6.34 6.34 0 0 0 4 6z"/><path d="m9 19.45 6 0M12 .55v1.9M12 21.95v1.5M1 10.45h2.29M3.59 3.05 5.5 4.95M23 10.45h-2.29M20.41 3.05 18.5 4.95"/></svg>;
+const IcHistory=({size=20,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5"><path d="m13 7 0 5.5 5 0"/><path d="m.5 9 3 4.5 3.5-4"/><path d="M13 21.5A9.5 9.5 0 1 0 3.5 12v1.5"/></svg>;
+const IcProfile=({size=20,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5"><circle cx="12" cy="6.75" r="5.5"/><path d="M3 22.75a9 9 0 0 1 18 0z"/></svg>;
+const IcTarget=({size=14,color="#C6A05B"})=><svg width={size} height={size} viewBox="-0.25 -0.25 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2"><circle cx="11.75" cy="11.75" r="7.83"/><path d="m11.75.98 0 5.87M.98 11.75h5.87M11.75 22.52v-5.87M22.52 11.75h-5.87"/></svg>;
+const IcCheck=({size=12,color="#34C759"})=><svg width={size} height={size} viewBox="-0.25 -0.25 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"><path d="m23 .49-16.16 22.52-6.36-6.36"/></svg>;
+const IcApple=({size=18,color="#C6A05B"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2"><path d="M12 22.5c1.5 0 .5 1 3.5 1s6-6 6-10-2.5-7-5.5-7-3 1-4 1-1-1-4-1-5.5 3-5.5 7 3 10 6 10 2-1 3.5-1z"/><path d="M12 7.5v-2a2 2 0 0 0-2-2H8"/><path d="M14.63 4.92a4.5 4.5 0 0 0 3.83-3.83.52.52 0 0 0-.59-.59 4.5 4.5 0 0 0-3.83 3.83.52.52 0 0 0 .58.58z"/></svg>;
+const IcBread=({size=18,color="#C6A05B"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2"><path d="M4 7.24a3 3 0 0 0-.5 1.66V22.5a1 1 0 0 0 1 1h15a1 1 0 0 0 1-1V8.91a3 3 0 0 0-.5-1.66l-.5-.75a3 3 0 0 0 0-6h-15a3 3 0 0 0 0 6z"/><path d="m6.9 13.4 4.5-4.5M8.29 17.67l7.42-7.42M12.56 19.06l4.5-4.5"/></svg>;
+const IcBottle=({size=18,color="#C6A05B"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2"><path d="M15.5 4.5V1a.5.5 0 0 0-.5-.5H9a.5.5 0 0 0-.5.5v3.5c0 1-2 3.5-2 5.5v11.5a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2V10c0-2-2-4.5-2-5.5z"/><path d="m8.5 3.5 7 0"/></svg>;
+const IcAcorn=({size=18,color="#C6A05B"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2"><path d="M1.62 21.75c.05.14.14.28.25.38.11.11.24.19.38.25 7.38 2.77 12.25.11 17.11-4.76L6.38 4.64c-4.87 4.86-7.53 9.73-4.76 17.11z"/><path d="M23.18 3.11a1.08 1.08 0 0 0 0-1.53l-.76-.76a1.08 1.08 0 0 0-1.53 0l-2.34 2.34a8.5 8.5 0 0 0-6.32-2.12 8.5 8.5 0 0 0-6.2 2.45c-.17.16-.18.43-.02.6L19.74 18c.17.17.44.16.6-.01a8.5 8.5 0 0 0 2.45-6.2 8.5 8.5 0 0 0-2.12-6.32l2.34-2.34z"/></svg>;
+const IcStar=({size=14,color="#C6A05B"})=><svg width={size} height={size} viewBox="0 0 24 24" fill={color} stroke="none"><path d="M16.37 12.56a1.18 1.18 0 0 0 .3-1.38l-1.11-2.55a.24.24 0 0 1 .06-.28l2-1.94a1.19 1.19 0 0 0 .28-1.31 1.18 1.18 0 0 0-1.11-.72h-2.25a.25.25 0 0 1-.23-.15L13.1 1.57A1.22 1.22 0 0 0 12 .88a1.22 1.22 0 0 0-1.1.69L9.69 4.23a.25.25 0 0 1-.23.15H7.2a1.17 1.17 0 0 0-1.11.72 1.2 1.2 0 0 0 .29 1.32l2 1.93a.24.24 0 0 1 .06.28l-1.11 2.55a1.18 1.18 0 0 0 .3 1.38 1.22 1.22 0 0 0 1.43.16l2.82-1.59a.25.25 0 0 1 .24 0l2.82 1.59a1.21 1.21 0 0 0 1.43-.16z"/></svg>;
+
+const IcInfoEq=({size=14,color="rgba(198,160,91,.5)"})=><svg width={size} height={size} viewBox="-0.25 -0.25 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2"><circle cx="11.75" cy="11.75" r="10.77"/><path d="M11.69 16.5v-6a.86.86 0 0 0-.25-.61.86.86 0 0 0-.61-.25h-.86"/><circle cx="11.26" cy="7.35" r=".43"/><path d="M9.97 16.5h3.55"/></svg>;
+const IcInfo=({size=14,color="#3B82F6"})=><svg width={size} height={size} viewBox="-0.25 -0.25 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2"><circle cx="11.75" cy="11.75" r="10.77"/><path d="M11.69 16.5v-6a.86.86 0 0 0-.25-.61.86.86 0 0 0-.61-.25h-.86"/><circle cx="11.26" cy="7.35" r=".43"/><path d="M9.97 16.5h3.55"/></svg>;
+const IcLogo=({height=16})=><svg height={height} viewBox="70 125 250 100" fill="none"><g transform="translate(192,126)"><g fill="#f6f3ee"><g transform="translate(1.54,83.04)"><path d="M.63-48.84h10.89l11.51 37.19h.42l11.44-37.19h10.89L30.14.06H16.27z"/></g><g transform="translate(43.9,83.04)"><path d="M4.11-48.84h10.97V0H4.11z"/></g><g transform="translate(57.58,83.04)"><path d="M31.41-11.3H15.77L12.28 0H1.25l17.38-48.84h10.12L45.98 0H34.95zM28.75-19.61l-5.03-15.77h-.41l-4.89 15.77z"/></g></g></g><g transform="translate(78,142)"><g fill="#f6f3ee"><g transform="translate(1.29,77.92)"><path d="M20.56-33.45c2.84 0 5.23-.17 7.16-.52 1.93-.34 3.46-.88 4.59-1.62 1.14-.74 1.96-1.69 2.45-2.85.5-1.15.75-2.52.75-4.11h2.77v21.59h-2.77c0-1.58-.22-2.95-.67-4.11-.45-1.16-1.24-2.13-2.38-2.89-1.13-.77-2.66-1.35-4.59-1.75-1.92-.39-4.36-.59-7.31-.59v17.88c0 1.74.21 3.18.63 4.31.42 1.14 1.15 2.07 2.19 2.78 1.03.71 2.38 1.21 4.06 1.5 1.69.28 3.77.42 6.25.42 2.8 0 5.18-.2 7.13-.59 1.94-.39 3.58-1.07 4.89-2.02 1.32-.94 2.38-2.2 3.17-3.75.79-1.55 1.45-3.49 1.98-5.81h3l-1.19 15.58H3.56v-3c1.85-.05 3.33-.21 4.47-.47 1.13-.27 2.02-.72 2.64-1.36.63-.63 1.06-1.53 1.27-2.69.22-1.16.33-2.66.33-4.5v-36.86c0-1.84-.09-3.33-.28-4.47-.19-1.13-.56-2.03-1.11-2.69-.55-.66-1.36-1.11-2.42-1.34-1.05-.24-2.42-.41-4.11-.52v-3.02h45.72l.72 13.92h-2.77c-.32-2.1-.84-3.83-1.55-5.17-.71-1.34-1.68-2.41-2.92-3.2-1.24-.79-2.81-1.34-4.72-1.66-1.9-.32-4.19-.48-6.87-.48h-10.05c-.9 0-1.34.45-1.34 1.34z"/></g><g transform="translate(53.17,77.92)"><path d="M16.53-12.34c0 2.01.08 3.62.24 4.84.15 1.21.48 2.16.98 2.84.51.68 1.22 1.15 2.14 1.42.93.26 2.15.42 3.67.47v2.77H1.73v-2.77c1.58-.05 2.85-.22 3.8-.52.94-.29 1.69-.75 2.25-1.37.56-.63.93-1.52 1.11-2.66.19-1.13.28-2.62.28-4.47v-34.09c0-2.84-.04-5.23-.13-7.16-.07-1.93-.18-3.24-.34-3.92-.26-1.21-.88-2.03-1.86-2.44-.98-.43-2.73-.64-5.26-.64v-2.69l14.95-2.92z"/></g><g transform="translate(73.34,77.92)"><path d="M41.28-7.36c-4.48 5.44-10.04 8.16-16.69 8.16-3.1 0-5.92-.52-8.45-1.55-2.53-1.03-4.71-2.48-6.53-4.34-1.82-1.88-3.23-4.12-4.23-6.72s-1.5-5.5-1.5-8.67c0-3.22.52-6.2 1.58-8.94 1.06-2.74 2.55-5.08 4.47-7.03 1.93-1.96 4.22-3.49 6.88-4.59 2.66-1.1 5.58-1.66 8.75-1.66 5.11 0 9.07 1.39 11.86 4.16 2.8 2.76 4.2 6.72 4.2 11.89 0 .74-.15 1.19-.44 1.34-.29.16-.96.24-2.01.24H13.13c-.11.43-.19.95-.24 1.55-.05.6-.08 1.28-.08 2.01 0 2.74.33 5.23.98 7.48.67 2.24 1.62 4.15 2.86 5.74 1.24 1.57 2.71 2.8 4.42 3.67 1.72.87 3.63 1.3 5.74 1.3 2.22 0 4.27-.48 6.17-1.45 1.89-.98 3.84-2.58 5.84-4.8zM28.23-28.72c1.05 0 1.89-.02 2.53-.08.63-.05 1.11-.16 1.42-.31.32-.16.54-.38.64-.67.1-.29.16-.67.16-1.14 0-2.43-.78-4.37-2.34-5.81-1.55-1.46-3.67-2.19-6.36-2.19-5.7 0-9.23 3.4-10.59 10.21z"/></g></g></g></svg>;
+
 const B = {
   navy: "#0E1E2E", gold: "#C6A05B", goldSoft: "rgba(198,160,91,.12)",
   goldBorder: "rgba(198,160,91,.22)", goldBorderStrong: "rgba(198,160,91,.34)",
@@ -17,11 +34,11 @@ const WEEK_TARGETS = { kcal: 16450, p: 588, l: 637, g: 2093 };
 const DAY_TARGETS = { kcal: 2350, p: 84, l: 91, g: 299 };
 
 const SLOTS = [
-  { id: "breakfast", label: "Petit-déjeuner", icon: "☀️", time: "7h30" },
-  { id: "snack1", label: "Collation matin", icon: "🍎", time: "10h" },
-  { id: "coldMeal", label: "Déjeuner froid", icon: "🥗", time: "12h30" },
-  { id: "snack2", label: "Collation après-midi", icon: "🍫", time: "16h" },
-  { id: "hotMeal", label: "Dîner chaud", icon: "🍽️", time: "19h30" },
+  { id: "breakfast", label: "Petit-déjeuner", time: "7h30" },
+  { id: "snack1", label: "Collation matin", time: "10h" },
+  { id: "coldMeal", label: "Midi — Repas froid", time: "12h30" },
+  { id: "snack2", label: "Collation après-midi", time: "16h" },
+  { id: "hotMeal", label: "Soir — Repas chaud", time: "19h30" },
 ];
 
 const SLOT_ALLOWED = {
@@ -91,7 +108,7 @@ const CATALOGUE = [
       {itemId:"amandes",foodLabel:"Amandes",isRecommended:true,stepper:{usualGPerUnit:1.2,usualUnitSg:"amande",usualUnitPl:"amandes",unitStep:1,defaultUnits:13,minUnits:0,maxUnits:30},nutrientsPerUnit:{kcal:7,p:0.23,l:0.54,g:0.15}},
       {itemId:"noix",foodLabel:"Noix",isRecommended:true,stepper:{usualGPerUnit:4,usualUnitSg:"noix",usualUnitPl:"noix",unitStep:1,defaultUnits:4,minUnits:0,maxUnits:12},nutrientsPerUnit:{kcal:26,p:0.6,l:2.6,g:0.3}},
     ]},
-  { eqId:"pl_0_riche_p",label:"Produits laitiers 0%",eqMode:"R",type:"dairy",eqGroupId:"dairy_group",eqImportance:"normal",icon:"🥛",
+  { eqId:"pl_0_riche_p",label:"PL faibles en kcal",eqMode:"R",type:"dairy",eqGroupId:"dairy_group",eqImportance:"normal",icon:"🥛",
     nutrientsPerPortion:{kcal:55,p:10,l:0.2,g:3.5},qtyPlanGrams:125,
     qtyUi:{appInputMode:"ITEM_UNIT_STEPPER",showItemListDefault:false,defaultAction:"LOG_1_PORTION",showGramFallback:true},
     noteElevia:"Source de protéines et calcium.",
@@ -149,12 +166,30 @@ const PLAN_TARGETS = {
 const WEEK_CONSUMED = {pain:10,cereales_ig_modere:2,feculents_chauds:12,fruits_natures:8,legumes_cuits:14,legumes_crus:11,viandes_faibles_kcal:6,poissons_maigres:2,oleagineux_nature:5,pl_0_riche_p:7,pl_50_100_kcal:2,fromages_20_30_mg:5,assaisonnement_repas_froid:13,assaisonnement_repas_chaud:12,mg_cuisson:5,mg_tartinables:6,garnitures_sucrees_pain:6,chocolat_noir_mt70:2,charcuteries_maigres:2};
 
 const ADVICES = [
-  {id:"adv_01",module:"alcohol",title:"Réduire l'alcool",axis:"priority",priorityScore:85,summaryObjective:"Ramener à max 5 verres/sem.",summaryBullets:["Supprime les verres en semaine.","Privilégie la qualité.","Remplace par du thé le soir."],summaryTip:"Un thé chaud le soir remplace l'envie d'un verre.",linkedAlertTypes:["surplus_kcal"]},
-  {id:"adv_02",module:"hydration",title:"Hydratation insuffisante",axis:"priority",priorityScore:78,summaryObjective:"Boire au moins 1,5L d'eau/jour.",summaryBullets:["Grand verre d'eau au réveil.","Bouteille visible toute la journée.","Citron ou menthe pour varier."],summaryTip:"Un verre avant chaque repas = 750ml.",linkedAlertTypes:[]},
-  {id:"adv_03",module:"protein",title:"Manger assez de protéines",axis:"priority",priorityScore:92,summaryObjective:"Atteindre ta cible protéines chaque jour.",summaryBullets:["1 source protéine à chaque repas.","Favorise les maigres.","PL 0% ou oeuf en snack."],summaryTip:"Un oeuf ou yaourt grec en snack aide beaucoup.",linkedAlertTypes:["deficit_protein"]},
-  {id:"adv_04",module:"coffee",title:"Limiter le sucre dans le café",axis:"secondary",priorityScore:45,summaryObjective:"Réduire puis supprimer le sucre.",summaryBullets:["Réduis d'un demi-sucre/sem.","Essaie cannelle ou vanille.","Café nature en 3 sem."],summaryTip:"Après 2 sem sans sucre, le goût change.",linkedAlertTypes:[]},
-  {id:"adv_05",module:"lunch",title:"Mode lunch : sandwich",axis:"secondary",priorityScore:38,summaryObjective:"Structurer ton sandwich.",summaryBullets:["Pain complet + protéine + crudités.","Évite sauces commerce.","Ajoute un fruit."],summaryTip:"Un bon sandwich = repas parfait.",linkedAlertTypes:[]},
-  {id:"adv_06",module:"rawveg",title:"Crudités au déjeuner",axis:"secondary",priorityScore:30,summaryObjective:"Ajouter crudités au déjeuner.",summaryBullets:["Prépare la veille.","Tomates cerises ou carottes.","Quelques bouchées comptent."],summaryTip:"Tomates cerises en tupperware = 30 sec.",linkedAlertTypes:[]},
+  {id:"adv_01",module:"alcohol",title:"Réduire l'alcool",axis:"priority",priorityScore:85,
+    shortBody:"L'alcool freine ta perte de poids. On vise max 5 verres/sem.",
+    body:"Si on inclut l'alcool dans ton plan, c'est pour que tu puisses en profiter sans culpabilité — mais avec un cadre clair. L'alcool apporte des calories vides (7 kcal/g) qui ralentissent directement la perte de graisse. Ton foie priorise l'élimination de l'alcool avant de brûler les graisses. Chaque verre retarde ce processus de plusieurs heures.",
+    summaryObjective:"Ramener à max 5 verres/sem.",summaryBullets:["Supprime les verres en semaine.","Privilégie la qualité.","Remplace par du thé le soir."],summaryTip:"Un thé chaud le soir remplace l'envie d'un verre.",linkedAlertTypes:["surplus_kcal"]},
+  {id:"adv_02",module:"hydration",title:"Hydratation insuffisante",axis:"priority",priorityScore:78,
+    shortBody:"Tu bois moins d'1L/jour. L'hydratation aide la satiété et l'énergie.",
+    body:"L'eau est ton allié n°1 et le plus sous-estimé. Une déshydratation même légère (1-2%) réduit tes performances cognitives de 10-15%, augmente la fatigue et — surtout — mime la faim. Ton cerveau confond souvent soif et faim. Boire 1,5L minimum par jour aide à réguler l'appétit naturellement, améliore ta digestion et optimise le métabolisme des graisses.",
+    summaryObjective:"Boire au moins 1,5L d'eau/jour.",summaryBullets:["Grand verre d'eau au réveil.","Bouteille visible toute la journée.","Citron ou menthe pour varier."],summaryTip:"Un verre avant chaque repas = 750ml.",linkedAlertTypes:[]},
+  {id:"adv_03",module:"protein",title:"Manger assez de protéines",axis:"priority",priorityScore:92,
+    shortBody:"Tes protéines sont souvent en dessous de ta cible. Essentiel pour garder ta masse musculaire.",
+    body:"Les protéines sont le macro le plus important en perte de poids. Elles préservent ta masse musculaire (ce qui maintient ton métabolisme élevé), augmentent la satiété plus que tout autre nutriment, et ont l'effet thermique le plus élevé : ton corps dépense 20-30% des calories protéiques juste pour les digérer. Sans assez de protéines, tu perds du muscle en même temps que du gras, ce qui ralentit ta progression.",
+    summaryObjective:"Atteindre ta cible protéines chaque jour.",summaryBullets:["1 source protéine à chaque repas.","Favorise les maigres.","PL 0% ou oeuf en snack."],summaryTip:"Un oeuf ou yaourt grec en snack aide beaucoup.",linkedAlertTypes:["deficit_protein"]},
+  {id:"adv_04",module:"coffee",title:"Limiter le sucre dans le café",axis:"secondary",priorityScore:45,
+    shortBody:"3 cafés sucrés/jour = ~60 kcal cachées. On réduit progressivement.",
+    body:"Chaque sucre dans ton café ajoute ~20 kcal. Ça paraît peu, mais 3 cafés × 1 sucre × 7 jours = 420 kcal/sem — l'équivalent d'un repas entier. Le sevrage du sucre dans le café prend environ 2-3 semaines. Après, ton palais s'adapte et tu trouveras le café sucré trop sucré. La cannelle ou la vanille peuvent aider la transition.",
+    summaryObjective:"Réduire puis supprimer le sucre.",summaryBullets:["Réduis d'un demi-sucre/sem.","Essaie cannelle ou vanille.","Café nature en 3 sem."],summaryTip:"Après 2 sem sans sucre, le goût change.",linkedAlertTypes:[]},
+  {id:"adv_05",module:"lunch",title:"Mode lunch : sandwich",axis:"secondary",priorityScore:38,
+    shortBody:"Ton sandwich peut être un repas parfait s'il est bien structuré.",
+    body:"Beaucoup de gens pensent que le sandwich est un mauvais choix diététique. C'est faux — tout dépend de la structure. Un sandwich bien construit (pain complet + protéine maigre + crudités + assaisonnement léger) couvre exactement les mêmes besoins qu'un repas classique. L'erreur courante est d'ajouter trop de sauce commerce (mayonnaise = 80 kcal/càs) ou de négliger les légumes.",
+    summaryObjective:"Structurer ton sandwich.",summaryBullets:["Pain complet + protéine + crudités.","Évite sauces commerce.","Ajoute un fruit."],summaryTip:"Un bon sandwich = repas parfait.",linkedAlertTypes:[]},
+  {id:"adv_06",module:"rawveg",title:"Crudités au déjeuner",axis:"secondary",priorityScore:30,
+    shortBody:"Les crudités en début de repas freinent l'absorption du sucre.",
+    body:"Commencer un repas par des crudités active la satiété mécanique (volume dans l'estomac) et ralentit l'absorption des glucides qui suivent, ce qui stabilise ta glycémie. Des études montrent qu'une entrée de crudités réduit la prise calorique totale du repas de 10-15%. Même 3-4 bouchées comptent. Le plus dur c'est l'habitude — pas l'effort.",
+    summaryObjective:"Ajouter crudités au déjeuner.",summaryBullets:["Prépare la veille.","Tomates cerises ou carottes.","Quelques bouchées comptent."],summaryTip:"Tomates cerises en tupperware = 30 sec.",linkedAlertTypes:[]},
 ];
 
 const MICRO_TIPS = [
@@ -188,20 +223,41 @@ const PROFILE_TEXT = "Ton plan est basé sur ton objectif de perte de poids prog
 
 const INITIAL_LOGS = [
   {id:"l1",slotId:"breakfast",eqId:"pain",itemId:"pain_gris",nbUnits:3,qtyPortion:1,isOutOfPlan:false,kcal:90,p:3.1,l:1.0,g:16.7},
-  {id:"l2",slotId:"breakfast",eqId:"fruits_natures",itemId:"banane",nbUnits:1,qtyPortion:1,isOutOfPlan:false,kcal:89,p:1.9,l:0.1,g:18},
   {id:"l3",slotId:"breakfast",eqId:"pl_0_riche_p",itemId:"yaourt_grec_0",nbUnits:1,qtyPortion:1,isOutOfPlan:false,kcal:55,p:10,l:0.2,g:3.5},
-  {id:"l4",slotId:"snack1",eqId:"fruits_natures",itemId:"pomme",nbUnits:1,qtyPortion:1,isOutOfPlan:false,kcal:72,p:0.4,l:0.2,g:15},
+  {id:"l2",slotId:"breakfast",eqId:"fruits_natures",itemId:"pomme",nbUnits:1,qtyPortion:1,isOutOfPlan:false,kcal:72,p:0.4,l:0.2,g:15},
+  {id:"l8",slotId:"snack1",eqId:"oleagineux_nature",itemId:"amandes",nbUnits:13,qtyPortion:1,isOutOfPlan:false,kcal:90,p:3,l:7,g:2},
   {id:"l5",slotId:"coldMeal",eqId:"pain",itemId:"pain_complet",nbUnits:3,qtyPortion:1,isOutOfPlan:false,kcal:95,p:3.5,l:1.2,g:17},
   {id:"l6",slotId:"coldMeal",eqId:"viandes_faibles_kcal",itemId:"blanc_dinde",nbUnits:null,qtyPortion:1,isOutOfPlan:false,kcal:110,p:21.5,l:2.5,g:0.1},
   {id:"l7",slotId:"coldMeal",eqId:"legumes_crus",itemId:null,nbUnits:null,qtyPortion:1,isOutOfPlan:false,kcal:22,p:1.2,l:0.1,g:3.8},
-  {id:"l8",slotId:"snack2",eqId:"oleagineux_nature",itemId:"amandes",nbUnits:13,qtyPortion:1,isOutOfPlan:false,kcal:90,p:3,l:7,g:2},
 ];
 
 const TYPE_LABELS = {carbs:"Féculents",vvpo:"Protéines",fat:"Matières grasses",dairy:"Produits laitiers",fruits:"Fruits",veg:"Légumes",extras:"Extras / Plaisir",drinks:"Boissons"};
 
 function getEq(eqId){return CATALOGUE.find(e=>e.eqId===eqId)}
 function isInPlan(eqId){return eqId in PLAN_TARGETS}
+function getLogLabel(eqId,itemId){
+  const eq=getEq(eqId);if(!eq)return eqId;
+  // Only show specific item for ITEM_FIRST_PICK (fruits, oléagineux) where items vary a lot
+  if(eq.qtyUi.appInputMode==="ITEM_FIRST_PICK"&&itemId){
+    const item=eq.items.find(i=>i.itemId===itemId);
+    if(item)return item.foodLabel;
+  }
+  return eq.label;
+}
+function getLogSub(eqId,itemId,nbUnits){
+  const eq=getEq(eqId);if(!eq)return"";
+  // For non-ITEM_FIRST_PICK, show item detail as subtitle if available
+  if(eq.qtyUi.appInputMode!=="ITEM_FIRST_PICK"&&itemId){
+    const item=eq.items.find(i=>i.itemId===itemId);
+    if(item&&nbUnits)return `${nbUnits} ${nbUnits>1?item.stepper?.usualUnitPl:item.stepper?.usualUnitSg} ${item.foodLabel.toLowerCase()}`;
+    if(item)return item.foodLabel;
+  }
+  return"";
+}
 function getItemLabel(eqId,itemId){const eq=getEq(eqId);if(!eq)return eqId;if(itemId){const item=eq.items.find(i=>i.itemId===itemId);if(item)return item.foodLabel}return eq.label}
+
+const EQ_ICONS={pain:IcBread,fruits_natures:IcApple,oleagineux_nature:IcAcorn,pl_0_riche_p:IcBottle,pl_50_100_kcal:IcBottle,fromages_20_30_mg:IcBottle};
+function EqIcon({eqId,size=18,color="#C6A05B"}){const Ic=EQ_ICONS[eqId];if(Ic)return <Ic size={size} color={color}/>;const eq=getEq(eqId);return <span style={{fontSize:size,lineHeight:1}}>{eq?.icon||"•"}</span>}
 
 /* ═══ CSS ═══ */
 const css = `
@@ -212,7 +268,7 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:#0E1E2E}
 .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:34px;background:#1a1a1a;border-radius:0 0 20px 20px;z-index:100}
 .sbar{height:54px;background:#0E1E2E;padding:0 24px;display:flex;align-items:flex-end;justify-content:space-between;padding-bottom:6px;flex-shrink:0}
 .sbar-t{color:#fff;font-size:15px;font-weight:700}.sbar-i{color:#fff;font-size:12px;font-weight:600;display:flex;gap:6px;align-items:center}
-.hdr{background:#0E1E2E;padding:8px 20px 14px;border-bottom:1px solid rgba(198,160,91,.55);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.hdr{background:#0E1E2E;padding:4px 20px 8px;border-bottom:1px solid rgba(198,160,91,.55);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .hdr-logo{font-size:20px;font-weight:800;letter-spacing:2px;color:#C6A05B;font-style:italic}
 .hdr-back{background:none;border:none;color:#C6A05B;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
 .content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}.content::-webkit-scrollbar{display:none}
@@ -220,32 +276,32 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:#0E1E2E}
 .tbar-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding-top:6px;cursor:pointer;background:none;border:none;font-family:inherit}
 .tbar-ic{font-size:22px;line-height:1}.tbar-lb{font-size:11px;font-weight:700}
 .tbar-item.active .tbar-lb{color:#C6A05B}.tbar-item:not(.active) .tbar-lb{color:rgba(255,255,255,.55)}.tbar-item:not(.active) .tbar-ic{opacity:.55}
-.page{padding:16px 18px 24px}.page-title{font-size:28px;font-weight:800;color:#1A1A1A}.page-meta{font-size:12px;font-weight:700;color:#6B7280;margin-top:2px}
-.seg{display:flex;background:#E5E7EB;border-radius:10px;padding:3px;margin:14px 0 6px}
-.seg-btn{flex:1;padding:8px 0;border-radius:8px;text-align:center;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;color:#6B7280;background:transparent}
-.seg-btn.active{background:#fff;color:#1A1A1A;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-.card{background:#fff;border:1px solid rgba(198,160,91,.22);border-radius:20px;padding:14px;margin-bottom:12px;box-shadow:0 4px 24px rgba(0,0,0,.06)}
+.page{padding:14px 18px 24px}.page-title{font-size:24px;font-weight:800;color:#1A1A1A}.page-meta{font-size:11px;font-weight:700;color:#6B7280;margin-top:2px}
+.seg{display:flex;background:rgba(15,30,46,.06);border-radius:12px;padding:3px;margin:12px 0 10px}
+.seg-btn{flex:1;padding:8px 0;border-radius:10px;text-align:center;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;color:rgba(15,30,46,.4);background:transparent;transition:all .2s}
+.seg-btn.active{background:#fff;color:#1A1A1A;box-shadow:0 1px 6px rgba(0,0,0,.08)}
+.card{background:#fff;border:1px solid rgba(198,160,91,.18);border-radius:20px;padding:14px;margin-bottom:10px;box-shadow:0 2px 12px rgba(0,0,0,.04)}
 .card-title{font-size:15px;font-weight:800;color:#1A1A1A}
 .card-link{font-size:13px;font-weight:800;color:#C6A05B;margin-top:8px;cursor:pointer}
 .pbar-track{height:8px;background:rgba(15,30,46,.06);border-radius:99px;overflow:hidden}
 .pbar-fill{height:100%;border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1)}
 .pbar-gold{background:linear-gradient(90deg,#C6A05B,#D4B06A)}.pbar-green{background:#34C759}.pbar-orange{background:#E8863A}
-.macros{display:flex;gap:8px;margin-top:10px}
-.macro-pill{flex:1;background:rgba(15,30,46,.03);border-radius:10px;padding:8px 6px;text-align:center}
-.macro-letter{font-size:11px;font-weight:800;color:#6B7280}.macro-val{font-size:14px;font-weight:800;color:#1A1A1A;margin-top:2px}.macro-target{font-size:10px;color:rgba(15,30,46,.42);margin-top:1px}
-.slot{background:#fff;border:1px solid rgba(15,30,46,.10);border-radius:20px;padding:12px 14px;margin-bottom:10px}
+.macros{display:flex;gap:6px;margin-top:10px}
+.macro-pill{flex:1;background:rgba(15,30,46,.025);border:1px solid rgba(15,30,46,.06);border-radius:10px;padding:7px 6px;text-align:center}
+.macro-letter{font-size:10px;font-weight:800;color:rgba(15,30,46,.35);text-transform:uppercase}.macro-val{font-size:15px;font-weight:800;color:#1A1A1A;margin-top:1px}.macro-target{font-size:10px;color:rgba(15,30,46,.3);margin-top:1px}
+.slot{background:#fff;border:1px solid rgba(15,30,46,.08);border-radius:18px;padding:12px 14px;margin-bottom:8px}
 .slot-header{display:flex;justify-content:space-between;align-items:center}.slot-left{display:flex;align-items:center;gap:8px}
 .slot-name{font-size:14px;font-weight:700;color:#1A1A1A}.slot-time{font-size:11px;color:rgba(15,30,46,.42)}
 .slot-add{width:32px;height:32px;border-radius:99px;background:rgba(198,160,91,.12);border:1px solid rgba(198,160,91,.22);display:flex;align-items:center;justify-content:center;font-size:18px;color:#C6A05B;font-weight:700;cursor:pointer}
-.log-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid rgba(15,30,46,.10)}
-.log-name{font-size:13px;font-weight:600;color:#1A1A1A}.log-detail{font-size:11px;color:#6B7280}.log-kcal{font-size:12px;font-weight:700;color:#6B7280}
+.log-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid rgba(15,30,46,.06)}
+.log-name{font-size:13px;font-weight:700;color:#1A1A1A}.log-detail{font-size:11px;color:rgba(15,30,46,.42);margin-top:1px}.log-kcal{font-size:12px;font-weight:700;color:#1A1A1A}
 .chip-hp{display:inline-block;font-size:9px;font-weight:800;background:rgba(232,134,58,.12);color:#E8863A;padding:2px 7px;border-radius:99px;margin-left:6px}
-.eq-card{background:#fff;border:1px solid rgba(198,160,91,.22);border-radius:20px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 24px rgba(0,0,0,.06);cursor:pointer}
+.eq-card{background:#fff;border:1px solid rgba(198,160,91,.18);border-radius:18px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 12px rgba(0,0,0,.04);cursor:pointer}
 .eq-body{flex:1}.eq-name{font-size:14px;font-weight:700;color:#1A1A1A}.eq-progress{font-size:12px;color:#6B7280;margin-top:2px}
 .eq-bar{height:6px;background:rgba(15,30,46,.06);border-radius:99px;margin-top:6px;overflow:hidden}
 .eq-bar-fill{height:100%;border-radius:99px;transition:width .6s}
 .eq-add-btn{width:30px;height:30px;border-radius:99px;background:rgba(198,160,91,.12);border:1px solid rgba(198,160,91,.22);display:flex;align-items:center;justify-content:center;font-size:16px;color:#C6A05B;cursor:pointer}
-.advice-item{background:#fff;border:1px solid rgba(198,160,91,.22);border-radius:20px;padding:14px;margin-bottom:10px;cursor:pointer;box-shadow:0 4px 24px rgba(0,0,0,.06)}
+.advice-item{background:#fff;border:1px solid rgba(198,160,91,.18);border-radius:18px;padding:14px;margin-bottom:8px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.04)}
 .advice-title{font-size:14px;font-weight:700;color:#1A1A1A}.advice-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 8px;border-radius:99px}
 .badge-pri{background:rgba(255,59,48,.1);color:#E5342D}.badge-sec{background:rgba(59,130,246,.1);color:#3B82F6}
@@ -284,7 +340,7 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:#0E1E2E}
 .live-main{font-size:13px;font-weight:600;color:#1A1A1A}.live-sub{font-size:11px;color:#6B7280;margin-top:2px}
 .btn-primary{width:100%;padding:14px;border-radius:14px;background:#C6A05B;color:#fff;font-size:15px;font-weight:800;border:none;cursor:pointer;font-family:inherit}
 .btn-text{background:none;border:none;color:#C6A05B;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:10px;display:block;text-align:center;width:100%}
-.snackbar{position:absolute;bottom:100px;left:50%;transform:translateX(-50%);background:#0E1E2E;color:#fff;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:700;z-index:300;animation:fadeUp .3s ease-out;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.snackbar{position:absolute;bottom:100px;left:50%;transform:translateX(-50%);background:#0E1E2E;color:#C6A05B;padding:10px 22px;border-radius:99px;font-size:13px;font-weight:700;z-index:300;animation:fadeUp .3s ease-out;box-shadow:0 4px 24px rgba(0,0,0,.25);white-space:nowrap}
 @keyframes fadeUp{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 .eq-cat-header{font-size:11px;font-weight:800;color:#6B7280;text-transform:uppercase;letter-spacing:.5px;margin:12px 0 6px;padding-left:4px}
 .profile-card{background:linear-gradient(135deg,#0E1E2E,#1A2E40);border-radius:20px;padding:18px;color:#fff;margin-bottom:14px}
@@ -316,6 +372,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp}){
   const [portion,setPortion]=useState(1);
   const [showStepper,setShowStepper]=useState(false);
   const [showHpEdu,setShowHpEdu]=useState(false);
+  const [showNote,setShowNote]=useState(false);
   const [search,setSearch]=useState("");
 
   const allowed=SLOT_ALLOWED[slotId]||[];
@@ -375,8 +432,12 @@ function AddModal({slotId,onClose,onLog,everLoggedHp}){
     return(
     <div className="overlay" onClick={onClose}><div className="modal" onClick={e=>e.stopPropagation()}>
       <div className="modal-handle"/>
-      <button className="hdr-back" onClick={()=>{setSelEq(null);setShowStepper(false)}} style={{marginBottom:8,padding:0}}>← Retour</button>
-      <div className="modal-title">{selEq.icon} {selEq.label}{curHp&&<span className="chip-hp" style={{marginLeft:8}}>Hors plan</span>}</div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+        <button className="hdr-back" onClick={()=>{setSelEq(null);setShowStepper(false);setShowNote(false)}} style={{padding:0}}>← Retour</button>
+        {selEq.noteElevia&&<button onClick={()=>setShowNote(n=>!n)} style={{background:showNote?"rgba(198,160,91,.12)":"none",border:showNote?"1px solid rgba(198,160,91,.3)":"1px solid transparent",borderRadius:99,padding:"4px 8px",cursor:"pointer",display:"flex",alignItems:"center",gap:4,transition:"all .2s"}}><IcInfoEq size={14} color={showNote?"#C6A05B":"rgba(198,160,91,.55)"}/></button>}
+      </div>
+      {showNote&&selEq.noteElevia&&<div style={{marginBottom:12,padding:10,background:"rgba(198,160,91,.08)",border:"1px solid rgba(198,160,91,.18)",borderRadius:14,fontSize:12,color:"#1A1A1A",lineHeight:1.6,animation:"fadeUp .2s ease-out"}}>{selEq.noteElevia}</div>}
+      <div className="modal-title" style={{display:"flex",alignItems:"center",gap:8}}><EqIcon eqId={selEq.eqId} size={20}/> {selEq.label}{curHp&&<span className="chip-hp" style={{marginLeft:8}}>Hors plan</span>}</div>
       {isInPlan(selEq.eqId)&&<div className="modal-sub">Cible sem. : {PLAN_TARGETS[selEq.eqId]} · Consommé : {WEEK_CONSUMED[selEq.eqId]||0}</div>}
 
       {mode==="PORTION_TAP"&&<>
@@ -401,7 +462,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp}){
             {selEq.items.map(item=>(
               <div key={item.itemId} className={`item-row ${selItem?.itemId===item.itemId?"selected":""}`}
                 onClick={()=>{setSelItem(item);setUnits(item.stepper?.defaultUnits||1)}}>
-                {item.isRecommended&&<span style={{fontSize:12,color:"#C6A05B"}}>⭐</span>}
+                {item.isRecommended&&<IcStar size={13} color="#C6A05B"/>}
                 <span className="item-label">{item.foodLabel}</span>
                 <span className="item-detail">{item.stepper?`${item.stepper.defaultUnits} ${item.stepper.usualUnitPl}`:""}</span>
               </div>
@@ -418,7 +479,6 @@ function AddModal({slotId,onClose,onLog,everLoggedHp}){
           <button className="btn-primary" onClick={()=>doLog(selEq,selItem,units,liveCalc?.portion||1,curHp)}>Valider</button>
         </>}
       </>}
-      {selEq.noteElevia&&<div style={{marginTop:12,padding:10,background:"rgba(198,160,91,.12)",borderRadius:12,fontSize:12,color:"#1A1A1A",lineHeight:1.5}}>ℹ️ {selEq.noteElevia}</div>}
     </div></div>);
   }
 
@@ -433,7 +493,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp}){
     {tab==="plan"&&planEqs.map(eq=>{
       const c=WEEK_CONSUMED[eq.eqId]||0,t=PLAN_TARGETS[eq.eqId]||0;
       return <div key={eq.eqId} className="eq-card" onClick={()=>pickEq(eq,false)}>
-        <span style={{fontSize:24}}>{eq.icon}</span><div className="eq-body"><div className="eq-name">{eq.label}</div><div className="eq-progress">{c}/{t} sem.</div></div><span style={{fontSize:18,color:"#C6A05B"}}>+</span>
+        <span style={{width:30,display:"flex",alignItems:"center",justifyContent:"center"}}><EqIcon eqId={eq.eqId} size={20}/></span><div className="eq-body"><div className="eq-name">{eq.label}</div><div className="eq-progress">{c}/{t} sem.</div></div><span style={{fontSize:18,color:"#C6A05B"}}>+</span>
       </div>
     })}
     {tab==="hors_plan"&&<>
@@ -441,7 +501,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp}){
       {Object.entries(hpGroups).map(([type,eqs])=><div key={type}>
         <div className="eq-cat-header">{TYPE_LABELS[type]||type}</div>
         {eqs.map(eq=><div key={eq.eqId} className="eq-card" onClick={()=>pickEq(eq,true)}>
-          <span style={{fontSize:24}}>{eq.icon}</span><div className="eq-body"><div className="eq-name">{eq.label}{isInPlan(eq.eqId)&&<span style={{fontSize:10,color:"#6B7280",marginLeft:4}}>(plan, autre slot)</span>}</div><div className="eq-progress" style={{fontSize:11}}>{eq.nutrientsPerPortion.kcal} kcal/portion</div></div><span style={{fontSize:18,color:"#E8863A"}}>+</span>
+          <span style={{width:30,display:"flex",alignItems:"center",justifyContent:"center"}}><EqIcon eqId={eq.eqId} size={20}/></span><div className="eq-body"><div className="eq-name">{eq.label}{isInPlan(eq.eqId)&&<span style={{fontSize:10,color:"#6B7280",marginLeft:4}}>(plan, autre slot)</span>}</div><div className="eq-progress" style={{fontSize:11}}>{eq.nutrientsPerPortion.kcal} kcal/portion</div></div><span style={{fontSize:18,color:"#E8863A"}}>+</span>
         </div>)}
       </div>)}
     </>}
@@ -455,23 +515,32 @@ function PlanTab({logs,onAddLog}){
   const [snack,setSnack]=useState(null);
   const hasHp=logs.some(l=>l.isOutOfPlan);
   const dayNut=useMemo(()=>{const n={kcal:0,p:0,l:0,g:0};logs.forEach(l=>{n.kcal+=l.kcal;n.p+=l.p;n.l+=l.l;n.g+=l.g});return n},[logs]);
-  function handleLog(log){onAddLog(log);setSnack(`${getItemLabel(log.eqId,log.itemId)} ajouté ✓${log.isOutOfPlan?" (hors plan)":""}`);setTimeout(()=>setSnack(null),2500)}
+  function handleLog(log){onAddLog(log);setSnack(`✓ ${getLogLabel(log.eqId,log.itemId)} ajouté`);setTimeout(()=>setSnack(null),2500)}
 
   return <div className="page">
     <div className="flex-between"><div className="page-title">Plan</div><div className="page-meta">Semaine 8 · Jour 52</div></div>
     <div className="seg"><button className={`seg-btn ${view==="day"?"active":""}`} onClick={()=>setView("day")}>Jour</button><button className={`seg-btn ${view==="week"?"active":""}`} onClick={()=>setView("week")}>Semaine</button></div>
     {view==="day"?<>
-      <div className="card">
-        <div className="flex-between"><span className="card-title">Bilan du jour</span><span style={{fontSize:20,fontWeight:800,color:"#1A1A1A"}}>{Math.round(dayNut.kcal)}<span style={{fontSize:12,color:"#6B7280"}}> / {DAY_TARGETS.kcal}</span></span></div>
-        <div className="mt8"><PBar value={dayNut.kcal} max={DAY_TARGETS.kcal}/></div>
+      <div className="card" style={{padding:16}}>
+        <div style={{display:"flex",alignItems:"center",gap:14}}>
+          <div style={{position:"relative",width:64,height:64,flexShrink:0}}>
+            <svg width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="none" stroke="rgba(15,30,46,.06)" strokeWidth="5"/><circle cx="32" cy="32" r="28" fill="none" stroke={dayNut.kcal/DAY_TARGETS.kcal>1.15?"#E8863A":dayNut.kcal/DAY_TARGETS.kcal>=0.95?"#34C759":"#C6A05B"} strokeWidth="5" strokeLinecap="round" strokeDasharray={`${Math.min(dayNut.kcal/DAY_TARGETS.kcal,1)*176} 176`} transform="rotate(-90 32 32)"/></svg>
+            <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:800,color:"#1A1A1A"}}>{Math.round(dayNut.kcal/DAY_TARGETS.kcal*100)}%</div>
+          </div>
+          <div style={{flex:1}}>
+            <div style={{fontSize:11,fontWeight:700,color:"#6B7280",textTransform:"uppercase",letterSpacing:".3px"}}>Bilan du jour</div>
+            <div style={{fontSize:22,fontWeight:800,color:"#1A1A1A",marginTop:2}}>{Math.round(dayNut.kcal)} <span style={{fontSize:13,fontWeight:600,color:"#6B7280"}}>/ {DAY_TARGETS.kcal} kcal</span></div>
+          </div>
+        </div>
         <div className="macros"><MPill letter="P" value={dayNut.p} target={DAY_TARGETS.p}/><MPill letter="L" value={dayNut.l} target={DAY_TARGETS.l}/><MPill letter="G" value={dayNut.g} target={DAY_TARGETS.g}/></div>
-        <div className="day-hint">Repère indicatif — l'équilibre se fait surtout sur la semaine.</div>
+        <div className="day-hint">Repère indicatif — l'équilibre se fait sur la semaine.</div>
       </div>
       {SLOTS.map(slot=>{
         const sl=logs.filter(l=>l.slotId===slot.id);const sk=sl.reduce((s,l)=>s+l.kcal,0);
-        return <div className="slot" key={slot.id}>
-          <div className="slot-header"><div className="slot-left"><span style={{fontSize:20}}>{slot.icon}</span><div><div className="slot-name">{slot.label}</div><div className="slot-time">{slot.time}{sl.length>0&&` · ${Math.round(sk)} kcal`}</div></div></div><button className="slot-add" onClick={()=>setAddSlot(slot.id)}>+</button></div>
-          {sl.length>0&&<div style={{marginTop:8}}>{sl.map(l=><div className="log-item" key={l.id}><div><span className="log-name">{getItemLabel(l.eqId,l.itemId)}</span>{l.isOutOfPlan&&<span className="chip-hp">Hors plan</span>}<div className="log-detail">{l.qtyPortion!==1?`${l.qtyPortion} port · `:""}P{l.p} L{l.l} G{l.g}</div></div><span className="log-kcal">{l.kcal} kcal</span></div>)}</div>}
+        const mockTimes={breakfast:"7h42",snack1:"10h15",coldMeal:"12h38",snack2:"16h05",hotMeal:"19h47"};
+        return <div className="slot" key={slot.id} style={sl.length>0?{borderColor:"rgba(198,160,91,.15)"}:{}}>
+          <div className="slot-header"><div className="slot-left"><div><div className="slot-name">{slot.label}</div><div className="slot-time">{sl.length>0?<><span style={{color:"rgba(15,30,46,.35)"}}>Dernier ajout {mockTimes[slot.id]}</span><span style={{color:"#C6A05B",fontWeight:600}}> · {Math.round(sk)} kcal</span></>:slot.time}</div></div></div><button className="slot-add" onClick={()=>setAddSlot(slot.id)}>+</button></div>
+          {sl.length>0&&<div style={{marginTop:6}}>{sl.map(l=><div className="log-item" key={l.id}><div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:0}}><span style={{width:22,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><EqIcon eqId={l.eqId} size={17}/></span><span className="log-name">{getLogLabel(l.eqId,l.itemId)}</span>{l.isOutOfPlan&&<span className="chip-hp">HP</span>}</div><div style={{textAlign:"right",flexShrink:0,paddingLeft:8,display:"flex",alignItems:"baseline",gap:6}}><span style={{fontSize:12,fontWeight:700,color:"#1A1A1A"}}>{l.kcal}</span><span style={{fontSize:10,color:l.qtyPortion===1?"rgba(198,160,91,.7)":"#E8863A",fontWeight:600,minWidth:38}}>{l.qtyPortion===1?"1 port.":l.qtyPortion+" port."}</span></div></div>)}</div>}
         </div>
       })}
     </>:<WeekView logs={logs} onAdd={setAddSlot}/>}
@@ -505,12 +574,41 @@ function WeekView({logs,onAdd}){
       const done=pct>=100,over=pct>130,late=pct<60&&eq.eqImportance==="key";
       const col=done?(over?"#E8863A":"#34C759"):"#C6A05B";
       return <div className="eq-card" key={eq.eqId}>
-        <span style={{fontSize:24,width:36,textAlign:"center"}}>{eq.icon}</span>
+        <span style={{width:36,display:"flex",alignItems:"center",justifyContent:"center"}}><EqIcon eqId={eq.eqId} size={22}/></span>
         <div className="eq-body"><div className="eq-name">{eq.label}</div><div className="eq-progress">{c}/{t} sem.{done&&!over&&" ✓"}{over&&" — au-dessus"}{late&&" ⚠️ en retard"}</div><div className="eq-bar"><div className="eq-bar-fill" style={{width:`${Math.min(pct,100)}%`,background:col}}/></div></div>
         {done?<span style={{fontSize:18,color:"#34C759"}}>✓</span>:<button className="eq-add-btn" onClick={()=>onAdd("hotMeal")}>+</button>}
       </div>
     })}
   </>
+}
+
+/* ═══ ADVICE DETAIL MODAL ═══ */
+function AdviceDetail({adv,onClose,status}){
+  const [expanded,setExpanded]=useState(false);
+  return <div className="overlay" onClick={onClose}><div className="modal" onClick={e=>e.stopPropagation()} style={{maxHeight:"85%",display:"flex",flexDirection:"column"}}>
+    <div className="modal-handle"/>
+    <div style={{overflowY:"auto",flex:1,paddingBottom:8}}>
+      <div className="modal-title">{adv.title}</div>
+      <div className="advice-badges" style={{marginBottom:14}}><span className={`badge ${adv.axis==="priority"?"badge-pri":"badge-sec"}`}>{adv.axis==="priority"?"Prioritaire":"Secondaire"}</span><span className="badge badge-st">{status||adv.module}</span></div>
+
+      <div style={{fontSize:13,color:"#1A1A1A",lineHeight:1.6,marginBottom:14}}>{adv.shortBody}</div>
+
+      <div style={{fontSize:13,fontWeight:700,color:"#1A1A1A",marginBottom:6}}>Objectif</div>
+      <div style={{fontSize:13,color:"#1A1A1A",lineHeight:1.6,marginBottom:12}}>{adv.summaryObjective}</div>
+      <div style={{fontSize:13,fontWeight:700,color:"#1A1A1A",marginBottom:6}}>Plan d'action</div>
+      {adv.summaryBullets.map((b,i)=><div key={i} style={{fontSize:13,color:"#1A1A1A",lineHeight:1.6,paddingLeft:12,marginBottom:3}}>• {b}</div>)}
+      {adv.summaryTip&&<div style={{marginTop:10,padding:10,background:"rgba(198,160,91,.08)",border:"1px solid rgba(198,160,91,.18)",borderRadius:14,fontSize:12,lineHeight:1.5,color:"#1A1A1A",display:"flex",gap:8,alignItems:"flex-start"}}><span style={{flexShrink:0,marginTop:1}}><IcBulb size={14} color="#C6A05B"/></span><span>{adv.summaryTip}</span></div>}
+
+      {adv.body&&<>
+        <button onClick={()=>setExpanded(e=>!e)} style={{display:"flex",alignItems:"center",gap:6,marginTop:14,background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",padding:0}}>
+          <span style={{fontSize:12,fontWeight:700,color:"#C6A05B"}}>{expanded?"Réduire":"Comprendre en détail"}</span>
+          <span style={{fontSize:14,color:"#C6A05B",transform:expanded?"rotate(180deg)":"rotate(0)",transition:"transform .2s",display:"inline-block"}}>▾</span>
+        </button>
+        {expanded&&<div style={{marginTop:10,padding:14,background:"linear-gradient(135deg,rgba(14,30,46,.03),rgba(198,160,91,.05))",border:"1px solid rgba(198,160,91,.15)",borderRadius:16,fontSize:13,color:"#1A1A1A",lineHeight:1.7,animation:"fadeUp .2s ease-out"}}>{adv.body}</div>}
+      </>}
+    </div>
+    <button className="btn-primary" style={{marginTop:8,flexShrink:0}} onClick={onClose}>Fermer</button>
+  </div></div>
 }
 
 /* ═══ TAB: CONSEILS ═══ */
@@ -524,14 +622,23 @@ function AdviceTab(){
   const byStatus={"À renforcer":[],"En progrès":[],"Solide":[],"Nouveau":[]};
   ADVICES.forEach(a=>{const s=statuses[a.id]||"Nouveau";if(byStatus[s])byStatus[s].push(a)});
 
-  function AdvItem({a}){return(
+  function AdvItem({a}){
+    const isRead=readSet.has(a.id);
+    return(
     <div className="advice-item" onClick={()=>{setSelAdv(a);setReadSet(s=>new Set([...s,a.id]))}}>
-      <div className="advice-title">{a.axis==="priority"?"🔴":"🔵"} {a.title}</div>
-      <div className="advice-badges">
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8}}>
+        <div style={{flex:1,minWidth:0}}>
+          <div className="advice-title">{a.title}</div>
+          <div style={{fontSize:12,color:"#6B7280",lineHeight:1.5,marginTop:4}}>{a.shortBody}</div>
+        </div>
+        <button onClick={e=>{e.stopPropagation();setReadSet(s=>{const n=new Set(s);if(n.has(a.id))n.delete(a.id);else n.add(a.id);return n})}} style={{flexShrink:0,display:"flex",alignItems:"center",gap:4,background:isRead?"rgba(52,199,89,.08)":"rgba(198,160,91,.1)",border:`1px solid ${isRead?"rgba(52,199,89,.25)":"rgba(198,160,91,.25)"}`,borderRadius:99,padding:"4px 10px",cursor:"pointer",transition:"all .2s"}}>
+          {isRead&&<IcCheck size={10} color="#34C759"/>}
+          <span style={{fontSize:10,fontWeight:700,color:isRead?"#34C759":"#C6A05B"}}>{isRead?"Lu":"Non lu"}</span>
+        </button>
+      </div>
+      <div className="advice-badges" style={{marginTop:8}}>
         <span className={`badge ${a.axis==="priority"?"badge-pri":"badge-sec"}`}>{a.axis==="priority"?"Prioritaire":"Secondaire"}</span>
         <span className="badge badge-st">{statuses[a.id]||"Nouveau"}</span>
-        {a.linkedAlertTypes?.length>0&&<span className="badge badge-al">⚡ Alerte</span>}
-        {!readSet.has(a.id)?<span className="badge badge-unread">Non lu</span>:<span className="badge badge-read">Lu ✓</span>}
       </div>
     </div>
   )}
@@ -539,7 +646,7 @@ function AdviceTab(){
   return <div className="page">
     <div className="page-title">Conseils</div><div className="page-meta">Semaine 8</div>
     <div className="seg"><button className={`seg-btn ${view==="focus"?"active":""}`} onClick={()=>setView("focus")}>Focus</button><button className={`seg-btn ${view==="biblio"?"active":""}`} onClick={()=>setView("biblio")}>Bibliothèque</button></div>
-    <div className="tip-banner"><div className="flex-between"><span style={{fontSize:16}}>💡</span><button onClick={()=>setTipIdx(i=>(i+1)%MICRO_TIPS.length)} style={{background:"none",border:"none",fontSize:11,color:"#C6A05B",fontWeight:700,cursor:"pointer"}}>Suivant →</button></div><div className="tip-text">{MICRO_TIPS[tipIdx].textFr}</div></div>
+    <div className="tip-banner"><div className="flex-between"><span style={{display:"flex"}}><IcBulb size={18} color="#C6A05B"/></span><button onClick={()=>setTipIdx(i=>(i+1)%MICRO_TIPS.length)} style={{background:"none",border:"none",fontSize:11,color:"#C6A05B",fontWeight:700,cursor:"pointer"}}>Suivant →</button></div><div className="tip-text">{MICRO_TIPS[tipIdx].textFr}</div></div>
     {view==="focus"?<>
       <div className="section-label">Axes prioritaires</div>{pri.map(a=><AdvItem key={a.id} a={a}/>)}
       <div className="section-label">Axes secondaires</div>{sec.map(a=><AdvItem key={a.id} a={a}/>)}
@@ -547,20 +654,10 @@ function AdviceTab(){
     </>:<>
       <input className="search" placeholder="Rechercher un conseil…"/>
       {Object.entries(byStatus).map(([st,advs])=>advs.length>0&&<div key={st}><div className="section-label">{st}</div>{advs.map(a=><AdvItem key={a.id} a={a}/>)}</div>)}
-      <div className="section-label">💡 Astuces Élevia</div>
-      {MICRO_TIPS.slice(0,4).map((t,i)=><div key={i} className="tip-banner" style={{marginBottom:8}}><span style={{fontSize:16}}>💡</span><div className="tip-text">{t.textFr}</div></div>)}
+      <div className="section-label">Astuces Élevia</div>
+      {MICRO_TIPS.slice(0,4).map((t,i)=><div key={i} className="tip-banner" style={{marginBottom:8}}><span style={{display:"flex"}}><IcBulb size={18} color="#C6A05B"/></span><div className="tip-text">{t.textFr}</div></div>)}
     </>}
-    {selAdv&&<div className="overlay" onClick={()=>setSelAdv(null)}><div className="modal" onClick={e=>e.stopPropagation()}>
-      <div className="modal-handle"/>
-      <div className="modal-title">{selAdv.axis==="priority"?"🔴":"🔵"} {selAdv.title}</div>
-      <div className="advice-badges" style={{marginBottom:12}}><span className={`badge ${selAdv.axis==="priority"?"badge-pri":"badge-sec"}`}>{selAdv.axis==="priority"?"Prioritaire":"Secondaire"}</span><span className="badge badge-st">{selAdv.module}</span></div>
-      <div style={{fontSize:14,fontWeight:700,color:"#1A1A1A",marginBottom:8}}>Objectif</div>
-      <div style={{fontSize:13,color:"#1A1A1A",lineHeight:1.6,marginBottom:12}}>{selAdv.summaryObjective}</div>
-      <div style={{fontSize:14,fontWeight:700,color:"#1A1A1A",marginBottom:8}}>Plan d'action</div>
-      {selAdv.summaryBullets.map((b,i)=><div key={i} style={{fontSize:13,color:"#1A1A1A",lineHeight:1.6,paddingLeft:12,marginBottom:4}}>• {b}</div>)}
-      {selAdv.summaryTip&&<div style={{marginTop:12,padding:10,background:"rgba(198,160,91,.12)",borderRadius:12,fontSize:12,lineHeight:1.5}}>💡 {selAdv.summaryTip}</div>}
-      <button className="btn-primary" style={{marginTop:16}} onClick={()=>setSelAdv(null)}>Fermer</button>
-    </div></div>}
+    {selAdv&&<AdviceDetail adv={selAdv} onClose={()=>setSelAdv(null)} status={statuses[selAdv.id]}/>}
     {evalOpen&&<div className="overlay" onClick={()=>setEvalOpen(false)}><div className="modal" onClick={e=>e.stopPropagation()}>
       <div className="modal-handle"/><div className="modal-title">Évaluation semaine 8</div><div className="modal-sub">Comment s'est passée ta semaine ?</div>
       {[...pri,...sec].map(a=><div key={a.id} style={{marginBottom:12}}>
@@ -593,7 +690,7 @@ function HistoryTab({logs}){
     })}</div>
     <div className="section-label">Ajouts récents</div>
     {logs.slice().reverse().slice(0,8).map(l=><div className="card" key={l.id} style={{padding:12}}>
-      <div className="flex-between"><span style={{fontSize:13,fontWeight:700,color:"#1A1A1A"}}>{getItemLabel(l.eqId,l.itemId)}{l.isOutOfPlan&&<span className="chip-hp">HP</span>}</span><span style={{fontSize:12,fontWeight:700,color:"#6B7280"}}>{l.kcal} kcal</span></div>
+      <div className="flex-between"><span style={{fontSize:13,fontWeight:700,color:"#1A1A1A"}}>{getLogLabel(l.eqId,l.itemId)}{l.isOutOfPlan&&<span className="chip-hp">HP</span>}</span><span style={{fontSize:12,fontWeight:700,color:"#6B7280"}}>{l.kcal} kcal</span></div>
       <div style={{fontSize:11,color:"#6B7280",marginTop:3}}>{SLOTS.find(s=>s.id===l.slotId)?.label} · P{l.p} L{l.l} G{l.g}</div>
     </div>)}
   </div>
@@ -810,7 +907,8 @@ export default function EleviaApp(){
   const [tab,setTab]=useState("plan");
   const [logs,setLogs]=useState(INITIAL_LOGS);
   const addLog=useCallback(l=>setLogs(prev=>[...prev,l]),[]);
-  const tabs=[{id:"plan",label:"Plan",icon:"📅"},{id:"advice",label:"Conseils",icon:"💡"},{id:"history",label:"Historique",icon:"📊"},{id:"profile",label:"Profil",icon:"👤"}];
+  const tabIcons={plan:IcCalendar,advice:IcBulb,history:IcHistory,profile:IcProfile};
+  const tabs=[{id:"plan",label:"Plan"},{id:"advice",label:"Conseils"},{id:"history",label:"Historique"},{id:"profile",label:"Profil"}];
 
   return <>
     <style>{css}</style>
@@ -818,14 +916,14 @@ export default function EleviaApp(){
       <div className="phone">
         <div className="notch"/>
         <div className="sbar"><span className="sbar-t">9:41</span><div className="sbar-i"><span>●●●●○</span><span>WiFi</span><span>🔋</span></div></div>
-        <div className="hdr"><div/><div className="hdr-logo">ÉLEVIA</div></div>
+        <div className="hdr"><IcLogo height={15}/></div>
         <div className="content">
           {tab==="plan"&&<PlanTab logs={logs} onAddLog={addLog}/>}
           {tab==="advice"&&<AdviceTab/>}
           {tab==="history"&&<HistoryTab logs={logs}/>}
           {tab==="profile"&&<ProfileTab/>}
         </div>
-        <div className="tbar">{tabs.map(t=><button key={t.id} className={`tbar-item ${tab===t.id?"active":""}`} onClick={()=>setTab(t.id)}><span className="tbar-ic">{t.icon}</span><span className="tbar-lb">{t.label}</span></button>)}</div>
+        <div className="tbar">{tabs.map(t=>{const Ic=tabIcons[t.id];const active=tab===t.id;return <button key={t.id} className={`tbar-item ${active?"active":""}`} onClick={()=>setTab(t.id)}><span className="tbar-ic"><Ic size={20} color={active?"#C6A05B":"rgba(255,255,255,.45)"}/></span><span className="tbar-lb">{t.label}</span></button>})}</div>
       </div>
     </div>
   </>
