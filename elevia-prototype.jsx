@@ -263,16 +263,14 @@ function EqIcon({eqId,size=18,color="#C6A05B"}){const Ic=EQ_ICONS[eqId];if(Ic)re
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans',-apple-system,sans-serif;background:#0E1E2E}
-.phone{width:393px;height:852px;margin:0 auto;background:#F7F7F7;overflow:hidden;display:flex;flex-direction:column;border-radius:40px;border:6px solid #1a1a1a;position:relative;box-shadow:0 20px 80px rgba(0,0,0,.45)}
-.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:34px;background:#1a1a1a;border-radius:0 0 20px 20px;z-index:100}
-.sbar{height:54px;background:#0E1E2E;padding:0 24px;display:flex;align-items:flex-end;justify-content:space-between;padding-bottom:6px;flex-shrink:0}
-.sbar-t{color:#fff;font-size:15px;font-weight:700}.sbar-i{color:#fff;font-size:12px;font-weight:600;display:flex;gap:6px;align-items:center}
-.hdr{background:#0E1E2E;padding:4px 20px 8px;border-bottom:1px solid rgba(198,160,91,.55);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+html{height:100%;-webkit-text-size-adjust:100%}
+body{font-family:'DM Sans',-apple-system,sans-serif;background:#F7F7F7;overflow:hidden}
+.app-shell{width:100%;max-width:430px;height:100dvh;height:100vh;margin:0 auto;background:#F7F7F7;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.hdr{background:#0E1E2E;padding:env(safe-area-inset-top,12px) 20px 8px;border-bottom:1px solid rgba(198,160,91,.55);display:flex;align-items:center;justify-content:center;flex-shrink:0;min-height:44px}
 .hdr-logo{font-size:20px;font-weight:800;letter-spacing:2px;color:#C6A05B;font-style:italic}
 .hdr-back{background:none;border:none;color:#C6A05B;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
 .content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}.content::-webkit-scrollbar{display:none}
-.tbar{flex-shrink:0;background:#0E1E2E;border-top:1px solid rgba(198,160,91,.55);display:flex;height:82px;padding-top:8px}
+.tbar{flex-shrink:0;background:#0E1E2E;border-top:1px solid rgba(198,160,91,.55);display:flex;height:auto;padding:8px 0 env(safe-area-inset-bottom,8px)}
 .tbar-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding-top:6px;cursor:pointer;background:none;border:none;font-family:inherit}
 .tbar-ic{font-size:22px;line-height:1}.tbar-lb{font-size:11px;font-weight:700}
 .tbar-item.active .tbar-lb{color:#C6A05B}.tbar-item:not(.active) .tbar-lb{color:rgba(255,255,255,.55)}.tbar-item:not(.active) .tbar-ic{opacity:.55}
@@ -662,7 +660,7 @@ function AdviceTab(){
       <div className="modal-handle"/><div className="modal-title">Évaluation semaine 8</div><div className="modal-sub">Comment s'est passée ta semaine ?</div>
       {[...pri,...sec].map(a=><div key={a.id} style={{marginBottom:12}}>
         <div style={{fontSize:13,fontWeight:700,color:"#1A1A1A",marginBottom:6}}>{a.title}</div>
-        <div style={{display:"flex",gap:6}}>{[{v:2,l:"OK ✅"},{v:1,l:"Progrès ⚡"},{v:0,l:"Non ❌"}].map(o=><button key={o.v} onClick={()=>setEvalScores(s=>({...s,[a.id]:o.v}))} style={{flex:1,padding:"8px 4px",borderRadius:10,fontSize:11,fontWeight:700,background:evalScores[a.id]===o.v?"rgba(198,160,91,.12)":"#F7F7F7",border:`1px solid ${evalScores[a.id]===o.v?"#C6A05B":"rgba(15,30,46,.10)"}`,color:evalScores[a.id]===o.v?"#C6A05B":"#1A1A1A",cursor:"pointer",fontFamily:"inherit"}}>{o.l}</button>)}</div>
+        <div style={{display:"flex",gap:6}}>{[{v:2,l:"Solide",c:"#34C759"},{v:1,l:"En progrès",c:"#C6A05B"},{v:0,l:"Pas encore",c:"#E5342D"}].map(o=>{const sel=evalScores[a.id]===o.v;return <button key={o.v} onClick={()=>setEvalScores(s=>({...s,[a.id]:o.v}))} style={{flex:1,padding:"8px 4px",borderRadius:10,fontSize:11,fontWeight:700,background:sel?`${o.c}10`:"#F7F7F7",border:`1px solid ${sel?`${o.c}40`:"rgba(15,30,46,.10)"}`,color:sel?o.c:"#6B7280",cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:5}}><span style={{width:6,height:6,borderRadius:3,background:o.c,flexShrink:0}}/>{o.l}</button>})}</div>
       </div>)}
       <button className="btn-primary" onClick={()=>setEvalOpen(false)}>Enregistrer</button>
     </div></div>}
@@ -675,7 +673,7 @@ function HistoryTab({logs}){
     <div className="page-title">Historique</div><div className="page-meta">Bilans & ajouts récents</div>
     <div className="card mt12">
       <div className="flex-between"><span className="card-title">Bilan S7 (10–16 fév)</span><div style={{width:48,height:48,borderRadius:99,background:"rgba(198,160,91,.12)",border:"2px solid #C6A05B",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:16,color:"#C6A05B"}}>72</div></div>
-      <div style={{fontSize:13,color:"#1A1A1A",marginTop:8,lineHeight:1.5}}><strong>Solide ✅</strong> — Bonne constance sur légumes et protéines.</div>
+      <div style={{fontSize:13,color:"#1A1A1A",marginTop:8,lineHeight:1.5}}><strong>Solide</strong> <span style={{display:"inline-block",width:8,height:8,borderRadius:4,background:"#C6A05B",verticalAlign:"middle",marginLeft:2}}/> — Bonne constance sur légumes et protéines.</div>
       <div style={{fontSize:12,color:"#6B7280",marginTop:4}}>À ajuster : Fruits en retard, lipides un peu hauts.</div>
       <div className="card-link">Voir le rapport complet →</div>
     </div>
@@ -739,14 +737,25 @@ function ProfileTab(){
       </div>
 
       {/* Metric chips */}
-      <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
-        {Object.entries(metrics).map(([k,v])=>(
-          <button key={k} onClick={()=>setMetric(k)} style={{
-            padding:"6px 12px",borderRadius:99,fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",border:"none",
-            background:metric===k?"#0E1E2E":"rgba(15,30,46,.06)",color:metric===k?"#C6A05B":"#6B7280",
-            transition:"all .2s"
-          }}>{v.label.split("(")[0].trim()}</button>
-        ))}
+      <div style={{display:"flex",flexDirection:"column",gap:6,alignItems:"center",marginBottom:12}}>
+        <div style={{display:"flex",gap:6,justifyContent:"center"}}>
+          {Object.entries(metrics).slice(0,3).map(([k,v])=>(
+            <button key={k} onClick={()=>setMetric(k)} style={{
+              padding:"6px 14px",borderRadius:99,fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",border:"none",
+              background:metric===k?"#0E1E2E":"rgba(15,30,46,.06)",color:metric===k?"#C6A05B":"#6B7280",
+              transition:"all .2s",whiteSpace:"nowrap"
+            }}>{v.label.split("(")[0].trim()}</button>
+          ))}
+        </div>
+        <div style={{display:"flex",gap:6,justifyContent:"center"}}>
+          {Object.entries(metrics).slice(3).map(([k,v])=>(
+            <button key={k} onClick={()=>setMetric(k)} style={{
+              padding:"6px 14px",borderRadius:99,fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",border:"none",
+              background:metric===k?"#0E1E2E":"rgba(15,30,46,.06)",color:metric===k?"#C6A05B":"#6B7280",
+              transition:"all .2s",whiteSpace:"nowrap"
+            }}>{v.label.split("(")[0].trim()}</button>
+          ))}
+        </div>
       </div>
 
       {/* Main chart card */}
@@ -912,19 +921,15 @@ export default function EleviaApp(){
 
   return <>
     <style>{css}</style>
-    <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:"32px 16px",background:"linear-gradient(180deg,#0A1620 0%,#0E1E2E 50%,#0A1620 100%)"}}>
-      <div className="phone">
-        <div className="notch"/>
-        <div className="sbar"><span className="sbar-t">9:41</span><div className="sbar-i"><span>●●●●○</span><span>WiFi</span><span>🔋</span></div></div>
-        <div className="hdr"><IcLogo height={15}/></div>
-        <div className="content">
-          {tab==="plan"&&<PlanTab logs={logs} onAddLog={addLog}/>}
-          {tab==="advice"&&<AdviceTab/>}
-          {tab==="history"&&<HistoryTab logs={logs}/>}
-          {tab==="profile"&&<ProfileTab/>}
-        </div>
-        <div className="tbar">{tabs.map(t=>{const Ic=tabIcons[t.id];const active=tab===t.id;return <button key={t.id} className={`tbar-item ${active?"active":""}`} onClick={()=>setTab(t.id)}><span className="tbar-ic"><Ic size={20} color={active?"#C6A05B":"rgba(255,255,255,.45)"}/></span><span className="tbar-lb">{t.label}</span></button>})}</div>
+    <div className="app-shell">
+      <div className="hdr"><IcLogo height={14}/></div>
+      <div className="content">
+        {tab==="plan"&&<PlanTab logs={logs} onAddLog={addLog}/>}
+        {tab==="advice"&&<AdviceTab/>}
+        {tab==="history"&&<HistoryTab logs={logs}/>}
+        {tab==="profile"&&<ProfileTab/>}
       </div>
+      <div className="tbar">{tabs.map(t=>{const Ic=tabIcons[t.id];const active=tab===t.id;return <button key={t.id} className={`tbar-item ${active?"active":""}`} onClick={()=>setTab(t.id)}><span className="tbar-ic"><Ic size={20} color={active?"#C6A05B":"rgba(255,255,255,.45)"}/></span><span className="tbar-lb">{t.label}</span></button>})}</div>
     </div>
   </>
 }
