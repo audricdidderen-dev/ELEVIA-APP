@@ -273,11 +273,11 @@ const css = `
 html{height:100%;-webkit-text-size-adjust:100%}
 body{font-family:'DM Sans',-apple-system,sans-serif;background:#F7F7F7;overflow:hidden}
 .app-shell{width:100%;max-width:430px;height:100dvh;height:100vh;margin:0 auto;background:#F7F7F7;display:flex;flex-direction:column;position:relative;overflow:hidden}
-.hdr{background:#0E1E2E;padding:env(safe-area-inset-top,12px) 20px 8px;border-bottom:1px solid rgba(198,160,91,.55);display:flex;align-items:center;justify-content:center;flex-shrink:0;min-height:44px}
+.hdr{background:#0E1E2E;padding:env(safe-area-inset-top,12px) 20px 10px;border-bottom:1px solid rgba(198,160,91,.45);display:flex;align-items:center;justify-content:center;flex-shrink:0;min-height:48px}
 .hdr-logo{font-size:20px;font-weight:800;letter-spacing:2px;color:#C6A05B;font-style:italic}
 .hdr-back{background:none;border:none;color:#C6A05B;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
-.content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}.content::-webkit-scrollbar{display:none}
-.tbar{flex-shrink:0;background:#0E1E2E;border-top:1px solid rgba(198,160,91,.55);display:flex;height:auto;padding:8px 0 env(safe-area-inset-bottom,8px)}
+.content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:88px}.content::-webkit-scrollbar{display:none}
+.tbar{position:absolute;bottom:0;left:12px;right:12px;margin-bottom:env(safe-area-inset-bottom,8px);background:rgba(14,30,46,.92);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border:1px solid rgba(198,160,91,.25);border-radius:22px;display:flex;height:auto;padding:10px 4px;box-shadow:0 8px 32px rgba(0,0,0,.25),0 2px 8px rgba(0,0,0,.15);z-index:50}
 .tbar-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding-top:6px;cursor:pointer;background:none;border:none;font-family:inherit}
 .tbar-ic{font-size:22px;line-height:1}.tbar-lb{font-size:11px;font-weight:700}
 .tbar-item.active .tbar-lb{color:#C6A05B}.tbar-item:not(.active) .tbar-lb{color:rgba(255,255,255,.55)}.tbar-item:not(.active) .tbar-ic{opacity:.55}
@@ -345,10 +345,23 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:#F7F7F7;overflow:
 .live-main{font-size:13px;font-weight:600;color:#1A1A1A}.live-sub{font-size:11px;color:#6B7280;margin-top:2px}
 .btn-primary{width:100%;padding:14px;border-radius:14px;background:#C6A05B;color:#fff;font-size:15px;font-weight:800;border:none;cursor:pointer;font-family:inherit}
 .btn-text{background:none;border:none;color:#C6A05B;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:10px;display:block;text-align:center;width:100%}
-.snackbar{position:absolute;bottom:100px;left:50%;transform:translateX(-50%);background:#0E1E2E;color:#C6A05B;padding:10px 22px;border-radius:99px;font-size:13px;font-weight:700;z-index:300;animation:fadeUp .3s ease-out;box-shadow:0 4px 24px rgba(0,0,0,.25);white-space:nowrap}
+.snackbar{position:absolute;bottom:110px;left:50%;transform:translateX(-50%);background:#0E1E2E;color:#C6A05B;padding:10px 22px;border-radius:99px;font-size:13px;font-weight:700;z-index:300;animation:fadeUp .3s ease-out;box-shadow:0 4px 24px rgba(0,0,0,.25);white-space:nowrap}
 @keyframes fadeUp{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 @keyframes splashLogo{from{opacity:0;transform:scale(.8) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
 @keyframes splashTag{from{opacity:0;transform:translateY(8px)}60%{opacity:0}to{opacity:1;transform:translateY(0)}}
+@keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.slot,.card,.advice-item,.eq-card,.alert-card,.tip-banner{animation:cardIn .35s ease-out both}
+.slot:nth-child(1),.card:nth-child(1){animation-delay:0s}
+.slot:nth-child(2),.card:nth-child(2){animation-delay:.04s}
+.slot:nth-child(3),.card:nth-child(3){animation-delay:.08s}
+.slot:nth-child(4),.card:nth-child(4){animation-delay:.12s}
+.slot:nth-child(5),.card:nth-child(5){animation-delay:.16s}
+.tbar-item{position:relative;transition:transform .15s ease}
+.tbar-item:active{transform:scale(.92)}
+.tbar-item.active::before{content:'';position:absolute;top:-2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:2px;background:#C6A05B}
+.btn-primary{transition:transform .15s ease,box-shadow .15s ease}.btn-primary:active{transform:scale(.97);box-shadow:0 2px 8px rgba(198,160,91,.3)}
+.slot-add{transition:transform .15s ease}.slot-add:active{transform:scale(.88)}
+.eq-add-btn{transition:transform .15s ease}.eq-add-btn:active{transform:scale(.88)}
 .eq-cat-header{font-size:11px;font-weight:800;color:#6B7280;text-transform:uppercase;letter-spacing:.5px;margin:12px 0 6px;padding-left:4px}
 .profile-card{background:linear-gradient(135deg,#0E1E2E,#1A2E40);border-radius:20px;padding:18px;color:#fff;margin-bottom:14px}
 .kpi-row{display:flex;gap:8px;margin-top:12px}
@@ -958,6 +971,7 @@ export default function EleviaApp(){
         {tab==="history"&&<HistoryTab logs={logs}/>}
         {tab==="profile"&&<ProfileTab/>}
       </div>
+      <div style={{position:"absolute",bottom:76,left:0,right:0,height:24,background:"linear-gradient(to bottom,transparent,#F7F7F7)",pointerEvents:"none",zIndex:10}}/>
       <div className="tbar">{tabs.map(t=>{const Ic=tabIcons[t.id];const active=tab===t.id;return <button key={t.id} className={`tbar-item ${active?"active":""}`} onClick={()=>setTab(t.id)}><span className="tbar-ic"><Ic size={20} color={active?"#C6A05B":"rgba(255,255,255,.45)"}/></span><span className="tbar-lb">{t.label}</span></button>})}</div>
     </div>
   </>
