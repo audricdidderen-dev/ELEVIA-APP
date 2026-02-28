@@ -4,7 +4,7 @@ import { getObjectiveConfig, getScoreLabel } from './objectiveConfig.js'
  * Transform Supabase rows into the exact shapes expected by elevia-prototype.jsx
  */
 
-export function transformPlanData({ profile, plan, equivalences, items, slots, slotMapping, targets, advices, microTips, measurements, bilans, refEqMaster, refEqItems, videoGuides, recipes, progression, capsules }) {
+export function transformPlanData({ profile, plan, equivalences, items, slots, slotMapping, targets, advices, microTips, refMicroTips, measurements, bilans, refEqMaster, refEqItems, videoGuides, recipes, progression, capsules }) {
 
   // --- CLIENT ---
   const CLIENT = {
@@ -133,12 +133,22 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
     linkedAlertTypes: a.linked_alert_types ? a.linked_alert_types.split(',').map(s => s.trim()).filter(Boolean) : [],
   }))
 
-  // --- MICRO_TIPS ---
-  const MICRO_TIPS = microTips.map(t => ({
-    tipId: t.tip_id,
-    category: t.category,
-    textFr: t.text_fr,
-  }))
+  // --- MICRO_TIPS (plan overrides > filtered ref) ---
+  const objectiveCode = plan.objective_style || 'PW'
+  const objectiveGoalGroup = objectiveCode.startsWith('GAIN_') ? 'GAIN' : objectiveCode
+  const hasOverrideTips = microTips && microTips.length > 0
+
+  const MICRO_TIPS = hasOverrideTips
+    ? microTips.map(t => ({ tipId: t.tip_id, category: t.category, textFr: t.text_fr }))
+    : (refMicroTips || [])
+        .filter(t => {
+          const goal = t.display_context || 'ALL'
+          if (goal !== 'ALL' && goal !== objectiveGoalGroup) return false
+          const diet = t.target_diet || 'ALL'
+          if (diet === 'vegetarian' && !plan.diet_vegetarian) return false
+          return true
+        })
+        .map(t => ({ tipId: t.tip_id, category: t.category, textFr: t.text_fr }))
 
   // --- MEASUREMENTS ---
   const MEASUREMENTS = measurements.map(m => ({
@@ -310,9 +320,6 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
     duration: v.duration_seconds ? `${Math.round(v.duration_seconds / 60)} min` : '',
     displayOrder: v.display_order,
   }))
-
-  // --- objective code (used by RECIPES + CAPSULES) ---
-  const objectiveCode = plan.objective_style || 'PW'
 
   // --- RECIPES (filtered by objective + diet) ---
   const parsed = (v) => v ? (typeof v === 'string' ? JSON.parse(v) : v) : []

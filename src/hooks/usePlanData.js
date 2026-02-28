@@ -45,6 +45,7 @@ export function usePlanData(session) {
           supabase.from('plan_targets').select('*').eq('plan_id', planId),
           supabase.from('plan_advices').select('*').eq('plan_id', planId).order('display_order'),
           supabase.from('plan_micro_tips').select('*').eq('plan_id', planId),
+          supabase.from('ref_micro_tips').select('*'),
           supabase.from('measurements').select('*').eq('user_id', userId).order('measured_at', { ascending: false }),
           supabase.from('weekly_bilans').select('*').eq('user_id', userId).order('week_start', { ascending: false }),
           // Full reference catalogue (for "Autres" tab)
@@ -57,7 +58,7 @@ export function usePlanData(session) {
           supabase.from('plan_capsules').select('*').order('display_order'),
         ])
 
-        const names = ['client_plans', 'plan_equivalences', 'plan_items', 'plan_slots', 'plan_slot_mapping', 'plan_targets', 'plan_advices', 'plan_micro_tips', 'measurements', 'weekly_bilans', 'ref_eq_master', 'ref_eq_items', 'plan_video_guides', 'plan_recipes', 'plan_progression', 'plan_capsules']
+        const names = ['client_plans', 'plan_equivalences', 'plan_items', 'plan_slots', 'plan_slot_mapping', 'plan_targets', 'plan_advices', 'plan_micro_tips', 'ref_micro_tips', 'measurements', 'weekly_bilans', 'ref_eq_master', 'ref_eq_items', 'plan_video_guides', 'plan_recipes', 'plan_progression', 'plan_capsules']
         const extracted = {}
         for (let i = 0; i < results.length; i++) {
           const { data: d, error: e } = results[i]
@@ -82,6 +83,7 @@ export function usePlanData(session) {
           targets: extracted.plan_targets,
           advices: extracted.plan_advices,
           microTips: extracted.plan_micro_tips,
+          refMicroTips: extracted.ref_micro_tips,
           measurements: extracted.measurements,
           bilans: extracted.weekly_bilans,
           refEqMaster: extracted.ref_eq_master,
