@@ -1,7 +1,9 @@
 import { useState, useMemo, useCallback, useEffect, createContext, useContext } from "react";
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, ReferenceLine } from "recharts";
 import { getObjectiveConfig, getScoreLabel, getBilanSummary } from "./src/lib/objectiveConfig.js";
+import { computeIngredientDisplay, computeRecipeMacros } from "./src/lib/recipeHelpers.js";
 import OnboardingOverlay from "./src/components/OnboardingOverlay.jsx";
+import GuidedTour from "./src/components/GuidedTour.jsx";
 
 /* ═══ DATA CONTEXT ═══ */
 const DataCtx = createContext(null);
@@ -827,7 +829,7 @@ function PlanTab({logs,onAddLog,onDeleteLog,weekConsumed,weekNutrients,streak,on
 
   return <div className="page">
     <div className="flex-between"><div className="page-title">Plan</div><div className="page-meta">{weekNum?`Semaine ${weekNum} · Jour ${dayNum}`:"Mon plan"}</div></div>
-    <div className="seg"><button className={`seg-btn ${view==="day"?"active":""}`} onClick={()=>setView("day")}>Jour</button><button className={`seg-btn ${view==="week"?"active":""}`} onClick={()=>setView("week")}>Semaine</button></div>
+    <div className="seg" data-tour="seg-toggle"><button className={`seg-btn ${view==="day"?"active":""}`} onClick={()=>setView("day")}>Jour</button><button className={`seg-btn ${view==="week"?"active":""}`} onClick={()=>setView("week")}>Semaine</button></div>
     <DietMessageBanner messages={dietMessages} accent={obj.accent} accentSoft={obj.accentSoft} accentBorder={obj.accentBorder} onMarkRead={onDietMarkRead} onOpenInbox={()=>onSwitchTab?.("profile")}/>
     {streak&&<StreakBanner current={streak.current} longest={streak.longest} lastDate={streak.lastDate} firstName={d?.CLIENT?.firstName} accent={obj.accent} accentSoft={obj.accentSoft} accentBorder={obj.accentBorder}/>}
     <WeeklyChallenge objectiveCode={d?.CLIENT?.objectiveCode} accent={obj.accent} accentSoft={obj.accentSoft} accentBorder={obj.accentBorder}/>
@@ -836,7 +838,7 @@ function PlanTab({logs,onAddLog,onDeleteLog,weekConsumed,weekNutrients,streak,on
       <div style={{fontSize:11,color:"#6B7280",lineHeight:1.5,fontWeight:500}}>{tip.textFr}</div>
     </div>})()}
     {view==="day"?<>
-      <div className="card" style={{padding:16}}>
+      <div className="card" data-tour="kcal-ring" style={{padding:16}}>
         <div style={{display:"flex",alignItems:"center",gap:14}}>
           <div style={{position:"relative",width:64,height:64,flexShrink:0,transition:"filter .3s",filter:ringPulse?`drop-shadow(0 0 8px ${obj.accent})`:"none"}}>
             <svg width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="none" stroke="rgba(15,30,46,.06)" strokeWidth="5"/><circle cx="32" cy="32" r="28" fill="none" stroke={obj.ringOrangeDir==='above'?(dayNut.kcal/DAY_TARGETS.kcal>obj.ringOrangeThreshold?"#E8863A":dayNut.kcal/DAY_TARGETS.kcal>=0.95?"#34C759":obj.accent):(dayNut.kcal/DAY_TARGETS.kcal<obj.ringOrangeThreshold?"#E8863A":dayNut.kcal/DAY_TARGETS.kcal>=0.95?"#34C759":obj.accent)} strokeWidth="5" strokeLinecap="round" strokeDasharray={`${Math.min(dayNut.kcal/DAY_TARGETS.kcal,1)*176} 176`} transform="rotate(-90 32 32)" style={{transition:"stroke-dasharray .5s ease-out"}}/></svg>
@@ -847,14 +849,14 @@ function PlanTab({logs,onAddLog,onDeleteLog,weekConsumed,weekNutrients,streak,on
             <div style={{fontSize:22,fontWeight:800,color:"#1A1A1A",marginTop:2}}>{Math.round(dayNut.kcal)} <span style={{fontSize:13,fontWeight:600,color:"#6B7280"}}>/ {DAY_TARGETS.kcal} kcal</span></div>
           </div>
         </div>
-        <div className="macros"><MPill letter="P" value={dayNut.p} target={DAY_TARGETS.p}/><MPill letter="L" value={dayNut.l} target={DAY_TARGETS.l}/><MPill letter="G" value={dayNut.g} target={DAY_TARGETS.g}/></div>
+        <div className="macros" data-tour="macros"><MPill letter="P" value={dayNut.p} target={DAY_TARGETS.p}/><MPill letter="L" value={dayNut.l} target={DAY_TARGETS.l}/><MPill letter="G" value={dayNut.g} target={DAY_TARGETS.g}/></div>
         <div className="day-hint">{obj.dayHint}</div>
       </div>
-      {SLOTS.map(slot=>{
+      {SLOTS.map((slot,slotIdx)=>{
         const sl=logs.filter(l=>l.slotId===slot.id);const sk=sl.reduce((s,l)=>s+l.kcal,0);
         const mockTimes={breakfast:"7h42",snack1:"10h15",coldMeal:"12h38",snack2:"16h05",hotMeal:"19h47"};
         return <div className="slot" key={slot.id} style={sl.length>0?{borderColor:obj.accentBorder}:{}}>
-          <div className="slot-header"><div className="slot-left"><div><div className="slot-name">{slot.label}</div><div className="slot-time">{sl.length>0?<><span style={{color:"rgba(15,30,46,.35)"}}>Dernier ajout {mockTimes[slot.id]}</span><span style={{color:obj.accent,fontWeight:600}}> · {Math.round(sk)} kcal</span></>:slot.time}</div></div></div><button className="slot-add" onClick={()=>setAddSlot(slot.id)}>+</button></div>
+          <div className="slot-header"><div className="slot-left"><div><div className="slot-name">{slot.label}</div><div className="slot-time">{sl.length>0?<><span style={{color:"rgba(15,30,46,.35)"}}>Dernier ajout {mockTimes[slot.id]}</span><span style={{color:obj.accent,fontWeight:600}}> · {Math.round(sk)} kcal</span></>:slot.time}</div></div></div><button className="slot-add" data-tour={slotIdx===0?"slot-add":undefined} onClick={()=>setAddSlot(slot.id)}>+</button></div>
           {sl.length>0&&<div style={{marginTop:6}}>{sl.map(l=><div className="log-item" key={l.id} onClick={()=>setConfirmDel(l)} style={{cursor:"pointer"}}><div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:0}}><span style={{width:22,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><EqIcon eqId={l.eqId} size={17}/></span><span className="log-name">{getLogLabel(l.eqId,l.itemId)}</span>{l.isOutOfPlan&&<span className="chip-hp">HP</span>}</div><div style={{textAlign:"right",flexShrink:0,paddingLeft:8,display:"flex",alignItems:"baseline",gap:6}}><span style={{fontSize:12,fontWeight:700,color:"#1A1A1A"}}>{l.kcal}</span><span style={{fontSize:10,color:l.qtyPortion===1?obj.accentLine:"#E8863A",fontWeight:600,minWidth:38}}>{l.qtyPortion===1?"1 port.":l.qtyPortion+" port."}</span></div></div>)}</div>}
           {sl.length===0&&<div style={{padding:"10px 0 2px",fontSize:12,color:obj.accentLine,fontWeight:500}}>Appuie sur <strong style={{fontWeight:700}}>+</strong> pour commencer ce repas</div>}
           {(()=>{const recent=recentBySlot[slot.id]||[];if(!recent.length)return null;return <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:6}}>{recent.map(r=><button key={r.key} onClick={()=>{const id=crypto.randomUUID?.()|| `${Date.now()}-${Math.random()}`;handleLog({id,slotId:slot.id,eqId:r.eqId,itemId:r.itemId,nbUnits:r.qtyPortion||1,qtyPortion:r.qtyPortion||1,isOutOfPlan:r.isOutOfPlan||false,kcal:r.kcal||0,p:r.p||0,l:r.l||0,g:r.g||0})}} style={{padding:"4px 10px",borderRadius:99,fontSize:11,fontWeight:600,background:"rgba(15,30,46,.03)",border:`1px solid ${obj.accentBorder}`,color:"#6B7280",cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",gap:4}}><span style={{color:obj.accent,fontWeight:700}}>+</span>{getLogLabel(r.eqId,r.itemId)}</button>)}</div>})()}
@@ -974,15 +976,17 @@ function AdviceTab({onCreateBilan}){
   const ADVICES=d?.ADVICES||DEFAULT_ADVICES;
   const MICRO_TIPS=d?.MICRO_TIPS||DEFAULT_MICRO_TIPS;
 
-  const [view,setView]=useState("focus");const [tipIdx,setTipIdx]=useState(0);
+  const [view,setView]=useState("focus");
   const [selAdv,setSelAdv]=useState(null);const [readSet,setReadSet]=useState(new Set(["adv_02","adv_05"]));
   const [evalOpen,setEvalOpen]=useState(false);const [evalScores,setEvalScores]=useState({});
   const [evalWellbeing,setEvalWellbeing]=useState({energy:3,hunger:3,sleep:3,stress:3});
-  const pri=ADVICES.filter(a=>a.axis==="priority").sort((a,b)=>b.priorityScore-a.priorityScore).slice(0,3);
-  const sec=ADVICES.filter(a=>a.axis==="secondary").sort((a,b)=>b.priorityScore-a.priorityScore).slice(0,3);
-  const statuses={adv_01:"En progrès",adv_02:"En progrès",adv_03:"À renforcer",adv_04:"Nouveau",adv_05:"Solide",adv_06:"En progrès"};
-  const byStatus={"À renforcer":[],"En progrès":[],"Solide":[],"Nouveau":[]};
-  ADVICES.forEach(a=>{const s=statuses[a.id]||"Nouveau";if(byStatus[s])byStatus[s].push(a)});
+  const allPri=ADVICES.filter(a=>a.axis==="priority").sort((a,b)=>b.priorityScore-a.priorityScore);
+  const allSec=ADVICES.filter(a=>a.axis==="secondary").sort((a,b)=>b.priorityScore-a.priorityScore);
+  const pri=allPri.slice(0,4);
+  const sec=allSec.slice(0,3);
+  const getStatus=(a)=>readSet.has(a.id)?"Solide":a.axis==="priority"?"En progrès":"Nouveau";
+  const byStatus={"En progrès":[],"Nouveau":[],"Solide":[]};
+  ADVICES.forEach(a=>{const s=getStatus(a);if(byStatus[s])byStatus[s].push(a)});
 
   function AdvItem({a}){
     const isRead=readSet.has(a.id);
@@ -1000,7 +1004,7 @@ function AdviceTab({onCreateBilan}){
       </div>
       <div className="advice-badges" style={{marginTop:8}}>
         <span className={`badge ${a.axis==="priority"?"badge-pri":"badge-sec"}`}>{a.axis==="priority"?"Prioritaire":"Secondaire"}</span>
-        <span className="badge badge-st">{statuses[a.id]||"Nouveau"}</span>
+        <span className="badge badge-st">{getStatus(a)}</span>
       </div>
     </div>
   )}
@@ -1008,7 +1012,7 @@ function AdviceTab({onCreateBilan}){
   return <div className="page">
     <div className="page-title">Conseils</div><div className="page-meta">{(()=>{const ps=d?._planStartDate?new Date(d._planStartDate):null;if(!ps)return"";const w=Math.floor(Math.max(0,(new Date()-ps)/86400000)/7)+1;return `Semaine ${w}`})()}</div>
     <div className="seg"><button className={`seg-btn ${view==="focus"?"active":""}`} onClick={()=>setView("focus")}>Focus</button><button className={`seg-btn ${view==="biblio"?"active":""}`} onClick={()=>setView("biblio")}>Bibliothèque</button></div>
-    <div className="tip-banner"><div className="flex-between"><span style={{display:"flex"}}><IcBulb size={18} color={obj.accent}/></span><button onClick={()=>setTipIdx(i=>(i+1)%MICRO_TIPS.length)} style={{background:"none",border:"none",fontSize:11,color:obj.accent,fontWeight:700,cursor:"pointer"}}>Suivant →</button></div><div className="tip-text">{MICRO_TIPS[tipIdx].textFr}</div></div>
+    {MICRO_TIPS.length>0&&(()=>{const dayOfYear=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/(1000*60*60*24));const tip=MICRO_TIPS[dayOfYear%MICRO_TIPS.length];return <div className="tip-banner"><span style={{display:"flex"}}><IcBulb size={18} color={obj.accent}/></span><div className="tip-text">{tip.textFr}</div></div>})()}
     {view==="focus"?<>
       <div className="section-label">Axes prioritaires</div>{pri.map(a=><AdvItem key={a.id} a={a}/>)}
       <div className="section-label">Axes secondaires</div>{sec.map(a=><AdvItem key={a.id} a={a}/>)}
@@ -1016,10 +1020,8 @@ function AdviceTab({onCreateBilan}){
     </>:<>
       <input className="search" placeholder="Rechercher un conseil…"/>
       {Object.entries(byStatus).map(([st,advs])=>advs.length>0&&<div key={st}><div className="section-label">{st}</div>{advs.map(a=><AdvItem key={a.id} a={a}/>)}</div>)}
-      <div className="section-label">Astuces Élevia</div>
-      {MICRO_TIPS.slice(0,4).map((t,i)=><div key={i} className="tip-banner" style={{marginBottom:8}}><span style={{display:"flex"}}><IcBulb size={18} color={obj.accent}/></span><div className="tip-text">{t.textFr}</div></div>)}
     </>}
-    {selAdv&&<AdviceDetail adv={selAdv} onClose={()=>setSelAdv(null)} status={statuses[selAdv.id]}/>}
+    {selAdv&&<AdviceDetail adv={selAdv} onClose={()=>setSelAdv(null)} status={getStatus(selAdv)}/>}
     {evalOpen&&<div className="overlay" onClick={()=>setEvalOpen(false)}><div className="modal" onClick={e=>e.stopPropagation()}>
       <div className="modal-handle"/><div className="modal-title">Évaluation semaine 8</div><div className="modal-sub">Comment s'est passée ta semaine ?</div>
       {[...pri,...sec].map(a=><div key={a.id} style={{marginBottom:12}}>
@@ -1091,7 +1093,7 @@ function BilanDetail({bilan,allBilans,onBack}){
     <div className="page-title">Rapport {bilan.week}</div>
     <div className="page-meta">{bilan.dates}</div>
     <div style={{display:"flex",justifyContent:"center",margin:"20px 0",position:"relative"}}>
-      <div style={{width:80,height:80,borderRadius:99,background:`${col}18`,border:`3px solid ${col}`,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:28,color:col}}>{bilan.score}</div>
+      <div style={{width:80,height:80,borderRadius:99,background:`${col}18`,border:`3px solid ${col}`,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:28,color:"var(--navy)"}}>{bilan.score}</div>
       {delta!=null&&delta!==0&&<div style={{position:"absolute",right:"calc(50% - 60px)",top:0,fontSize:12,fontWeight:700,color:delta>0?"#34C759":"#E8863A"}}>{delta>0?`+${delta}`:`${delta}`} vs {prevBilan.week}</div>}
     </div>
     <div style={{textAlign:"center",fontSize:16,fontWeight:700,color:col,marginBottom:4}}>{label}</div>
@@ -1170,6 +1172,8 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
   const [showMeasureForm,setShowMeasureForm]=useState(false);
   const [mForm,setMForm]=useState({weight:"",waist:"",bf:"",hip:"",muscle:""});
   const [mSaving,setMSaving]=useState(false);
+  const [selRecipe,setSelRecipe]=useState(null);
+  const [expandedCapsule,setExpandedCapsule]=useState(null);
   const m=MEASUREMENTS&&MEASUREMENTS.length>0?MEASUREMENTS:DEFAULT_MEASUREMENTS;
   const latest=m[0];const first=m[m.length-1];
 
@@ -1390,33 +1394,165 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
 
   if(subScreen==="recipes"){
     const recipes=d?.RECIPES||[];
-    const [selRecipe,setSelRecipe]=useState(null);
-    if(selRecipe) return <div className="page">
-      <button className="hdr-back" onClick={()=>setSelRecipe(null)} style={{marginBottom:12,padding:0}}>← Retour</button>
-      <div className="page-title">{selRecipe.title}</div>
-      {selRecipe.description&&<div style={{fontSize:13,color:"#6B7280",lineHeight:1.5,marginBottom:16}}>{selRecipe.description}</div>}
-      <div style={{display:"flex",gap:12,marginBottom:16}}>
-        {selRecipe.prepTime&&<div style={{fontSize:11,color:obj.accent,fontWeight:700}}>Prépa {selRecipe.prepTime} min</div>}
-        {selRecipe.cookTime&&<div style={{fontSize:11,color:obj.accent,fontWeight:700}}>Cuisson {selRecipe.cookTime} min</div>}
-        {selRecipe.servings&&<div style={{fontSize:11,color:"#6B7280",fontWeight:600}}>{selRecipe.servings} pers.</div>}
+    const catLabels={meal:"Repas",breakfast:"Petit-déjeuner",snack:"Collation"};
+    const mealTypeLabels={hot:"Chaud",cold:"Froid",any:"Chaud ou froid"};
+    const diffLabels={easy:"Facile",moderate:"Modéré",hard:"Avancé"};
+    const grouped={meal:[],breakfast:[],snack:[]};
+    recipes.forEach(r=>{const cat=r.category||"meal";if(!grouped[cat])grouped[cat]=[];grouped[cat].push(r)});
+
+    /* ═══════════════════════════════════════════
+       RECIPE DETAIL VIEW
+       ═══════════════════════════════════════════ */
+    if(selRecipe){
+      const macros=computeRecipeMacros(selRecipe.eqSummary,d?.CATALOGUE,d?.FULL_CATALOGUE);
+      const totalMin=(selRecipe.prepTime||0)+(selRecipe.cookTime||0);
+      return <div className="page">
+        <button className="hdr-back" onClick={()=>setSelRecipe(null)} style={{marginBottom:8,padding:0}}>← Retour</button>
+
+        {/* ── Header ── */}
+        <div style={{marginBottom:16}}>
+          <div className="page-title" style={{marginBottom:4}}>{selRecipe.title}</div>
+          {selRecipe.description&&<div style={{fontSize:13,color:"var(--text-muted)",lineHeight:1.55}}>{selRecipe.description}</div>}
+        </div>
+
+        {/* ── Meta row ── */}
+        <div style={{display:"flex",alignItems:"center",gap:16,padding:"12px 16px",background:"#fff",borderRadius:14,border:"1px solid var(--hairline)",marginBottom:14}}>
+          {totalMin>0&&<div style={{textAlign:"center",flex:1}}>
+            <div style={{fontSize:15,fontWeight:700,color:"var(--text)",fontFamily:"'Cormorant Garamond',serif"}}>{totalMin}<span style={{fontSize:11,fontWeight:400}}> min</span></div>
+            <div style={{fontSize:9,fontWeight:600,textTransform:"uppercase",letterSpacing:".06em",color:"var(--text-muted)",marginTop:1}}>Total</div>
+          </div>}
+          {totalMin>0&&<div style={{width:1,height:24,background:"var(--hairline)"}}/>}
+          {selRecipe.difficulty&&<div style={{textAlign:"center",flex:1}}>
+            <div style={{fontSize:13,fontWeight:700,color:"var(--text)"}}>{diffLabels[selRecipe.difficulty]||selRecipe.difficulty}</div>
+            <div style={{fontSize:9,fontWeight:600,textTransform:"uppercase",letterSpacing:".06em",color:"var(--text-muted)",marginTop:1}}>Niveau</div>
+          </div>}
+          {selRecipe.difficulty&&<div style={{width:1,height:24,background:"var(--hairline)"}}/>}
+          {selRecipe.mealType&&<div style={{textAlign:"center",flex:1}}>
+            <div style={{fontSize:13,fontWeight:700,color:"var(--text)"}}>{mealTypeLabels[selRecipe.mealType]||selRecipe.mealType}</div>
+            <div style={{fontSize:9,fontWeight:600,textTransform:"uppercase",letterSpacing:".06em",color:"var(--text-muted)",marginTop:1}}>Type</div>
+          </div>}
+        </div>
+
+        {/* ── Diet chips ── */}
+        {(selRecipe.isVegetarian||selRecipe.isGlutenFree||selRecipe.isLactoseFree)&&<div style={{display:"flex",gap:6,marginBottom:16}}>
+          {selRecipe.isVegetarian&&<span style={{fontSize:10,fontWeight:600,padding:"3px 10px",borderRadius:99,background:"rgba(52,199,89,.08)",border:"1px solid rgba(52,199,89,.18)",color:"#22863a"}}>Végétarien</span>}
+          {selRecipe.isGlutenFree&&<span style={{fontSize:10,fontWeight:600,padding:"3px 10px",borderRadius:99,background:"rgba(234,179,8,.07)",border:"1px solid rgba(234,179,8,.18)",color:"#A16207"}}>Sans gluten</span>}
+          {selRecipe.isLactoseFree&&<span style={{fontSize:10,fontWeight:600,padding:"3px 10px",borderRadius:99,background:"rgba(99,102,241,.07)",border:"1px solid rgba(99,102,241,.18)",color:"#4F46E5"}}>Sans lactose</span>}
+        </div>}
+
+        {/* ── Équivalences summary (inline) ── */}
+        {selRecipe.eqSummary?.length>0&&<div style={{padding:"10px 14px",borderRadius:12,background:obj.accentSoft,border:`1px solid ${obj.accentBorder}`,marginBottom:16}}>
+          <div style={{fontSize:11,fontWeight:600,color:obj.accent,letterSpacing:".04em"}}>= {selRecipe.eqSummary.map((eq,i)=>{const cat=d?.CATALOGUE?.find(c=>c.eqId===eq.eqId)||d?.FULL_CATALOGUE?.find(c=>c.eqId===eq.eqId);return (i>0?" + ":"")+(eq.portions!==1?eq.portions+" ":"")+(cat?.label||eq.eqId).toLowerCase()}).join("")}</div>
+        </div>}
+
+        {/* ── Ingrédients ── */}
+        {selRecipe.ingredients.length>0&&<>
+          <div className="section-label">Ingrédients</div>
+          <div className="card" style={{padding:"6px 14px",marginBottom:10}}>
+            {selRecipe.ingredients.map((ing,i)=>{
+              const disp=computeIngredientDisplay(ing,d?.CATALOGUE,d?.FULL_CATALOGUE);
+              const isLast=i===selRecipe.ingredients.length-1;
+              return <div key={i} style={{display:"flex",alignItems:"baseline",gap:10,padding:"8px 0",borderBottom:isLast?"none":"1px solid rgba(15,30,46,.05)"}}>
+                {disp.isFree?<>
+                  <span style={{minWidth:48}}/>
+                  <span style={{fontSize:13,color:"var(--text-muted)",fontStyle:"italic"}}>{disp.label}</span>
+                </>:<>
+                  <span style={{minWidth:48,textAlign:"right",fontSize:13,fontWeight:700,color:disp.grams?obj.accent:"transparent",flexShrink:0,fontVariantNumeric:"tabular-nums"}}>{disp.grams||"\u00A0"}</span>
+                  <span style={{fontSize:13,color:"var(--text)",flex:1,lineHeight:1.4}}>
+                    {disp.label}{disp.prepNote&&<span style={{fontSize:11,color:"var(--text-muted)",fontStyle:"italic"}}>{" "}({disp.prepNote})</span>}
+                  </span>
+                  {disp.usualValue&&<span style={{fontSize:10,color:"#9CA3AF",fontStyle:"italic",flexShrink:0,whiteSpace:"nowrap"}}>{disp.usualValue}</span>}
+                </>}
+              </div>
+            })}
+          </div>
+        </>}
+
+        {/* ── Préparation ── */}
+        {selRecipe.steps.length>0&&<>
+          <div className="section-label">Préparation</div>
+          <div className="card" style={{padding:"10px 14px",marginBottom:10}}>
+            {selRecipe.steps.map((step,i)=>{
+              const text=typeof step==="string"?step:step.text||step;
+              const isLast=i===selRecipe.steps.length-1;
+              return <div key={i} style={{display:"flex",gap:12,alignItems:"flex-start",padding:"8px 0",borderBottom:isLast?"none":"1px solid rgba(15,30,46,.05)"}}>
+                <span style={{width:22,height:22,borderRadius:11,background:obj.accentSoft,border:`1px solid ${obj.accentBorder}`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:800,color:obj.accent,marginTop:1}}>{i+1}</span>
+                <div style={{fontSize:13,color:"var(--text)",lineHeight:1.6,flex:1}}>{text}</div>
+              </div>
+            })}
+          </div>
+        </>}
+
+        {/* ── Macros ── */}
+        {macros&&<>
+          <div className="section-label">Macros par portion</div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:6,marginBottom:10}}>
+            {[{v:macros.kcal,l:"kcal",hl:true},{v:macros.p+"g",l:"Prot.",hl:false},{v:macros.l+"g",l:"Lip.",hl:false},{v:macros.g+"g",l:"Gluc.",hl:false}].map((m,i)=>
+              <div key={i} style={{textAlign:"center",padding:"10px 4px",background:m.hl?obj.accentSoft:"#fff",border:`1px solid ${m.hl?obj.accentBorder:"var(--hairline)"}`,borderRadius:12}}>
+                <div style={{fontSize:17,fontWeight:800,color:m.hl?obj.accent:"var(--text)",fontFamily:"'Cormorant Garamond',serif",lineHeight:1}}>{m.v}</div>
+                <div style={{fontSize:8,fontWeight:700,letterSpacing:".08em",textTransform:"uppercase",color:"var(--text-muted)",marginTop:4}}>{m.l}</div>
+              </div>
+            )}
+          </div>
+        </>}
+
+        {/* ── Astuce ── */}
+        {selRecipe.tip&&<div style={{marginTop:6,padding:"11px 14px",borderRadius:12,borderLeft:`3px solid ${obj.accent}`,background:obj.accentSoft}}>
+          <div style={{fontSize:12,lineHeight:1.55,color:"#374151"}}><span style={{fontWeight:700,color:obj.accent}}>Astuce</span> — {selRecipe.tip}</div>
+        </div>}
       </div>
-      {selRecipe.ingredients.length>0&&<><div className="section-label">Ingrédients</div><div className="card" style={{padding:12}}>{selRecipe.ingredients.map((ing,i)=><div key={i} style={{fontSize:13,color:"#1A1A1A",padding:"4px 0",borderBottom:i<selRecipe.ingredients.length-1?"1px solid rgba(15,30,46,.06)":"none"}}>{typeof ing==="string"?ing:`${ing.qty||""} ${ing.unit||""} ${ing.name||ing}`}</div>)}</div></>}
-      {selRecipe.steps.length>0&&<><div className="section-label">Étapes</div>{selRecipe.steps.map((step,i)=><div key={i} className="card" style={{padding:12,marginBottom:6}}><div style={{display:"flex",gap:10,alignItems:"flex-start"}}><span style={{width:22,height:22,borderRadius:11,background:obj.accentSoft,border:`1px solid ${obj.accentBorder}`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:800,color:obj.accent}}>{i+1}</span><div style={{fontSize:13,color:"#1A1A1A",lineHeight:1.6}}>{typeof step==="string"?step:step.text||step}</div></div></div>)}</>}
-      {selRecipe.eqSummary&&selRecipe.eqSummary.length>0&&<><div className="section-label">Équivalences par portion</div><div className="card" style={{padding:12}}>{selRecipe.eqSummary.map((eq,i)=>{const cat=d?.CATALOGUE?.find(c=>c.eqId===eq.eqId)||d?.FULL_CATALOGUE?.find(c=>c.eqId===eq.eqId);return <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"5px 0",borderBottom:i<selRecipe.eqSummary.length-1?"1px solid rgba(15,30,46,.06)":"none"}}><span style={{fontSize:13,color:"#1A1A1A"}}>{cat?.icon||"🍽️"} {cat?.label||eq.eqId}</span><span style={{fontSize:13,fontWeight:700,color:obj.accent}}>{eq.portions} {eq.portions>1?"portions":"portion"}</span></div>})}</div></>}
-    </div>
+    }
+
+    /* ═══════════════════════════════════════════
+       RECIPE LIST VIEW
+       ═══════════════════════════════════════════ */
     return <div className="page">
-      <button className="hdr-back" onClick={()=>setSubScreen(null)} style={{marginBottom:12,padding:0}}>← Retour</button>
-      <div className="page-title">Recettes</div>
-      {recipes.length===0&&<div className="card" style={{textAlign:"center",padding:"32px 20px"}}>
-        <div style={{fontSize:32,marginBottom:8}}>🍳</div>
-        <div style={{fontSize:14,fontWeight:700,color:"#1A1A1A"}}>Bientôt disponible</div>
-        <div style={{fontSize:12,color:"#6B7280",marginTop:6,lineHeight:1.5}}>Tes recettes personnalisées arriveront ici.</div>
+      <button className="hdr-back" onClick={()=>setSubScreen(null)} style={{marginBottom:8,padding:0}}>← Retour</button>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:4}}>
+        <div className="page-title">Recettes</div>
+        <span style={{fontSize:11,fontWeight:600,color:"var(--text-muted)"}}>{recipes.length} recette{recipes.length>1?"s":""}</span>
+      </div>
+
+      {recipes.length===0&&<div className="card" style={{textAlign:"center",padding:"40px 24px"}}>
+        <div style={{width:48,height:48,borderRadius:24,background:obj.accentSoft,border:`1px solid ${obj.accentBorder}`,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:22,marginBottom:12}}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={obj.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 3-2 5.5-3.5 7.5L12 22l-3.5-5.5C7 14.5 5 12 5 9a7 7 0 0 1 7-7z"/></svg>
+        </div>
+        <div style={{fontSize:14,fontWeight:700,color:"var(--text)"}}>Aucune recette disponible</div>
+        <div style={{fontSize:12,color:"var(--text-muted)",marginTop:6,lineHeight:1.5}}>Aucune recette ne correspond<br/>à ton profil pour le moment.</div>
       </div>}
-      {recipes.map(r=>{const catLabels={meal:"Repas",breakfast:"Petit-déj",snack:"Collation"};const catIcons={meal:"🍽️",breakfast:"🥣",snack:"🥤"};return <div key={r.id} className="menu-item" onClick={()=>setSelRecipe(r)}>
-        <span style={{fontSize:20,flexShrink:0}}>{catIcons[r.category]||"🍽️"}</span>
-        <div style={{flex:1}}><div style={{fontSize:14,fontWeight:600,color:"#1A1A1A"}}>{r.title}</div><div style={{fontSize:11,color:"#6B7280"}}>{r.prepTime?`${r.prepTime+((r.cookTime||0)>0?" + "+r.cookTime:"")} min`:""}{r.category?` · ${catLabels[r.category]||r.category}`:""}</div></div>
-        <span style={{fontSize:14,color:"#6B7280"}}>›</span>
-      </div>})}
+
+      {["meal","breakfast","snack"].map(cat=>{
+        const items=grouped[cat];
+        if(!items||items.length===0)return null;
+        return <div key={cat}>
+          <div className="section-label">{catLabels[cat]||cat}</div>
+          {items.map((r,ri)=>{
+            const mac=computeRecipeMacros(r.eqSummary,d?.CATALOGUE,d?.FULL_CATALOGUE);
+            const totalMin=(r.prepTime||0)+(r.cookTime||0);
+            return <div key={r.id} className="card" onClick={()=>setSelRecipe(r)}
+              style={{padding:"12px 14px",marginBottom:8,cursor:"pointer",display:"flex",alignItems:"center",gap:12,animationDelay:`${ri*.04}s`}}>
+              {/* Left accent dot */}
+              <div style={{width:36,height:36,borderRadius:10,background:obj.accentSoft,border:`1px solid ${obj.accentBorder}`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                <span style={{fontSize:14,fontWeight:800,color:obj.accent,fontFamily:"'Cormorant Garamond',serif"}}>{r.title.charAt(0)}</span>
+              </div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:14,fontWeight:600,color:"var(--text)",lineHeight:1.3}}>{r.title}</div>
+                <div style={{display:"flex",alignItems:"center",gap:6,marginTop:3,flexWrap:"wrap"}}>
+                  {totalMin>0&&<span style={{fontSize:10,fontWeight:600,color:"var(--text-muted)"}}>{totalMin} min</span>}
+                  {selRecipe!==r&&mac&&<><span style={{fontSize:10,color:"var(--text-faint)"}}>·</span><span style={{fontSize:10,fontWeight:700,color:obj.accent}}>{mac.kcal} kcal</span></>}
+                  {r.mealType&&<><span style={{fontSize:10,color:"var(--text-faint)"}}>·</span><span style={{fontSize:10,fontWeight:500,color:"var(--text-muted)"}}>{mealTypeLabels[r.mealType]||r.mealType}</span></>}
+                </div>
+                {(r.isVegetarian||r.isGlutenFree||r.isLactoseFree)&&<div style={{display:"flex",gap:4,marginTop:4}}>
+                  {r.isVegetarian&&<span style={{fontSize:9,fontWeight:600,padding:"1px 7px",borderRadius:99,background:"rgba(52,199,89,.07)",color:"#22863a"}}>Végé</span>}
+                  {r.isGlutenFree&&<span style={{fontSize:9,fontWeight:600,padding:"1px 7px",borderRadius:99,background:"rgba(234,179,8,.07)",color:"#A16207"}}>S/Gluten</span>}
+                  {r.isLactoseFree&&<span style={{fontSize:9,fontWeight:600,padding:"1px 7px",borderRadius:99,background:"rgba(99,102,241,.07)",color:"#4F46E5"}}>S/Lactose</span>}
+                </div>}
+              </div>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="2.5" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+          })}
+        </div>
+      })}
     </div>
   }
 
@@ -1434,7 +1570,6 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
 
   if(subScreen==="situation"){
     const capsules=d?.CAPSULES||[];
-    const [expandedCapsule,setExpandedCapsule]=useState(null);
     const fallback=[
       {id:"sit_restaurant",title:"Manger au restaurant",body:"Au resto, privilégie les plats simples : grillades, poisson, légumes. Demande les sauces à part."},
       {id:"sit_social",title:"Sorties sociales & apéros",body:"Mange normalement dans la journée. À l'apéro : crudités, olives, noix. Limite l'alcool à 1-2 verres."},
@@ -1485,6 +1620,11 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
       <div style={{fontSize:20,fontWeight:800,fontFamily:"'Cormorant Garamond',serif"}}>{CLIENT.firstName}{d?._lastName?` ${d._lastName}`:""}</div>
       <div style={{fontSize:13,color:"rgba(255,255,255,.7)",marginTop:4}}>Programme : <span style={{color:obj.accent}}>{CLIENT.programme}</span> · Taille : {CLIENT.heightCm} cm</div>
       <div style={{fontSize:13,color:"rgba(255,255,255,.7)",marginTop:2}}>{(()=>{const ps=d?._planStartDate?new Date(d._planStartDate):null;if(!ps)return"";const m=["jan.","fév.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];const w=Math.floor(Math.max(0,(new Date()-ps)/86400000)/7)+1;return `Depuis : ${ps.getDate()} ${m[ps.getMonth()]} ${ps.getFullYear()} · Semaine ${w}`})()}</div>
+      {(CLIENT.dietVegetarian||CLIENT.glutenFree||CLIENT.lactoseFree)&&<div style={{display:"flex",gap:6,marginTop:8,flexWrap:"wrap"}}>
+        {CLIENT.dietVegetarian&&<span style={{fontSize:10,fontWeight:600,padding:"3px 10px",borderRadius:99,background:"rgba(52,199,89,.15)",border:"1px solid rgba(52,199,89,.3)",color:"#b5f0c5"}}>Végétarien</span>}
+        {CLIENT.glutenFree&&<span style={{fontSize:10,fontWeight:600,padding:"3px 10px",borderRadius:99,background:"rgba(234,179,8,.12)",border:"1px solid rgba(234,179,8,.25)",color:"#fde68a"}}>Sans gluten</span>}
+        {CLIENT.lactoseFree&&<span style={{fontSize:10,fontWeight:600,padding:"3px 10px",borderRadius:99,background:"rgba(99,102,241,.12)",border:"1px solid rgba(99,102,241,.25)",color:"#c4b5fd"}}>Sans lactose</span>}
+      </div>}
       <div className="kpi-row">
         {(()=>{
           const wDelta=latest.weightKg-first.weightKg;const wDir=obj.kpiDir==='up'?(wDelta>=0?obj.kpiColor:"#E8863A"):(wDelta<=0?"#34C759":"#E8863A");
@@ -1533,6 +1673,7 @@ export default function EleviaApp({ session, signOut, planData, logs: externalLo
 
   const [splash,setSplash]=useState(true);
   const [showOnboarding,setShowOnboarding]=useState(()=>!localStorage.getItem('elevia_onboarding_done'));
+  const [showTour,setShowTour]=useState(()=>localStorage.getItem('elevia_onboarding_done')==='1'&&!localStorage.getItem('elevia_tour_done'));
   const tabIcons={plan:IcCalendar,advice:IcBulb,history:IcHistory,profile:IcProfile};
   const tabs=[{id:"plan",label:"Plan"},{id:"advice",label:"Conseils"},{id:"history",label:"Historique"},{id:"profile",label:"Profil"}];
 
@@ -1569,9 +1710,10 @@ export default function EleviaApp({ session, signOut, planData, logs: externalLo
         {tab==="profile"&&<ProfileTab signOut={signOut} onAddMeasurement={onAddMeasurement} milestones={milestones} milestoneDefs={milestoneDefs} dietMessages={dietMessages} dietUnread={dietUnread} onDietMarkRead={onDietMarkRead}/>}
       </div>
       <div style={{position:"absolute",bottom:76,left:0,right:0,height:24,background:"linear-gradient(to bottom,transparent,#F5F4F1)",pointerEvents:"none",zIndex:10}}/>
-      <div className="tbar">{tabs.map(t=>{const Ic=tabIcons[t.id];const active=tab===t.id;return <button key={t.id} className={`tbar-item ${active?"active":""}`} onClick={()=>setTab(t.id)}><span className="tbar-ic" style={{position:"relative"}}><Ic size={20} color={active?obj.accent:"rgba(255,255,255,.45)"}/>{t.id==="profile"&&dietUnread>0&&<span style={{position:"absolute",top:-4,right:-6,width:8,height:8,borderRadius:4,background:"#FF3B30",border:"2px solid #121E2D"}}/>}</span><span className="tbar-lb">{t.label}</span></button>})}</div>
+      <div className="tbar" data-tour="tab-bar">{tabs.map(t=>{const Ic=tabIcons[t.id];const active=tab===t.id;return <button key={t.id} className={`tbar-item ${active?"active":""}`} onClick={()=>setTab(t.id)}><span className="tbar-ic" style={{position:"relative"}}><Ic size={20} color={active?obj.accent:"rgba(255,255,255,.45)"}/>{t.id==="profile"&&dietUnread>0&&<span style={{position:"absolute",top:-4,right:-6,width:8,height:8,borderRadius:4,background:"#FF3B30",border:"2px solid #121E2D"}}/>}</span><span className="tbar-lb">{t.label}</span></button>})}</div>
     </div>
-    {showOnboarding&&<OnboardingOverlay objectiveCode={objCode} accent={obj.accent} onComplete={()=>{localStorage.setItem('elevia_onboarding_done','1');setShowOnboarding(false)}}/>}
+    {showOnboarding&&<OnboardingOverlay objectiveCode={objCode} accent={obj.accent} onComplete={()=>{localStorage.setItem('elevia_onboarding_done','1');setShowOnboarding(false);if(!localStorage.getItem('elevia_tour_done'))setShowTour(true)}}/>}
+    {showTour&&<GuidedTour objectiveCode={objCode} accent={obj.accent} onComplete={()=>{localStorage.setItem('elevia_tour_done','1');setShowTour(false)}}/>}
     {newlyUnlocked&&<MilestonePopup milestone={newlyUnlocked} accent={obj.accent} onDismiss={onDismissMilestone}/>}
   </DataCtx.Provider>
 }

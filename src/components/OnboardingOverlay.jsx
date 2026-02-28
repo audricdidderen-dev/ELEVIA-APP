@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 /**
- * OnboardingOverlay — 5-step first-launch guide.
+ * OnboardingOverlay — 2-step intro before the guided tour.
  * Adapts messaging to the patient's objective (PW vs GAIN).
  * Stored in localStorage so it only shows once.
  */
@@ -13,25 +13,10 @@ const STEPS_PW = [
     icon: "✨",
   },
   {
-    title: "Ton budget du jour",
-    body: "Chaque jour, tu as un budget calorique à ne pas dépasser. Le cercle en haut te montre où tu en es en temps réel.",
-    icon: "🎯",
-  },
-  {
-    title: "Les équivalences",
-    body: "Ton plan est divisé en catégories d'aliments : pain, fruits, protéines… Chaque catégorie a une quantité définie pour toi. Appuie sur + pour logger ce que tu manges.",
-    icon: "🍽️",
-  },
-  {
-    title: "L'équilibre sur la semaine",
-    body: "Pas de stress si un jour n'est pas parfait. Passe en vue Semaine pour voir ta progression globale. C'est là que tout se joue.",
-    icon: "📊",
-  },
-  {
-    title: "C'est parti !",
-    body: "Commence par ton prochain repas. Chaque ajout compte, et on est là pour t'accompagner.",
-    icon: "💪",
-    cta: "Commencer",
+    title: "On va te montrer l'essentiel",
+    body: "Quelques points clés directement sur ton interface. C'est rapide, promis.",
+    icon: "👆",
+    cta: "C'est parti",
   },
 ]
 
@@ -42,25 +27,10 @@ const STEPS_GAIN = [
     icon: "✨",
   },
   {
-    title: "Ton objectif du jour",
-    body: "Chaque jour, tu as un objectif calorique à atteindre. Le cercle en haut te montre ta progression — l'idée est d'y arriver, pas de rester en-dessous.",
-    icon: "🎯",
-  },
-  {
-    title: "Les équivalences",
-    body: "Ton plan est divisé en catégories d'aliments avec des quantités calculées pour toi. Les collations pré et post-entraînement sont intégrées. Appuie sur + pour logger.",
-    icon: "🍽️",
-  },
-  {
-    title: "L'équilibre sur la semaine",
-    body: "La constance est la clé. Passe en vue Semaine pour voir si tu atteins tes cibles globales. C'est la régularité qui construit le muscle.",
-    icon: "📊",
-  },
-  {
-    title: "C'est parti !",
-    body: "Commence par ton prochain repas. Chaque gramme de protéine compte, et on est là pour t'accompagner.",
-    icon: "💪",
-    cta: "Commencer",
+    title: "On va te montrer l'essentiel",
+    body: "Quelques points clés directement sur ton interface. C'est rapide, promis.",
+    icon: "👆",
+    cta: "C'est parti",
   },
 ]
 

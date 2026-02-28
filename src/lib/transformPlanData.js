@@ -12,6 +12,9 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
     programme: profile.programme,
     heightCm: Number(profile.height_cm),
     objectiveCode: plan.objective_style || 'PW',
+    dietVegetarian: !!plan.diet_vegetarian,
+    glutenFree: !!plan.gluten_free,
+    lactoseFree: !!plan.lactose_free,
   }
 
   // --- WEEK_TARGETS / DAY_TARGETS (macros) ---
@@ -298,23 +301,45 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
     displayOrder: v.display_order,
   }))
 
-  // --- RECIPES ---
-  const RECIPES = (recipes || []).map(r => ({
-    id: r.id,
-    title: r.title,
-    description: r.description,
-    ingredients: r.ingredients ? (typeof r.ingredients === 'string' ? JSON.parse(r.ingredients) : r.ingredients) : [],
-    steps: r.steps ? (typeof r.steps === 'string' ? JSON.parse(r.steps) : r.steps) : [],
-    prepTime: r.prep_time_min,
-    cookTime: r.cook_time_min,
-    servings: r.servings,
-    category: r.category,
-    eqSummary: r.eq_summary ? (typeof r.eq_summary === 'string' ? JSON.parse(r.eq_summary) : r.eq_summary) : [],
-    imageUrl: r.image_url,
-  }))
+  // --- objective code (used by RECIPES + CAPSULES) ---
+  const objectiveCode = plan.objective_style || 'PW'
+
+  // --- RECIPES (filtered by objective + diet) ---
+  const parsed = (v) => v ? (typeof v === 'string' ? JSON.parse(v) : v) : []
+  const RECIPES = (recipes || [])
+    .filter(r => {
+      // Objective filter: empty = universal (shown for all objectives)
+      const codes = r.objective_codes || []
+      if (codes.length > 0 && !codes.includes(objectiveCode)) return false
+      // Diet filter: if patient has restriction, recipe must be compatible
+      if (plan.diet_vegetarian && !r.is_vegetarian) return false
+      if (plan.gluten_free && !r.is_gluten_free) return false
+      if (plan.lactose_free && !r.is_lactose_free) return false
+      return true
+    })
+    .map(r => ({
+      id: r.id,
+      recipeId: r.recipe_id,
+      title: r.title,
+      description: r.description,
+      ingredients: parsed(r.ingredients),
+      steps: parsed(r.steps),
+      prepTime: r.prep_time_min,
+      cookTime: r.cook_time_min,
+      servings: r.servings,
+      category: r.category,
+      difficulty: r.difficulty,
+      mealType: r.meal_type,
+      eqSummary: parsed(r.eq_summary),
+      tip: r.tip,
+      isVegetarian: r.is_vegetarian,
+      isGlutenFree: r.is_gluten_free,
+      isLactoseFree: r.is_lactose_free,
+      objectiveCodes: r.objective_codes || [],
+      imageUrl: r.image_url,
+    }))
 
   // --- CAPSULES (situation guides) ---
-  const objectiveCode = plan.objective_style || 'PW'
   const CAPSULES = (capsules || []).filter(c => {
     // null objective_codes = universal (shown for all objectives)
     if (!c.objective_codes || c.objective_codes.length === 0) return true
