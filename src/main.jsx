@@ -90,6 +90,44 @@ function App() {
   )
 }
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { hasError: false, error: null }
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error }
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error('ErrorBoundary caught:', error, errorInfo)
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{
+          width: '100%', maxWidth: 430, height: '100dvh', margin: '0 auto',
+          background: 'linear-gradient(160deg, #0A1620 0%, #121E2D 40%, #122438 100%)',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          fontFamily: "'DM Sans', sans-serif", padding: 32, textAlign: 'center',
+        }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: '#FF3B30', marginBottom: 12 }}>
+            Une erreur est survenue
+          </div>
+          <div style={{ fontSize: 14, color: 'rgba(255,255,255,.6)', lineHeight: 1.6, marginBottom: 24 }}>
+            L'application a rencontré un problème inattendu. Essaie de recharger la page.
+          </div>
+          <button onClick={() => window.location.reload()} style={{
+            padding: '12px 32px', borderRadius: 14, background: 'rgba(198,160,91,.15)',
+            border: '1px solid rgba(198,160,91,.3)', color: '#C6A05B', fontSize: 14,
+            fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+          }}>Recharger</button>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
+
 function SplashScreen({ subtitle }) {
   return (
     <div style={{
@@ -133,6 +171,8 @@ function SplashScreen({ subtitle }) {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </React.StrictMode>
 )

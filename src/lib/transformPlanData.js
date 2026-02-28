@@ -32,6 +32,14 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
   }
 
   // --- CATALOGUE (equivalences + items joined) ---
+  // Build cooked_factor lookup from ref_eq_items (always available, even if plan_items lacks it)
+  const cookedFactorByItem = {}
+  for (const ri of (refEqItems || [])) {
+    if (ri.item_id && ri.cooked_factor != null) {
+      cookedFactorByItem[ri.item_id] = Number(ri.cooked_factor)
+    }
+  }
+
   // Group items by eq_id
   const itemsByEq = {}
   for (const item of items) {
@@ -68,6 +76,7 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
       itemId: it.item_id,
       foodLabel: it.food_label,
       isRecommended: it.is_recommended || false,
+      cookedFactor: cookedFactorByItem[it.item_id] || (it.cooked_factor != null ? Number(it.cooked_factor) : null),
       stepper: (it.usual_g_per_unit != null) ? {
         usualGPerUnit: Number(it.usual_g_per_unit),
         usualUnitSg: it.usual_unit_sg || '',
@@ -256,9 +265,10 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
           }
         }
         return {
-          itemId,
+          itemId: it.item_id || itemId,
           foodLabel: it.food_label,
           isRecommended: it.is_recommended || it.elevia_pick || false,
+          cookedFactor: it.cooked_factor != null ? Number(it.cooked_factor) : null,
           stepper: it.usual_g_per_unit ? {
             usualGPerUnit: Number(it.usual_g_per_unit),
             usualUnitSg: it.usual_unit_sg || 'portion',

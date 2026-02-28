@@ -43,7 +43,12 @@ export default function GuidedTour({ onComplete, objectiveCode, accent }) {
 
   useEffect(() => {
     const el = document.querySelector(`[data-tour="${s.target}"]`)
-    if (!el) return
+    if (!el) {
+      // Auto-skip to next step if target element is missing
+      if (isLast) onComplete()
+      else setStep(prev => prev + 1)
+      return
+    }
 
     el.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
 

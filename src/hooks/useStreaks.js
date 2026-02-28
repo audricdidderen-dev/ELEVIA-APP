@@ -62,16 +62,19 @@ export function useStreaks(session) {
     const newCurrent = streak.current + 1
     const newLongest = Math.max(streak.longest, newCurrent)
 
-    // Optimistic update
+    // Optimistic update with rollback on failure
+    const prev = { ...streak }
     setStreak({ current: newCurrent, longest: newLongest, lastDate: today })
 
-    await supabase.from('user_streaks').upsert({
+    const { error } = await supabase.from('user_streaks').upsert({
       user_id: userId,
       streak_type: 'daily_log',
       current_streak: newCurrent,
       longest_streak: newLongest,
       last_activity_date: today,
     }, { onConflict: 'user_id,streak_type' })
+
+    if (error) setStreak(prev)
   }, [userId, streak])
 
   return { streak, incrementStreak }
