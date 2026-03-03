@@ -132,7 +132,7 @@ export function useFoodLogs(session, planData) {
       eq_id: logEntry.eqId,
       item_id: logEntry.itemId,
       qty: logEntry.qtyPortion || 1,
-      unit: 'portion',
+      unit: logEntry.unit || 'portion',
       ...(logEntry.notes ? { notes: logEntry.notes } : {}),
     })
 

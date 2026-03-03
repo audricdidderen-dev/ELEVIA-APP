@@ -411,8 +411,11 @@ function PBar({value,max,height=8}){
   if(obj.progressDir==='up'){
     // GAIN: <80% = orange (not enough), ≥100% = green, between = accent
     c=pct<(obj.pbarOrangeBelow||80)?"pbar-orange":pct>=100?"pbar-green":"pbar-accent";
+  } else if(obj.progressDir==='neutral'){
+    // MAINT: >120% or <80% = orange (too far either way), 95-105% = green, rest = accent
+    c=pct>(obj.pbarOrangeAbove||120)?"pbar-orange":pct<(obj.pbarOrangeBelow||80)?"pbar-orange":pct>=95&&pct<=105?"pbar-green":"pbar-accent";
   } else {
-    // PW/MAINT: >120% = orange (too much), ≥100% = green, <100% = accent
+    // PW: >120% = orange (too much), ≥100% = green, <100% = accent
     c=pct>(obj.pbarOrangeAbove||120)?"pbar-orange":pct>=100?"pbar-green":"pbar-accent";
   }
   return <div className="pbar-track" style={{height}}><div className={`pbar-fill ${c}`} style={{width:`${Math.min(pct,100)}%`}}/></div>
@@ -746,9 +749,9 @@ function PlanTab({logs,onAddLog,onDeleteLog,weekConsumed,weekNutrients,streak,on
   const [snack,setSnack]=useState(null);
   const hasHp=logs.some(l=>l.isOutOfPlan);
   // Quick-add: track recent items per slot in localStorage
-  const recentBySlot=useMemo(()=>{
+  const [recentBySlot,setRecentBySlot]=useState(()=>{
     try{const raw=localStorage.getItem('elevia_recent_items');return raw?JSON.parse(raw):{}}catch{return{}}
-  },[]);
+  });
   const saveRecent=useCallback((slotId,log)=>{
     try{
       const all={...recentBySlot};
@@ -758,6 +761,7 @@ function PlanTab({logs,onAddLog,onDeleteLog,weekConsumed,weekNutrients,streak,on
       filtered.unshift({key,eqId:log.eqId,itemId:log.itemId,qtyPortion:log.qtyPortion,kcal:log.kcal,p:log.p,l:log.l,g:log.g,isOutOfPlan:log.isOutOfPlan});
       all[slotId]=filtered.slice(0,3);
       localStorage.setItem('elevia_recent_items',JSON.stringify(all));
+      setRecentBySlot(all);
     }catch{}
   },[recentBySlot]);
   const dayNut=useMemo(()=>{const n={kcal:0,p:0,l:0,g:0};logs.forEach(l=>{n.kcal+=l.kcal;n.p+=l.p;n.l+=l.l;n.g+=l.g});return n},[logs]);
@@ -779,7 +783,7 @@ function PlanTab({logs,onAddLog,onDeleteLog,weekConsumed,weekNutrients,streak,on
     const newG=dayNut.g+(log.g||0);
     const pct=DAY_TARGETS.kcal>0?newKcal/DAY_TARGETS.kcal:0;
     const wasComplete=dayNut.kcal/DAY_TARGETS.kcal>=0.9;
-    const isNowComplete=obj.progressDir==="down"?(pct>=0.9&&pct<=1.05):(pct>=0.95);
+    const isNowComplete=obj.progressDir==="down"?(pct>=0.9&&pct<=1.05):obj.progressDir==="neutral"?(pct>=0.9&&pct<=1.1):(pct>=0.95);
     // Check eq completion for the week
     const newWc=(weekConsumed[log.eqId]||0)+(log.qtyPortion||1);
     const eqTarget=PLAN_TARGETS[log.eqId]||0;
@@ -811,6 +815,8 @@ function PlanTab({logs,onAddLog,onDeleteLog,weekConsumed,weekNutrients,streak,on
       logCountRef.count++;
       const basics=obj.progressDir==="down"
         ?["Bien joué !","C'est noté !","Tu restes dans ton budget !","On avance !"]
+        :obj.progressDir==="neutral"
+        ?["Bien joué !","C'est noté !","Tu maintiens l'équilibre !","On avance !"]
         :["Bien joué !","C'est noté !","Tu te rapproches de ta cible !","On avance !"];
       msg=basics[logCountRef.count%basics.length];
     }
@@ -911,6 +917,8 @@ function WeekView({logs,onAdd,weekConsumed,weekNutrients}){
     }
     const kcalPct=WEEK_TARGETS.kcal>0?wk.kcal/WEEK_TARGETS.kcal:0;
     if(obj.progressDir==="down"&&kcalPct>1.05)return {title:"Attention aux calories",msg:"Tu dépasses légèrement ta cible hebdo. Vérifie les portions."};
+    if(obj.progressDir==="neutral"&&kcalPct>1.1)return {title:"Attention aux calories",msg:"Tu dépasses ta cible hebdo. L'objectif est de rester stable."};
+    if(obj.progressDir==="neutral"&&kcalPct<expectedPct/100*0.7)return {title:"Calories en retard",msg:"Tu es en dessous de ta cible — la régularité est la clé."};
     if(obj.progressDir==="up"&&kcalPct<expectedPct/100*0.7)return {title:"Calories en retard",msg:"Tu es en dessous de ta cible — n'oublie pas tes collations."};
     return {title:obj.weekAlertTitle,msg:obj.weekAlertMsg}
   },[planEqs,WEEK_CONSUMED,PLAN_TARGETS,wk,WEEK_TARGETS,obj]);
@@ -1203,8 +1211,8 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
       {/* KPI summary row */}
       {(()=>{
         const wDelta=latest.weightKg-first.weightKg;const wDir=obj.kpiDir==='up'?(wDelta>=0?obj.kpiColor:"#E8863A"):(wDelta<=0?"#34C759":"#E8863A");const wArrow=wDelta>=0?"↑":"↓";
-        const tDelta=latest.waistCm-first.waistCm;const tDir=tDelta<=0?"#34C759":"#E8863A";const tArrow=tDelta>=0?"↑":"↓";
-        const bDelta=latest.bodyFatPct-first.bodyFatPct;const bDir=bDelta<=0?"#34C759":"#E8863A";const bArrow=bDelta>=0?"↑":"↓";
+        const tDelta=latest.waistCm!=null&&first.waistCm!=null?latest.waistCm-first.waistCm:null;const tDir=tDelta!=null?(tDelta<=0?"#34C759":"#E8863A"):"#6B7280";const tArrow=tDelta!=null?(tDelta>=0?"↑":"↓"):"";
+        const bDelta=latest.bodyFatPct!=null&&first.bodyFatPct!=null?latest.bodyFatPct-first.bodyFatPct:null;const bDir=bDelta!=null?(bDelta<=0?"#34C759":"#E8863A"):"#6B7280";const bArrow=bDelta!=null?(bDelta>=0?"↑":"↓"):"";
         return <div className="kpi-row" style={{marginTop:12,marginBottom:16}}>
           <div style={{flex:1,background:"#fff",borderRadius:14,padding:12,textAlign:"center",border:`1px solid ${obj.accentBorder}`,boxShadow:"0 4px 24px rgba(0,0,0,.06)"}}>
             <div style={{fontSize:10,fontWeight:700,color:"#6B7280",textTransform:"uppercase"}}>Poids</div>
@@ -1213,13 +1221,13 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
           </div>
           <div style={{flex:1,background:"#fff",borderRadius:14,padding:12,textAlign:"center",border:`1px solid ${obj.accentBorder}`,boxShadow:"0 4px 24px rgba(0,0,0,.06)"}}>
             <div style={{fontSize:10,fontWeight:700,color:"#6B7280",textTransform:"uppercase"}}>Tour taille</div>
-            <div style={{fontSize:20,fontWeight:800,color:"#1A1A1A",marginTop:4}}>{latest.waistCm}</div>
-            <div style={{fontSize:11,fontWeight:700,color:tDir}}>{tArrow} {Math.abs(tDelta).toFixed(1)} cm</div>
+            <div style={{fontSize:20,fontWeight:800,color:"#1A1A1A",marginTop:4}}>{latest.waistCm!=null?latest.waistCm:"—"}</div>
+            <div style={{fontSize:11,fontWeight:700,color:tDir}}>{tDelta!=null?`${tArrow} ${Math.abs(tDelta).toFixed(1)} cm`:"—"}</div>
           </div>
           <div style={{flex:1,background:"#fff",borderRadius:14,padding:12,textAlign:"center",border:`1px solid ${obj.accentBorder}`,boxShadow:"0 4px 24px rgba(0,0,0,.06)"}}>
             <div style={{fontSize:10,fontWeight:700,color:"#6B7280",textTransform:"uppercase"}}>% MG</div>
-            <div style={{fontSize:20,fontWeight:800,color:"#1A1A1A",marginTop:4}}>{latest.bodyFatPct}</div>
-            <div style={{fontSize:11,fontWeight:700,color:bDir}}>{bArrow} {Math.abs(bDelta).toFixed(1)}%</div>
+            <div style={{fontSize:20,fontWeight:800,color:"#1A1A1A",marginTop:4}}>{latest.bodyFatPct!=null?latest.bodyFatPct:"—"}</div>
+            <div style={{fontSize:11,fontWeight:700,color:bDir}}>{bDelta!=null?`${bArrow} ${Math.abs(bDelta).toFixed(1)}%`:"—"}</div>
           </div>
         </div>
       })()}

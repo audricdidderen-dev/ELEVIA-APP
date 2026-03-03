@@ -52,10 +52,10 @@ export function usePlanData(session) {
           supabase.from('ref_eq_master').select('*').order('eq_id'),
           supabase.from('ref_eq_items').select('*').order('eq_id,item_order'),
           // Content tables
-          supabase.from('plan_video_guides').select('*').order('display_order'),
+          supabase.from('plan_video_guides').select('*').eq('plan_id', planId).order('display_order'),
           supabase.from('plan_recipes').select('*').eq('is_active', true),
           supabase.from('plan_progression').select('*').eq('plan_id', planId).order('phase_number'),
-          supabase.from('plan_capsules').select('*').order('display_order'),
+          supabase.from('plan_capsules').select('*').eq('plan_id', planId).order('display_order'),
         ])
 
         const names = ['client_plans', 'plan_equivalences', 'plan_items', 'plan_slots', 'plan_slot_mapping', 'plan_targets', 'plan_advices', 'plan_micro_tips', 'ref_micro_tips', 'measurements', 'weekly_bilans', 'ref_eq_master', 'ref_eq_items', 'plan_video_guides', 'plan_recipes', 'plan_progression', 'plan_capsules']
