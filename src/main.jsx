@@ -8,6 +8,7 @@ import { useWeeklyBilans } from './hooks/useWeeklyBilans'
 import { useStreaks } from './hooks/useStreaks'
 import { useMilestones } from './hooks/useMilestones'
 import { useDietitianMessages } from './hooks/useDietitianMessages'
+import { useQuickLog } from './hooks/useQuickLog'
 import LoginScreen from './components/LoginScreen'
 import EleviaApp from '../elevia-prototype.jsx'
 
@@ -20,6 +21,7 @@ function App() {
   const { streak, incrementStreak } = useStreaks(session)
   const { milestones, milestoneDefs, newlyUnlocked, checkAndAward, dismissPopup } = useMilestones(session)
   const { messages: dietMessages, unreadCount: dietUnread, markAsRead: dietMarkRead, markAllAsRead: dietMarkAllRead } = useDietitianMessages(session)
+  const quickLog = useQuickLog(session)
 
   // Auth loading
   if (authLoading) {
@@ -86,6 +88,7 @@ function App() {
       dietUnread={dietUnread}
       onDietMarkRead={dietMarkRead}
       onDietMarkAllRead={dietMarkAllRead}
+      quickLog={quickLog}
     />
   )
 }

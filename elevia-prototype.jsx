@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect, createContext, useContext } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef, createContext, useContext } from "react";
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, ReferenceLine } from "recharts";
 import { getObjectiveConfig, getScoreLabel, getBilanSummary } from "./src/lib/objectiveConfig.js";
 import { computeIngredientDisplay, computeRecipeMacros } from "./src/lib/recipeHelpers.js";
@@ -256,6 +256,7 @@ const DEFAULT_TYPE_LABELS = {carbs:"Féculents",vvpo:"Protéines",fat:"Matières
 function _getEq(catalogue,eqId){return catalogue.find(e=>e.eqId===eqId)}
 function _isInPlan(planTargets,eqId){return eqId in planTargets}
 function _getLogLabel(catalogue,eqId,itemId){
+  if(typeof eqId==='string'&&eqId.startsWith('ql_'))return eqId.slice(3).replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
   const eq=_getEq(catalogue,eqId);if(!eq)return eqId;
   if(eq.qtyUi.appInputMode==="ITEM_FIRST_PICK"&&itemId){
     const item=eq.items.find(i=>i.itemId===itemId);
@@ -424,8 +425,155 @@ function MPill({letter,value,target}){
   return <div className="macro-pill"><div className="macro-letter">{letter}</div><div className="macro-val">{Math.round(value)}</div><div className="macro-target">/ {Math.round(target)}</div></div>
 }
 
-/* ═══ ADD MODAL (Plan + Hors Plan) ═══ */
-function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed}){
+/* ═══ APERO SESSION ═══ */
+function AperoSession({slotId,onClose,onBack,onLog,quickLog}){
+  const obj=useObjective();
+  const [items,setItems]=useState([]); // [{...item, checked:false, selectedPortion:null}]
+  const [loading,setLoading]=useState(true);
+  const [submitting,setSubmitting]=useState(false);
+
+  // Load APERO items on mount
+  useEffect(()=>{
+    if(!quickLog)return;
+    (async()=>{
+      setLoading(true);
+      const data=await quickLog.fetchAperoItems();
+      const mapped=(data||[]).map(it=>{
+        const portions=(it.ql_item_portions||[]).sort((a,b)=>{
+          const order={S:0,DEMI:0,M:1,REGULAR:1,BOUTEILLE:1,L:2,PINTE:2};
+          return (order[a.option_key]??5)-(order[b.option_key]??5);
+        });
+        const defaultP=portions.find(p=>p.option_key==='M'||p.option_key==='REGULAR'||p.option_key==='DEMI')||portions[0];
+        return{
+          item_id:it.id,slug:it.slug,label:it.label,
+          portions,flags:(it.ql_flags||[]).map(f=>f.flag_key),
+          checked:false,selectedPortion:defaultP||null,qty:1,
+        };
+      });
+      setItems(mapped);
+      setLoading(false);
+    })();
+  },[]);
+
+  function toggle(idx){
+    setItems(prev=>prev.map((it,i)=>i===idx?{...it,checked:!it.checked}:it));
+  }
+  function setPortion(idx,p){
+    setItems(prev=>prev.map((it,i)=>i===idx?{...it,selectedPortion:p}:it));
+  }
+  function setQty(idx,q){
+    setItems(prev=>prev.map((it,i)=>i===idx?{...it,qty:Math.max(1,Math.min(10,q))}:it));
+  }
+
+  const checked=items.filter(it=>it.checked);
+  const totalKcal=checked.reduce((s,it)=>s+Number(it.selectedPortion?.kcal||0)*it.qty,0);
+  const totalP=checked.reduce((s,it)=>s+Number(it.selectedPortion?.p||0)*it.qty,0);
+  const totalL=checked.reduce((s,it)=>s+Number(it.selectedPortion?.l||0)*it.qty,0);
+  const totalG=checked.reduce((s,it)=>s+Number(it.selectedPortion?.g||0)*it.qty,0);
+
+  async function submitAll(){
+    if(checked.length===0||submitting||!quickLog)return;
+    setSubmitting(true);
+    for(const it of checked){
+      const p=it.selectedPortion;if(!p)continue;
+      const kcal=Number(p.kcal)*it.qty;
+      const prot=Number(p.p)*it.qty;
+      const lip=Number(p.l)*it.qty;
+      const glu=Number(p.g)*it.qty;
+      await quickLog.submitQuickLog({
+        slotId,qlItemId:it.item_id,optionKey:p.option_key,
+        labelSnapshot:it.label,
+        portionLabelSnapshot:`${it.qty}x ${p.label_short||p.option_key}`,
+        kcal,p:prot,l:lip,g:glu,
+        flagsSnapshot:it.flags,slotStatus:'REPLACED',
+      });
+      onLog({
+        id:`ql${Date.now()}_${it.slug}`,slotId,eqId:`ql_${it.slug}`,itemId:null,
+        nbUnits:it.qty,qtyPortion:it.qty,isOutOfPlan:true,qlLabel:it.label,
+        kcal:Math.round(kcal),p:Math.round(prot*10)/10,l:Math.round(lip*10)/10,g:Math.round(glu*10)/10,
+      });
+    }
+    setSubmitting(false);
+    onClose();
+  }
+
+  // Group items by sub-type for visual clarity
+  const groups={};
+  items.forEach(it=>{
+    const isAlcohol=it.flags?.some(f=>f==='alcool');
+    const key=isAlcohol?'Boissons':'A grignoter';
+    if(!groups[key])groups[key]=[];
+    groups[key].push(it);
+  });
+
+  return(
+  <div className="overlay" onClick={onClose}><div role="dialog" className="modal" onClick={e=>e.stopPropagation()} style={{maxHeight:"85vh"}}>
+    <div className="modal-handle"/>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+      <button aria-label="Retour" className="hdr-back" onClick={onBack||onClose} style={{padding:0}}>← Retour</button>
+    </div>
+    <div className="modal-title" style={{display:"flex",alignItems:"center",gap:8}}>Session apéro
+      <span style={{fontSize:10,fontWeight:700,color:"#E8863A",background:"rgba(232,134,58,.08)",padding:"2px 8px",borderRadius:99}}>Quick</span>
+    </div>
+    <div className="modal-sub" style={{marginBottom:10}}>Coche ce que tu as pris, ajuste si besoin</div>
+
+    {loading&&<div style={{textAlign:"center",padding:"24px 0",fontSize:13,color:"#6B7280"}}>Chargement...</div>}
+
+    {!loading&&Object.entries(groups).map(([groupName,groupItems])=><div key={groupName}>
+      <div style={{fontSize:11,fontWeight:700,color:"#6B7280",textTransform:"uppercase",letterSpacing:".5px",marginBottom:6,marginTop:10}}>{groupName}</div>
+      {groupItems.map(it=>{
+        const idx=items.indexOf(it);
+        return <div key={it.item_id} style={{
+          padding:"8px 10px",marginBottom:4,borderRadius:12,cursor:"pointer",
+          background:it.checked?"rgba(232,134,58,.06)":"rgba(15,30,46,.02)",
+          border:`1px solid ${it.checked?"rgba(232,134,58,.25)":"rgba(15,30,46,.06)"}`,
+          transition:"all .15s",
+        }}>
+          <div style={{display:"flex",alignItems:"center",gap:8}} onClick={()=>toggle(idx)}>
+            <div style={{width:20,height:20,borderRadius:6,border:`2px solid ${it.checked?"#E8863A":"rgba(15,30,46,.15)"}`,background:it.checked?"#E8863A":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .15s"}}>
+              {it.checked&&<span style={{color:"#fff",fontSize:12,fontWeight:800,lineHeight:1}}>✓</span>}
+            </div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:13,fontWeight:600,color:"#1A1A1A"}}>{it.label}</div>
+            </div>
+            {it.checked&&<span style={{fontSize:11,fontWeight:700,color:"#E8863A",flexShrink:0}}>{Math.round(Number(it.selectedPortion?.kcal||0)*it.qty)} kcal</span>}
+          </div>
+          {it.checked&&<div style={{marginTop:6,marginLeft:28,display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
+            {it.portions.map(p=><button key={p.option_key} onClick={()=>setPortion(idx,p)} style={{
+              padding:"3px 8px",borderRadius:99,fontSize:10,fontWeight:700,
+              background:it.selectedPortion?.option_key===p.option_key?"rgba(232,134,58,.15)":"#F5F4F1",
+              border:`1px solid ${it.selectedPortion?.option_key===p.option_key?"rgba(232,134,58,.3)":"rgba(15,30,46,.08)"}`,
+              color:it.selectedPortion?.option_key===p.option_key?"#E8863A":"#6B7280",
+              cursor:"pointer",fontFamily:"inherit",
+            }}>{p.label_short||p.option_key}</button>)}
+            {it.portions.length>0&&<div style={{display:"flex",alignItems:"center",gap:4,marginLeft:4}}>
+              <button onClick={()=>setQty(idx,it.qty-1)} disabled={it.qty<=1} style={{width:22,height:22,borderRadius:6,border:"1px solid rgba(15,30,46,.1)",background:"#F5F4F1",fontSize:13,fontWeight:700,cursor:"pointer",color:"#6B7280",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit",opacity:it.qty<=1?.4:1}}>−</button>
+              <span style={{fontSize:12,fontWeight:700,color:"#1A1A1A",minWidth:16,textAlign:"center"}}>{it.qty}</span>
+              <button onClick={()=>setQty(idx,it.qty+1)} disabled={it.qty>=10} style={{width:22,height:22,borderRadius:6,border:"1px solid rgba(15,30,46,.1)",background:"#F5F4F1",fontSize:13,fontWeight:700,cursor:"pointer",color:"#6B7280",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit"}}>+</button>
+            </div>}
+          </div>}
+        </div>
+      })}
+    </div>)}
+
+    {/* Sticky footer with total */}
+    {checked.length>0&&<div style={{position:"sticky",bottom:0,background:"#fff",paddingTop:10,borderTop:"1px solid rgba(15,30,46,.06)",marginTop:8}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+        <span style={{fontSize:12,fontWeight:600,color:"#6B7280"}}>{checked.length} item{checked.length>1?"s":""}</span>
+        <div style={{textAlign:"right"}}>
+          <div style={{fontSize:16,fontWeight:800,color:"#E8863A"}}>{Math.round(totalKcal)} kcal</div>
+          <div style={{fontSize:10,color:"#6B7280"}}>P{Math.round(totalP)} L{Math.round(totalL)} G{Math.round(totalG)}</div>
+        </div>
+      </div>
+      <button className="btn-primary" onClick={submitAll} disabled={submitting} style={{opacity:submitting?.6:1}}>
+        {submitting?"Enregistrement...":"Valider la session"}
+      </button>
+    </div>}
+  </div></div>);
+}
+
+/* ═══ ADD MODAL (Plan + Hors Plan + Quick-Log) ═══ */
+function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,quickLog}){
   const d=useData();
   const obj=useObjective();
   const CATALOGUE=d?.CATALOGUE||DEFAULT_CATALOGUE;
@@ -448,6 +596,15 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed}){
   const [search,setSearch]=useState("");
   const [dietFilter,setDietFilter]=useState(null); // null | 'vegetarian' | 'glutenFree' | 'lactoseFree'
 
+  // Quick-Log state
+  const [qlSearch,setQlSearch]=useState("");
+  const [qlSelected,setQlSelected]=useState(null); // selected QL item
+  const [qlPortion,setQlPortion]=useState(null); // selected portion option
+  const [qlCatFilter,setQlCatFilter]=useState(null);
+  const [qlSubmitting,setQlSubmitting]=useState(false);
+  const [showApero,setShowApero]=useState(false);
+  const qlDebounceRef=useRef(null);
+
   const allowed=SLOT_ALLOWED[slotId]||[];
   const planEqs=CATALOGUE.filter(eq=>allowed.includes(eq.eqId)&&isInPlan(eq.eqId));
   // "Autres" shows: 1) plan EQ not in this slot, 2) ref EQ not in plan (filtered by objective)
@@ -459,6 +616,80 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed}){
   const hpAfterDiet=dietFilter?hpAll.filter(eq=>eq._dietFlags&&eq._dietFlags[dietFilter]):hpAll;
   const hpFiltered=search?hpAfterDiet.filter(eq=>eq.label.toLowerCase().includes(search.toLowerCase())):hpAfterDiet;
   const hpGroups={};hpFiltered.forEach(eq=>{if(!hpGroups[eq.type])hpGroups[eq.type]=[];hpGroups[eq.type].push(eq)});
+
+  // Load QL categories on first tab switch
+  useEffect(()=>{
+    if(tab==="quicklog"&&quickLog&&quickLog.categories.length===0){
+      quickLog.fetchCategories();
+    }
+  },[tab]);
+
+  // QL search with debounce
+  function handleQlSearch(val){
+    setQlSearch(val);
+    setQlSelected(null);setQlPortion(null);
+    if(qlDebounceRef.current)clearTimeout(qlDebounceRef.current);
+    if(!quickLog)return;
+    if(val.length<2){quickLog.clearSearch();return}
+    qlDebounceRef.current=setTimeout(()=>{quickLog.search(val,qlCatFilter)},250);
+  }
+
+  // QL category filter
+  function handleQlCatFilter(catId){
+    const next=qlCatFilter===catId?null:catId;
+    setQlCatFilter(next);
+    setQlSelected(null);setQlPortion(null);
+    if(!quickLog)return;
+    if(qlSearch.length>=2){
+      quickLog.search(qlSearch,next);
+    } else if(next){
+      quickLog.fetchCategoryItems(next);
+    }
+  }
+
+  // QL select item
+  function pickQlItem(item){
+    setQlSelected(item);
+    // Auto-select medium portion if available
+    const portions=item.portions||[];
+    const med=portions.find(p=>p.option_key==='M')||portions.find(p=>p.option_key==='REGULAR')||portions[Math.floor(portions.length/2)]||portions[0];
+    setQlPortion(med||null);
+  }
+
+  // QL submit
+  async function submitQl(){
+    if(!qlSelected||!qlPortion||!quickLog||qlSubmitting)return;
+    setQlSubmitting(true);
+    const {data,error}=await quickLog.submitQuickLog({
+      slotId,
+      qlItemId:qlSelected.item_id,
+      optionKey:qlPortion.option_key,
+      labelSnapshot:qlSelected.label,
+      portionLabelSnapshot:qlPortion.label_short||qlPortion.option_key,
+      kcal:Number(qlPortion.kcal),
+      p:Number(qlPortion.p),
+      l:Number(qlPortion.l),
+      g:Number(qlPortion.g),
+      flagsSnapshot:qlSelected.flags||[],
+      slotStatus:'REPLACED',
+    });
+    if(!error){
+      // Also fire onLog so the local state updates immediately
+      onLog({
+        id:data?.id||`ql${Date.now()}`,slotId,eqId:`ql_${qlSelected.slug||qlSelected.item_id}`,itemId:null,
+        nbUnits:1,qtyPortion:1,isOutOfPlan:true,qlLabel:qlSelected.label,
+        kcal:Math.round(Number(qlPortion.kcal)),
+        p:Math.round(Number(qlPortion.p)*10)/10,
+        l:Math.round(Number(qlPortion.l)*10)/10,
+        g:Math.round(Number(qlPortion.g)*10)/10,
+      });
+      onClose();
+    }
+    setQlSubmitting(false);
+  }
+
+  // Items to show in QL browse mode (no search)
+  const qlBrowseItems=qlSearch.length>=2?quickLog?.results||[]:quickLog?.catItems||[];
 
   function pickEq(eq,hp){
     setSelEq(eq);setShowStepper(false);setSelItem(null);
@@ -495,6 +726,9 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed}){
 
   const curHp=tab==="hors_plan"||(selEq&&!allowed.includes(selEq.eqId));
 
+  // Apero session overlay
+  if(showApero)return <AperoSession slotId={slotId} onClose={onClose} onBack={()=>setShowApero(false)} onLog={onLog} quickLog={quickLog}/>;
+
   if(showHpEdu)return(
     <div className="overlay" onClick={onClose}><div role="dialog" className="modal" onClick={e=>e.stopPropagation()} style={{maxHeight:"50%"}}>
       <div className="modal-handle"/>
@@ -506,6 +740,50 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed}){
       </div>
     </div></div>
   );
+
+  // QL portion picker sub-view
+  if(tab==="quicklog"&&qlSelected){
+    const portions=qlSelected.portions||[];
+    const flags=qlSelected.flags||[];
+    return(
+    <div className="overlay" onClick={onClose}><div role="dialog" className="modal" onClick={e=>e.stopPropagation()}>
+      <div className="modal-handle"/>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+        <button aria-label="Retour" className="hdr-back" onClick={()=>{setQlSelected(null);setQlPortion(null)}} style={{padding:0}}>← Retour</button>
+      </div>
+      <div className="modal-title" style={{display:"flex",alignItems:"center",gap:8}}>
+        {qlSelected.label}
+        <span className="chip-hp" style={{marginLeft:4,background:"rgba(232,134,58,.1)",color:"#E8863A",border:"1px solid rgba(232,134,58,.2)"}}>Repas ext.</span>
+      </div>
+      {qlSelected.description&&<div className="modal-sub" style={{marginTop:2}}>{qlSelected.description}</div>}
+      {flags.length>0&&<div style={{display:"flex",gap:4,flexWrap:"wrap",marginTop:6,marginBottom:8}}>
+        {flags.map(f=><span key={f} style={{padding:"2px 8px",borderRadius:99,fontSize:9,fontWeight:700,background:"rgba(15,30,46,.04)",border:"1px solid rgba(15,30,46,.08)",color:"#6B7280",textTransform:"uppercase"}}>{f.replace(/_/g,' ')}</span>)}
+      </div>}
+      <div className="modal-section" style={{marginTop:8}}>Choisis ta taille</div>
+      {portions.map(p=>{
+        const sel=qlPortion?.option_key===p.option_key;
+        return <div key={p.option_key} onClick={()=>setQlPortion(p)} style={{
+          display:"flex",alignItems:"center",justifyContent:"space-between",
+          padding:"10px 12px",marginBottom:6,borderRadius:14,cursor:"pointer",
+          background:sel?obj.accentSoft:"rgba(15,30,46,.02)",
+          border:`1px solid ${sel?obj.accentBorderStrong:"rgba(15,30,46,.06)"}`,
+          transition:"all .15s",
+        }}>
+          <div>
+            <div style={{fontSize:13,fontWeight:700,color:"#1A1A1A"}}>{p.label_short||p.label_long||p.option_key}</div>
+            <div style={{fontSize:11,color:"#6B7280",marginTop:1}}>{p.grams_or_ml}g</div>
+          </div>
+          <div style={{textAlign:"right"}}>
+            <div style={{fontSize:13,fontWeight:700,color:sel?obj.accent:"#1A1A1A"}}>{Math.round(Number(p.kcal))} kcal</div>
+            <div style={{fontSize:10,color:"#6B7280"}}>P{Math.round(Number(p.p))} L{Math.round(Number(p.l))} G{Math.round(Number(p.g))}</div>
+          </div>
+        </div>
+      })}
+      <button className="btn-primary" disabled={!qlPortion||qlSubmitting} onClick={submitQl} style={{marginTop:8,opacity:qlSubmitting?.6:1}}>
+        {qlSubmitting?"...":`Valider ${qlPortion?Math.round(Number(qlPortion.kcal))+" kcal":""}`}
+      </button>
+    </div></div>);
+  }
 
   if(selEq&&selEq.qtyUi.defaultAction!=="LOG_COMPLETION"){
     const mode=selEq.qtyUi.appInputMode;
@@ -567,8 +845,9 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed}){
     <div className="modal-handle"/>
     <div className="modal-title">Ajouter à {SLOTS.find(s=>s.id===slotId)?.label}</div>
     <div className="modal-tabs">
-      <button className={`modal-tab ${tab==="plan"?"active":""}`} onClick={()=>setTab("plan")}>Dans ton plan</button>
+      <button className={`modal-tab ${tab==="plan"?"active":""}`} onClick={()=>setTab("plan")}>Mon plan</button>
       <button className={`modal-tab ${tab==="hors_plan"?"active":""}`} onClick={()=>setTab("hors_plan")}>Autres</button>
+      <button className={`modal-tab ${tab==="quicklog"?"active":""}`} onClick={()=>setTab("quicklog")} style={{position:"relative"}}>Repas ext.</button>
     </div>
     {tab==="plan"&&planEqs.map(eq=>{
       const c=WEEK_CONSUMED[eq.eqId]||0,t=PLAN_TARGETS[eq.eqId]||0;
@@ -587,6 +866,55 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed}){
           <span style={{width:30,display:"flex",alignItems:"center",justifyContent:"center"}}><EqIcon eqId={eq.eqId} size={20}/></span><div className="eq-body"><div className="eq-name">{eq.label}{isInPlan(eq.eqId)&&<span style={{fontSize:10,color:"#6B7280",marginLeft:4}}>(plan, autre slot)</span>}</div><div className="eq-progress" style={{fontSize:11}}>{eq.nutrientsPerPortion.kcal} kcal/portion</div></div><span style={{fontSize:18,color:"#E8863A"}}>+</span>
         </div>)}
       </div>)}
+    </>}
+    {tab==="quicklog"&&<>
+      <input className="search" placeholder="Pizza, kebab, sushi..." value={qlSearch} onChange={e=>handleQlSearch(e.target.value)} autoFocus/>
+      {/* Category chips */}
+      <div style={{display:"flex",gap:5,marginBottom:8,overflowX:"auto",paddingBottom:4,WebkitOverflowScrolling:"touch"}}>
+        {(quickLog?.categories||[]).map(cat=>{
+          const sel=qlCatFilter===cat.id;
+          return <button key={cat.id} onClick={()=>handleQlCatFilter(cat.id)} style={{
+            padding:"4px 10px",borderRadius:99,fontSize:10,fontWeight:700,whiteSpace:"nowrap",flexShrink:0,
+            background:sel?"rgba(232,134,58,.1)":"#F5F4F1",
+            border:`1px solid ${sel?"rgba(232,134,58,.3)":"rgba(15,30,46,.08)"}`,
+            color:sel?"#E8863A":"#6B7280",cursor:"pointer",fontFamily:"inherit",
+          }}>{cat.icon?cat.icon+" ":""}{cat.label}</button>
+        })}
+      </div>
+      {/* Loading indicator */}
+      {(quickLog?.searching||quickLog?.browseLoading)&&<div style={{textAlign:"center",padding:"16px 0",fontSize:12,color:"#6B7280",fontWeight:500}}>Recherche...</div>}
+      {/* Results */}
+      {!quickLog?.searching&&!quickLog?.browseLoading&&qlBrowseItems.length===0&&(qlSearch.length>=2||qlCatFilter)&&(
+        <div style={{textAlign:"center",padding:"20px 0",fontSize:13,color:"#6B7280"}}>Aucun résultat</div>
+      )}
+      {!quickLog?.searching&&!quickLog?.browseLoading&&qlBrowseItems.map(item=>(
+        <div key={item.item_id} className="eq-card" role="button" tabIndex={0} onClick={()=>pickQlItem(item)}>
+          <div className="eq-body" style={{flex:1}}>
+            <div className="eq-name" style={{display:"flex",alignItems:"center",gap:6}}>
+              {item.label}
+              {item.is_featured&&<span style={{fontSize:9,fontWeight:700,color:obj.accent,background:obj.accentSoft,padding:"1px 5px",borderRadius:99}}>TOP</span>}
+            </div>
+            <div className="eq-progress" style={{fontSize:11,display:"flex",alignItems:"center",gap:6}}>
+              {item.portions?.length>0&&<span>{Math.round(Number(item.portions[Math.floor(item.portions.length/2)]?.kcal||item.portions[0]?.kcal||0))} kcal</span>}
+              {item.category_label&&<span style={{color:"rgba(15,30,46,.3)"}}>· {item.category_label}</span>}
+            </div>
+          </div>
+          <span style={{fontSize:18,color:"#E8863A",flexShrink:0}}>+</span>
+        </div>
+      ))}
+      {/* Apero shortcut */}
+      <div style={{marginTop:10,padding:"10px 14px",borderRadius:14,background:"linear-gradient(135deg,rgba(232,134,58,.06),rgba(232,134,58,.02))",border:"1px solid rgba(232,134,58,.15)",display:"flex",alignItems:"center",gap:10,cursor:"pointer"}} onClick={()=>setShowApero(true)}>
+        <span style={{fontSize:20,flexShrink:0}}>🍻</span>
+        <div style={{flex:1}}>
+          <div style={{fontSize:12,fontWeight:700,color:"#E8863A"}}>Session apéro</div>
+          <div style={{fontSize:11,color:"#6B7280",marginTop:1}}>Coche tout en 15 secondes</div>
+        </div>
+        <span style={{fontSize:14,color:"#E8863A",fontWeight:700}}>→</span>
+      </div>
+      {/* Empty state: no search, no category */}
+      {!qlSearch&&!qlCatFilter&&!quickLog?.searching&&<div style={{textAlign:"center",padding:"16px 0"}}>
+        <div style={{fontSize:13,color:"#6B7280",lineHeight:1.6}}>Tape le nom de ce que tu as mangé<br/>ou choisis une catégorie</div>
+      </div>}
     </>}
   </div></div>);
 }
@@ -734,7 +1062,7 @@ function StreakBanner({current,longest,accent,accentSoft,accentBorder,lastDate,f
   </div>
 }
 
-function PlanTab({logs,onAddLog,onDeleteLog,weekConsumed,weekNutrients,streak,onIncrementStreak,onCheckMilestones,bilanCount,dietMessages,onDietMarkRead,onSwitchTab}){
+function PlanTab({logs,onAddLog,onDeleteLog,weekConsumed,weekNutrients,streak,onIncrementStreak,onCheckMilestones,bilanCount,dietMessages,onDietMarkRead,onSwitchTab,quickLog}){
   const d=useData();
   const obj=useObjective();
   const [confirmDel,setConfirmDel]=useState(null);
@@ -859,18 +1187,39 @@ function PlanTab({logs,onAddLog,onDeleteLog,weekConsumed,weekNutrients,streak,on
         <div className="macros" data-tour="macros"><MPill letter="P" value={dayNut.p} target={DAY_TARGETS.p}/><MPill letter="L" value={dayNut.l} target={DAY_TARGETS.l}/><MPill letter="G" value={dayNut.g} target={DAY_TARGETS.g}/></div>
         <div className="day-hint">{obj.dayHint}</div>
       </div>
+      {(()=>{
+        const planKcal=logs.filter(l=>!l.eqId?.startsWith?.('ql_')).reduce((s,l)=>s+l.kcal,0);
+        const qlKcal=logs.filter(l=>l.eqId?.startsWith?.('ql_')).reduce((s,l)=>s+l.kcal,0);
+        const target=DAY_TARGETS.kcal||1;const remaining=Math.max(0,target-planKcal-qlKcal);
+        const pPlan=Math.min(planKcal/target,1);const pQl=Math.min(qlKcal/target,1-pPlan);
+        if(qlKcal===0)return null;
+        return <div style={{marginBottom:10,padding:"8px 14px",borderRadius:14,background:"rgba(15,30,46,.02)",border:"1px solid rgba(15,30,46,.06)"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+            <span style={{fontSize:10,fontWeight:700,color:"#6B7280",textTransform:"uppercase",letterSpacing:".3px"}}>Budget restant</span>
+            <span style={{fontSize:12,fontWeight:800,color:remaining>0?"#1A1A1A":"#E8863A"}}>{Math.round(remaining)} kcal</span>
+          </div>
+          <div style={{height:6,borderRadius:3,background:"rgba(15,30,46,.06)",overflow:"hidden",display:"flex"}}>
+            {pPlan>0&&<div style={{width:`${pPlan*100}%`,height:"100%",background:obj.accent,transition:"width .4s ease-out"}}/>}
+            {pQl>0&&<div style={{width:`${pQl*100}%`,height:"100%",background:"#E8863A",transition:"width .4s ease-out"}}/>}
+          </div>
+          <div style={{display:"flex",gap:12,marginTop:5,fontSize:10,color:"#6B7280",fontWeight:500}}>
+            <span><span style={{display:"inline-block",width:6,height:6,borderRadius:3,background:obj.accent,marginRight:3,verticalAlign:"middle"}}/>Plan {Math.round(planKcal)}</span>
+            <span><span style={{display:"inline-block",width:6,height:6,borderRadius:3,background:"#E8863A",marginRight:3,verticalAlign:"middle"}}/>Repas ext. {Math.round(qlKcal)}</span>
+          </div>
+        </div>
+      })()}
       {SLOTS.map((slot,slotIdx)=>{
         const sl=logs.filter(l=>l.slotId===slot.id);const sk=sl.reduce((s,l)=>s+l.kcal,0);
         const mockTimes={breakfast:"7h42",snack1:"10h15",coldMeal:"12h38",snack2:"16h05",hotMeal:"19h47"};
         return <div className="slot" key={slot.id} style={sl.length>0?{borderColor:obj.accentBorder}:{}}>
           <div className="slot-header"><div className="slot-left"><div><div className="slot-name">{slot.label}</div><div className="slot-time">{sl.length>0?<><span style={{color:"rgba(15,30,46,.35)"}}>Dernier ajout {mockTimes[slot.id]}</span><span style={{color:obj.accent,fontWeight:600}}> · {Math.round(sk)} kcal</span></>:slot.time}</div></div></div><button aria-label="Ajouter un aliment" className="slot-add" data-tour={slotIdx===0?"slot-add":undefined} onClick={()=>setAddSlot(slot.id)}>+</button></div>
-          {sl.length>0&&<div style={{marginTop:6}}>{sl.map(l=><div className="log-item" role="button" tabIndex={0} key={l.id} onClick={()=>setConfirmDel(l)} style={{cursor:"pointer"}}><div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:0}}><span style={{width:22,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><EqIcon eqId={l.eqId} size={17}/></span><span className="log-name">{getLogLabel(l.eqId,l.itemId)}</span>{l.isOutOfPlan&&<span className="chip-hp">HP</span>}</div><div style={{textAlign:"right",flexShrink:0,paddingLeft:8,display:"flex",alignItems:"baseline",gap:6}}><span style={{fontSize:12,fontWeight:700,color:"#1A1A1A"}}>{l.kcal}</span><span style={{fontSize:10,color:l.qtyPortion===1?obj.accentLine:"#E8863A",fontWeight:600,minWidth:38}}>{l.qtyPortion===1?"1 port.":l.qtyPortion+" port."}</span></div></div>)}</div>}
+          {sl.length>0&&<div style={{marginTop:6}}>{sl.map(l=>{const isQl=typeof l.eqId==='string'&&l.eqId.startsWith('ql_');return <div className="log-item" role="button" tabIndex={0} key={l.id} onClick={()=>setConfirmDel(l)} style={{cursor:"pointer"}}><div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:0}}><span style={{width:22,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{isQl?<span style={{fontSize:14}}>🍽</span>:<EqIcon eqId={l.eqId} size={17}/>}</span><span className="log-name">{isQl?(l.qlLabel||getLogLabel(l.eqId,l.itemId)):getLogLabel(l.eqId,l.itemId)}</span>{isQl?<span style={{display:"inline-block",fontSize:9,fontWeight:800,background:"rgba(232,134,58,.08)",color:"#E8863A",padding:"2px 7px",borderRadius:99,marginLeft:6,border:"1px solid rgba(232,134,58,.15)"}}>Repas ext.</span>:l.isOutOfPlan&&<span className="chip-hp">HP</span>}</div><div style={{textAlign:"right",flexShrink:0,paddingLeft:8,display:"flex",alignItems:"baseline",gap:6}}><span style={{fontSize:12,fontWeight:700,color:"#1A1A1A"}}>{l.kcal}</span><span style={{fontSize:10,color:l.qtyPortion===1?obj.accentLine:"#E8863A",fontWeight:600,minWidth:38}}>{l.qtyPortion===1?"1 port.":l.qtyPortion+" port."}</span></div></div>})}</div>}
           {sl.length===0&&<div style={{padding:"10px 0 2px",fontSize:12,color:obj.accentLine,fontWeight:500}}>Appuie sur <strong style={{fontWeight:700}}>+</strong> pour commencer ce repas</div>}
           {(()=>{const recent=recentBySlot[slot.id]||[];if(!recent.length)return null;return <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:6}}>{recent.map(r=><button key={r.key} onClick={()=>{const id=crypto.randomUUID?.()|| `${Date.now()}-${Math.random()}`;handleLog({id,slotId:slot.id,eqId:r.eqId,itemId:r.itemId,nbUnits:r.qtyPortion||1,qtyPortion:r.qtyPortion||1,isOutOfPlan:r.isOutOfPlan||false,kcal:r.kcal||0,p:r.p||0,l:r.l||0,g:r.g||0})}} style={{padding:"4px 10px",borderRadius:99,fontSize:11,fontWeight:600,background:"rgba(15,30,46,.03)",border:`1px solid ${obj.accentBorder}`,color:"#6B7280",cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",gap:4}}><span style={{color:obj.accent,fontWeight:700}}>+</span>{getLogLabel(r.eqId,r.itemId)}</button>)}</div>})()}
         </div>
       })}
     </>:<WeekView logs={logs} onAdd={setAddSlot} weekConsumed={weekConsumed} weekNutrients={weekNutrients}/>}
-    {addSlot&&<AddModal slotId={addSlot} onClose={()=>setAddSlot(null)} onLog={handleLog} everLoggedHp={hasHp} weekConsumed={weekConsumed}/>}
+    {addSlot&&<AddModal slotId={addSlot} onClose={()=>setAddSlot(null)} onLog={handleLog} everLoggedHp={hasHp} weekConsumed={weekConsumed} quickLog={quickLog}/>}
     {confirmDel&&<div className="overlay" onClick={()=>setConfirmDel(null)}><div style={{position:"absolute",bottom:0,left:0,right:0,background:"#fff",borderRadius:"24px 24px 0 0",padding:"20px 20px 32px",animation:"slideUp .25s ease-out"}} onClick={e=>e.stopPropagation()}>
       <div className="modal-handle"/>
       <div style={{textAlign:"center",marginBottom:16}}>
@@ -1741,7 +2090,7 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
 }
 
 /* ═══ MAIN APP ═══ */
-export default function EleviaApp({ session, signOut, planData, logs: externalLogs, weekConsumed: externalWeekConsumed, weekNutrients: externalWeekNutrients, onAddLog: externalAddLog, onDeleteLog, onAddMeasurement, onCreateBilan, streak: externalStreak, onIncrementStreak, milestones, milestoneDefs, newlyUnlocked, onCheckMilestones, onDismissMilestone, dietMessages, dietUnread, onDietMarkRead, onDietMarkAllRead }){
+export default function EleviaApp({ session, signOut, planData, logs: externalLogs, weekConsumed: externalWeekConsumed, weekNutrients: externalWeekNutrients, onAddLog: externalAddLog, onDeleteLog, onAddMeasurement, onCreateBilan, streak: externalStreak, onIncrementStreak, milestones, milestoneDefs, newlyUnlocked, onCheckMilestones, onDismissMilestone, dietMessages, dietUnread, onDietMarkRead, onDietMarkAllRead, quickLog }){
   const [tab,setTab]=useState("plan");
   // Use external logs if provided (Supabase), fallback to local state
   const [localLogs,setLocalLogs]=useState(DEFAULT_INITIAL_LOGS);
@@ -1783,7 +2132,7 @@ export default function EleviaApp({ session, signOut, planData, logs: externalLo
     <div className="app-shell">
       <div className="hdr"><IcLogo height={20}/></div>
       <div className="content">
-        {tab==="plan"&&<PlanTab logs={logs} onAddLog={addLog} onDeleteLog={onDeleteLog} weekConsumed={weekConsumed} weekNutrients={weekNutrients} streak={externalStreak} onIncrementStreak={onIncrementStreak} onCheckMilestones={onCheckMilestones} bilanCount={planData?.BILANS?.length||0} dietMessages={dietMessages} onDietMarkRead={onDietMarkRead} onSwitchTab={setTab}/>}
+        {tab==="plan"&&<PlanTab logs={logs} onAddLog={addLog} onDeleteLog={onDeleteLog} weekConsumed={weekConsumed} weekNutrients={weekNutrients} streak={externalStreak} onIncrementStreak={onIncrementStreak} onCheckMilestones={onCheckMilestones} bilanCount={planData?.BILANS?.length||0} dietMessages={dietMessages} onDietMarkRead={onDietMarkRead} onSwitchTab={setTab} quickLog={quickLog}/>}
         {tab==="advice"&&<AdviceTab onCreateBilan={onCreateBilan}/>}
         {tab==="history"&&<HistoryTab logs={logs}/>}
         {tab==="profile"&&<ProfileTab signOut={signOut} onAddMeasurement={onAddMeasurement} milestones={milestones} milestoneDefs={milestoneDefs} dietMessages={dietMessages} dietUnread={dietUnread} onDietMarkRead={onDietMarkRead}/>}

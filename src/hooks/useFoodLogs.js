@@ -31,11 +31,13 @@ export function useFoodLogs(session, planData) {
 
       const [todayRes, weekRes] = await Promise.all([
         supabase.from('food_logs').select('*')
-          .eq('user_id', userId).eq('plan_id', planId).eq('log_date', today)
+          .eq('user_id', userId).or(`plan_id.eq.${planId},log_type.eq.quicklog`).eq('log_date', today)
+          .is('deleted_at', null)
           .order('created_at'),
         supabase.from('food_logs').select('*')
-          .eq('user_id', userId).eq('plan_id', planId)
-          .gte('log_date', start).lte('log_date', end),
+          .eq('user_id', userId).or(`plan_id.eq.${planId},log_type.eq.quicklog`)
+          .gte('log_date', start).lte('log_date', end)
+          .is('deleted_at', null),
       ])
 
       if (cancelled) return
@@ -67,7 +69,25 @@ export function useFoodLogs(session, planData) {
 
   // Transform a Supabase food_log row to the app's log shape
   function transformLog(row) {
-    // We need to compute kcal/macros from the catalogue (plan + full ref)
+    // Quick-Log entries use snapshot columns instead of catalogue lookup
+    if (row.log_type === 'quicklog') {
+      return {
+        id: row.id,
+        slotId: row.slot_id,
+        eqId: row.ql_item_id ? `ql_${row.ql_option_key || 'item'}` : row.eq_id,
+        itemId: null,
+        nbUnits: 1,
+        qtyPortion: 1,
+        isOutOfPlan: true,
+        qlLabel: row.label_snapshot,
+        kcal: Math.round(Number(row.kcal_snapshot) || 0),
+        p: Math.round((Number(row.p_snapshot) || 0) * 10) / 10,
+        l: Math.round((Number(row.l_snapshot) || 0) * 10) / 10,
+        g: Math.round((Number(row.g_snapshot) || 0) * 10) / 10,
+      }
+    }
+
+    // Plan logs: compute kcal/macros from the catalogue
     const catalogue = planData?.CATALOGUE || []
     const fullCatalogue = planData?.FULL_CATALOGUE || []
     const slotAllowed = planData?.SLOT_ALLOWED || {}
@@ -167,7 +187,10 @@ export function useFoodLogs(session, planData) {
       g: Math.max(0, prev.g - g),
     }))
 
-    const { error } = await supabase.from('food_logs').delete().eq('id', logId)
+    // Soft-delete (RLS only allows UPDATE, not DELETE)
+    const { error } = await supabase.from('food_logs')
+      .update({ deleted_at: new Date().toISOString() })
+      .eq('id', logId)
     if (error) console.error('Error deleting food log:', error)
   }, [])
 
