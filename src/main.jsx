@@ -33,13 +33,8 @@ function App() {
     return <LoginScreen onSignIn={signIn} />
   }
 
-  // Data loading
-  if (dataLoading || !planData) {
-    return <SplashScreen subtitle="Chargement de ton plan..." />
-  }
-
-  // Data error
-  if (dataError) {
+  // Data error (check BEFORE !planData to avoid infinite splash)
+  if (!dataLoading && dataError) {
     return (
       <div style={{
         width: '100%', maxWidth: 430, height: '100dvh', margin: '0 auto',
@@ -56,6 +51,11 @@ function App() {
         }}>Se déconnecter</button>
       </div>
     )
+  }
+
+  // Data loading
+  if (dataLoading || !planData) {
+    return <SplashScreen subtitle="Chargement de ton plan..." />
   }
 
   // Merge live data into planData — use hook data if available, fallback to planData

@@ -28,9 +28,9 @@ export function usePlanData(session) {
 
         if (profileErr) {
           console.error('[usePlanData] Profile error:', profileErr)
-          throw profileErr
+          throw new Error('Ton profil n\'a pas encore été configuré. Contacte ton diététicien pour activer ton plan.')
         }
-        if (!profile?.active_plan_id) throw new Error('Aucun plan actif trouvé.')
+        if (!profile?.active_plan_id) throw new Error('Aucun plan alimentaire n\'est encore associé à ton compte. Contacte ton diététicien pour démarrer.')
 
         const planId = profile.active_plan_id
         console.log('[usePlanData] Plan ID:', planId)
@@ -51,11 +51,11 @@ export function usePlanData(session) {
           // Full reference catalogue (for "Autres" tab)
           supabase.from('ref_eq_master').select('*').order('eq_id'),
           supabase.from('ref_eq_items').select('*').order('eq_id,item_order'),
-          // Content tables
-          supabase.from('plan_video_guides').select('*').eq('plan_id', planId).order('display_order'),
+          // Content tables (video_guides + capsules are global, no plan_id column)
+          supabase.from('plan_video_guides').select('*').order('display_order'),
           supabase.from('plan_recipes').select('*').eq('is_active', true),
           supabase.from('plan_progression').select('*').eq('plan_id', planId).order('phase_number'),
-          supabase.from('plan_capsules').select('*').eq('plan_id', planId).order('display_order'),
+          supabase.from('plan_capsules').select('*').order('display_order'),
         ])
 
         const names = ['client_plans', 'plan_equivalences', 'plan_items', 'plan_slots', 'plan_slot_mapping', 'plan_targets', 'plan_advices', 'plan_micro_tips', 'ref_micro_tips', 'measurements', 'weekly_bilans', 'ref_eq_master', 'ref_eq_items', 'plan_video_guides', 'plan_recipes', 'plan_progression', 'plan_capsules']
@@ -64,7 +64,7 @@ export function usePlanData(session) {
           const { data: d, error: e } = results[i]
           if (e) {
             console.error(`[usePlanData] ${names[i]} error:`, e)
-            throw e
+            throw new Error('Un problème est survenu lors du chargement de ton plan. Réessaie ou contacte ton diététicien.')
           }
           const count = Array.isArray(d) ? d.length : (d ? 1 : 0)
           console.log(`[usePlanData] ${names[i]}: ${count} rows`)
@@ -107,7 +107,7 @@ export function usePlanData(session) {
         setData(transformed)
       } catch (err) {
         console.error('[usePlanData] Fatal error:', err)
-        if (!cancelled) setError(err.message || 'Erreur de chargement')
+        if (!cancelled) setError(err.message || 'Un problème est survenu. Réessaie dans quelques instants.')
       } finally {
         if (!cancelled) setLoading(false)
       }

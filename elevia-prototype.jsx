@@ -300,7 +300,7 @@ const css = `
 html{height:100%;-webkit-text-size-adjust:100%}
 body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);overflow:hidden;line-height:1.5}
 .app-shell{width:100%;max-width:430px;height:100dvh;height:100vh;margin:0 auto;background:var(--bg);display:flex;flex-direction:column;position:relative;overflow:hidden}
-.hdr{background:var(--navy);padding:env(safe-area-inset-top,12px) 20px 10px;border-bottom:1px solid var(--accent-line);display:flex;align-items:center;justify-content:center;flex-shrink:0;min-height:48px}
+.hdr{background:var(--navy);padding:13px 16px;border-bottom:1px solid var(--accent-line);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;padding-top:max(env(safe-area-inset-top,0px) + 13px, 13px)}
 .hdr-logo{font-size:20px;font-weight:800;letter-spacing:2px;color:var(--accent);font-style:italic}
 .hdr-back{background:none;border:none;color:var(--accent);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
 .content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:88px}.content::-webkit-scrollbar{display:none}
@@ -591,6 +591,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,quickLog}){
   const [units,setUnits]=useState(1);
   const [portion,setPortion]=useState(1);
   const [showStepper,setShowStepper]=useState(false);
+  const [showTable,setShowTable]=useState(false);
   const [showHpEdu,setShowHpEdu]=useState(false);
   const [showNote,setShowNote]=useState(false);
   const [search,setSearch]=useState("");
@@ -692,7 +693,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,quickLog}){
   const qlBrowseItems=qlSearch.length>=2?quickLog?.results||[]:quickLog?.catItems||[];
 
   function pickEq(eq,hp){
-    setSelEq(eq);setShowStepper(false);setSelItem(null);
+    setSelEq(eq);setShowStepper(false);setShowTable(false);setSelItem(null);
     if(eq.qtyUi.defaultAction==="LOG_COMPLETION"){doLog(eq,null,1,1,hp);return}
     if(eq.qtyUi.appInputMode==="ITEM_FIRST_PICK"){
       setShowStepper(true);
@@ -810,9 +811,34 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,quickLog}){
       </>}
 
       {mode!=="PORTION_TAP"&&<>
-        {!showStepper&&<>
+        {!showStepper&&!showTable&&<>
+          {selEq.eqMode!=='R'&&selItem?.stepper&&<div style={{fontSize:12,color:"#6B7280",margin:"4px 0 12px"}}>
+            1 portion ≈ {selItem.stepper.defaultUnits} {selItem.stepper.defaultUnits<=1?selItem.stepper.usualUnitSg:selItem.stepper.usualUnitPl}
+            {selItem.stepper.usualGPerUnit>0&&` (${Math.round(selItem.stepper.usualGPerUnit*selItem.stepper.defaultUnits)}g)`}
+          </div>}
           <button className="btn-primary" onClick={()=>doLog(selEq,selItem,selItem?.stepper?.defaultUnits||1,1,curHp)}>Ajouter 1 portion</button>
-          <button className="btn-text" onClick={()=>setShowStepper(true)}>Modifier la quantité →</button>
+          <div style={{display:"flex",gap:8,justifyContent:"center",marginTop:4}}>
+            <button className="btn-text" onClick={()=>setShowStepper(true)} style={{margin:0}}>Modifier la quantité →</button>
+            {selEq.items.length>1&&<button className="btn-text" onClick={()=>setShowTable(true)} style={{margin:0,opacity:.7}}>Mes équivalences</button>}
+          </div>
+        </>}
+        {showTable&&<>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
+            <div className="modal-section" style={{margin:0}}>Mes équivalences</div>
+            <span style={{fontSize:11,color:"#9CA3AF",fontStyle:"italic"}}>1 ligne = 1 portion</span>
+          </div>
+          {selEq.items.map(item=>(
+            <div key={item.itemId} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"9px 12px",marginBottom:4,borderRadius:12,background:item.isRecommended?obj.accentSoft:"rgba(15,30,46,.02)",border:`1px solid ${item.isRecommended?obj.accentBorder:"rgba(15,30,46,.06)"}`}}>
+              <div style={{display:"flex",alignItems:"center",gap:6,minWidth:0}}>
+                {item.isRecommended&&<IcStar size={12} color={obj.accent}/>}
+                <span style={{fontSize:13,fontWeight:600,color:"#1A1A1A",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.foodLabel}</span>
+              </div>
+              <span style={{fontSize:12,color:"#6B7280",whiteSpace:"nowrap",marginLeft:8}}>
+                {item.stepper?`${item.stepper.defaultUnits} ${item.stepper.defaultUnits<=1?item.stepper.usualUnitSg:item.stepper.usualUnitPl} (${Math.round(item.stepper.usualGPerUnit*item.stepper.defaultUnits)}g)`:selEq.qtyPlanGrams>0?`${selEq.qtyPlanGrams}g`:'—'}
+              </span>
+            </div>
+          ))}
+          <button className="btn-text" onClick={()=>setShowTable(false)} style={{marginTop:8}}>← Retour</button>
         </>}
         {showStepper&&<>
           {selEq.items.length>0&&<>
@@ -843,7 +869,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,quickLog}){
   return(
   <div className="overlay" onClick={onClose}><div role="dialog" className="modal" onClick={e=>e.stopPropagation()}>
     <div className="modal-handle"/>
-    <div className="modal-title">Ajouter à {SLOTS.find(s=>s.id===slotId)?.label}</div>
+    <div style={{display:"flex",alignItems:"baseline",gap:6,marginBottom:4}}><span className="modal-title" style={{margin:0}}>Ajouter à</span><span style={{fontSize:14,color:"rgba(15,30,46,.25)",fontWeight:300}}> — </span><span style={{fontSize:17,fontWeight:800,color:"var(--accent)",fontFamily:"'Cormorant Garamond',serif"}}>{SLOTS.find(s=>s.id===slotId)?.label?.replace(/\s*\(.*\)\s*$/,"")}</span></div>
     <div className="modal-tabs">
       <button className={`modal-tab ${tab==="plan"?"active":""}`} onClick={()=>setTab("plan")}>Mon plan</button>
       <button className={`modal-tab ${tab==="hors_plan"?"active":""}`} onClick={()=>setTab("hors_plan")}>Autres</button>
@@ -1069,6 +1095,7 @@ function PlanTab({logs,onAddLog,onDeleteLog,weekConsumed,weekNutrients,streak,on
   const DAY_TARGETS=d?.DAY_TARGETS||DEFAULT_DAY_TARGETS;
   const WEEK_TARGETS=d?.WEEK_TARGETS||DEFAULT_WEEK_TARGETS;
   const SLOTS=d?.SLOTS||DEFAULT_SLOTS;
+  const SLOT_ALLOWED=d?.SLOT_ALLOWED||DEFAULT_SLOT_ALLOWED;
   const MICRO_TIPS=d?.MICRO_TIPS||DEFAULT_MICRO_TIPS;
   const {getLogLabel}=useHelpers();
 
@@ -1162,8 +1189,16 @@ function PlanTab({logs,onAddLog,onDeleteLog,weekConsumed,weekNutrients,streak,on
   const weekNum=daysSinceStart!=null?Math.floor(daysSinceStart/7)+1:null;
   const dayNum=daysSinceStart!=null?daysSinceStart+1:null;
 
+  const todayLabel=(()=>{const now=new Date();const days=["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"];const months=["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];return `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]}`})();
+  const greetHour=new Date().getHours();
+  const greetText=greetHour<12?"Bonjour":greetHour<18?"Bon après-midi":"Bonsoir";
+  const firstName=d?.CLIENT?.firstName||"";
+
   return <div className="page">
-    <div className="flex-between"><div className="page-title">Plan</div><div className="page-meta">{weekNum?`Semaine ${weekNum} · Jour ${dayNum}`:"Mon plan"}</div></div>
+    <div style={{marginBottom:4}}>
+      <div style={{fontSize:18,fontWeight:800,color:"#1A1A1A"}}>{greetText}{firstName?` ${firstName}`:""}</div>
+      <div style={{fontSize:12,color:"#6B7280",fontWeight:500,marginTop:2}}>{todayLabel.charAt(0).toUpperCase()+todayLabel.slice(1)}{weekNum?` · Semaine ${weekNum}`:""}</div>
+    </div>
     <div className="seg" data-tour="seg-toggle"><button className={`seg-btn ${view==="day"?"active":""}`} onClick={()=>setView("day")}>Jour</button><button className={`seg-btn ${view==="week"?"active":""}`} onClick={()=>setView("week")}>Semaine</button></div>
     <DietMessageBanner messages={dietMessages} accent={obj.accent} accentSoft={obj.accentSoft} accentBorder={obj.accentBorder} onMarkRead={onDietMarkRead} onOpenInbox={()=>onSwitchTab?.("profile")}/>
     {streak&&<StreakBanner current={streak.current} longest={streak.longest} lastDate={streak.lastDate} firstName={d?.CLIENT?.firstName} accent={obj.accent} accentSoft={obj.accentSoft} accentBorder={obj.accentBorder}/>}
@@ -1210,11 +1245,27 @@ function PlanTab({logs,onAddLog,onDeleteLog,weekConsumed,weekNutrients,streak,on
       })()}
       {SLOTS.map((slot,slotIdx)=>{
         const sl=logs.filter(l=>l.slotId===slot.id);const sk=sl.reduce((s,l)=>s+l.kcal,0);
-        const mockTimes={breakfast:"7h42",snack1:"10h15",coldMeal:"12h38",snack2:"16h05",hotMeal:"19h47"};
+        // Clean slot label: remove parenthetical, add format hint underneath
+        const slotDisplay=(()=>{
+          const formatHints={"REPAS_FROID_PAIN":"Base pain","REPAS_FROID_BOWL":"Base bowl / meal prep","PRE_WO":"Avant l'entraînement","POST_WO":"Après l'entraînement"};
+          // PDJ: derive base from assigned eqs
+          let pdjHint=null;
+          if(slot.id==="PDJ"){
+            const pdjEqs=SLOT_ALLOWED[slot.id]||[];
+            const hasPain=pdjEqs.includes("pain");
+            const hasCereales=pdjEqs.includes("cereales_ig_modere");
+            if(hasPain&&hasCereales)pdjHint="Base tartines & céréales";
+            else if(hasPain)pdjHint="Base tartines";
+            else if(hasCereales)pdjHint="Base céréales";
+          }
+          const clean=slot.label.replace(/\s*\(.*\)\s*$/,"");
+          const hint=pdjHint||formatHints[slot.id]||null;
+          return {name:clean,hint};
+        })();
         return <div className="slot" key={slot.id} style={sl.length>0?{borderColor:obj.accentBorder}:{}}>
-          <div className="slot-header"><div className="slot-left"><div><div className="slot-name">{slot.label}</div><div className="slot-time">{sl.length>0?<><span style={{color:"rgba(15,30,46,.35)"}}>Dernier ajout {mockTimes[slot.id]}</span><span style={{color:obj.accent,fontWeight:600}}> · {Math.round(sk)} kcal</span></>:slot.time}</div></div></div><button aria-label="Ajouter un aliment" className="slot-add" data-tour={slotIdx===0?"slot-add":undefined} onClick={()=>setAddSlot(slot.id)}>+</button></div>
+          <div className="slot-header"><div className="slot-left"><div><div className="slot-name">{slotDisplay.name}</div>{slotDisplay.hint&&<div style={{fontSize:10,color:obj.accent,fontWeight:600,marginTop:1,opacity:.7}}>{slotDisplay.hint}</div>}<div className="slot-time">{sl.length>0?<><span style={{color:obj.accent,fontWeight:600}}>{Math.round(sk)} kcal</span></>:<span style={{color:"rgba(15,30,46,.25)",fontSize:11}}>Appuie sur + pour commencer</span>}</div></div></div><button aria-label="Ajouter un aliment" className="slot-add" data-tour={slotIdx===0?"slot-add":undefined} onClick={()=>setAddSlot(slot.id)}>+</button></div>
           {sl.length>0&&<div style={{marginTop:6}}>{sl.map(l=>{const isQl=typeof l.eqId==='string'&&l.eqId.startsWith('ql_');return <div className="log-item" role="button" tabIndex={0} key={l.id} onClick={()=>setConfirmDel(l)} style={{cursor:"pointer"}}><div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:0}}><span style={{width:22,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{isQl?<span style={{fontSize:14}}>🍽</span>:<EqIcon eqId={l.eqId} size={17}/>}</span><span className="log-name">{isQl?(l.qlLabel||getLogLabel(l.eqId,l.itemId)):getLogLabel(l.eqId,l.itemId)}</span>{isQl?<span style={{display:"inline-block",fontSize:9,fontWeight:800,background:"rgba(232,134,58,.08)",color:"#E8863A",padding:"2px 7px",borderRadius:99,marginLeft:6,border:"1px solid rgba(232,134,58,.15)"}}>Repas ext.</span>:l.isOutOfPlan&&<span className="chip-hp">HP</span>}</div><div style={{textAlign:"right",flexShrink:0,paddingLeft:8,display:"flex",alignItems:"baseline",gap:6}}><span style={{fontSize:12,fontWeight:700,color:"#1A1A1A"}}>{l.kcal}</span><span style={{fontSize:10,color:l.qtyPortion===1?obj.accentLine:"#E8863A",fontWeight:600,minWidth:38}}>{l.qtyPortion===1?"1 port.":l.qtyPortion+" port."}</span></div></div>})}</div>}
-          {sl.length===0&&<div style={{padding:"10px 0 2px",fontSize:12,color:obj.accentLine,fontWeight:500}}>Appuie sur <strong style={{fontWeight:700}}>+</strong> pour commencer ce repas</div>}
+          {sl.length===0&&<div style={{height:4}}/>}
           {(()=>{const recent=recentBySlot[slot.id]||[];if(!recent.length)return null;return <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:6}}>{recent.map(r=><button key={r.key} onClick={()=>{const id=crypto.randomUUID?.()|| `${Date.now()}-${Math.random()}`;handleLog({id,slotId:slot.id,eqId:r.eqId,itemId:r.itemId,nbUnits:r.qtyPortion||1,qtyPortion:r.qtyPortion||1,isOutOfPlan:r.isOutOfPlan||false,kcal:r.kcal||0,p:r.p||0,l:r.l||0,g:r.g||0})}} style={{padding:"4px 10px",borderRadius:99,fontSize:11,fontWeight:600,background:"rgba(15,30,46,.03)",border:`1px solid ${obj.accentBorder}`,color:"#6B7280",cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",gap:4}}><span style={{color:obj.accent,fontWeight:700}}>+</span>{getLogLabel(r.eqId,r.itemId)}</button>)}</div>})()}
         </div>
       })}
@@ -1532,6 +1583,8 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
   const [mSaving,setMSaving]=useState(false);
   const [selRecipe,setSelRecipe]=useState(null);
   const [expandedCapsule,setExpandedCapsule]=useState(null);
+  const [eqSearch,setEqSearch]=useState("");
+  const [eqExpanded,setEqExpanded]=useState({});
   const m=MEASUREMENTS&&MEASUREMENTS.length>0?MEASUREMENTS:DEFAULT_MEASUREMENTS;
   const latest=m[0];const first=m[m.length-1];
 
@@ -1986,31 +2039,28 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
 
   if(subScreen==="guides"){
     const guides=d?.VIDEO_GUIDES||[];
-    const fallback=[{title:"Comment fonctionne ton plan",duration:"2 min",description:"Comprendre les équivalences."},{title:"Logger un repas en 15 sec",duration:"1 min 30",description:"Ajouter rapidement."},{title:"Comprendre la vue Semaine",duration:"2 min 30",description:"Lire tes barres et alertes."},{title:"Les conseils et le bilan",duration:"2 min",description:"Évaluer et lire ton score."},{title:"Manger hors plan",duration:"2 min",description:"Gérer restau et extras."},{title:"Suivi mesures",duration:"1 min 30",description:"Peser, mesurer, comprendre."}];
-    const list=guides.length>0?guides:fallback;
-    const letters=["É","L","E","V","I","A"];
-    return <div className="page">
-      <button aria-label="Retour" className="hdr-back" onClick={()=>setSubScreen(null)} style={{marginBottom:12,padding:0}}>← Retour</button>
-      <div className="page-title">Guides vidéo</div>
-      {list.map((v,i)=><div key={v.id||i} className="menu-item" role="button" tabIndex={0} onClick={()=>{if(v.url)window.open(v.url,'_blank')}}><span style={{width:28,height:28,borderRadius:8,background:`linear-gradient(135deg,${obj.accentSoft},rgba(198,160,91,.06))`,border:`1px solid ${obj.accentBorder}`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}><IcMonoE size={13} color={obj.accent} letter={letters[i%6]}/></span><div style={{flex:1}}><div style={{fontSize:14,fontWeight:600,color:"#1A1A1A"}}>{v.title}</div><div style={{fontSize:11,color:"#6B7280"}}>{v.duration}{v.description?` · ${v.description}`:""}</div></div><span style={{fontSize:14,color:"#6B7280"}}>{v.url?"▶":"›"}</span></div>)}
-    </div>
-  }
-
-  if(subScreen==="situation"){
+    const guideFallback=[{title:"Comment fonctionne ton plan",duration:"2 min",description:"Comprendre les équivalences."},{title:"Logger un repas en 15 sec",duration:"1 min 30",description:"Ajouter rapidement."},{title:"Comprendre la vue Semaine",duration:"2 min 30",description:"Lire tes barres et alertes."},{title:"Les conseils et le bilan",duration:"2 min",description:"Évaluer et lire ton score."},{title:"Manger hors plan",duration:"2 min",description:"Gérer restau et extras."},{title:"Suivi mesures",duration:"1 min 30",description:"Peser, mesurer, comprendre."}];
+    const guideList=guides.length>0?guides:guideFallback;
     const capsules=d?.CAPSULES||[];
-    const fallback=[
+    const capsFallback=[
       {id:"sit_restaurant",title:"Manger au restaurant",body:"Au resto, privilégie les plats simples : grillades, poisson, légumes. Demande les sauces à part."},
       {id:"sit_social",title:"Sorties sociales & apéros",body:"Mange normalement dans la journée. À l'apéro : crudités, olives, noix. Limite l'alcool à 1-2 verres."},
       {id:"sit_weekend",title:"Gérer les weekends",body:"Garde un petit-déj structuré et prépare tes collations. Planifie au moins un repas cadré par jour."},
       {id:"sit_stress",title:"Quand tu as envie de craquer",body:"Attends 10 minutes — souvent ça passe. Si ça persiste, choisis un aliment de ton plan."},
     ];
-    const list=capsules.length>0?capsules:fallback;
+    const capsList=capsules.length>0?capsules:capsFallback;
     const icons=["🍽️","🥂","📅","✈️","👨‍👩‍👧","🎉","💼","💪","🏋️","😌"];
+    const letters=["É","L","E","V","I","A"];
     return <div className="page">
       <button aria-label="Retour" className="hdr-back" onClick={()=>setSubScreen(null)} style={{marginBottom:12,padding:0}}>← Retour</button>
-      <div className="page-title">Guides de situation</div>
-      <div style={{fontSize:13,color:"#6B7280",marginBottom:16}}>Des conseils pratiques pour gérer les moments du quotidien tout en suivant ton plan.</div>
-      {list.map((c,i)=>{
+      <div className="page-title">Guides & ressources</div>
+
+      <div className="section-label">Guides vidéo</div>
+      {guideList.map((v,i)=><div key={v.id||i} className="menu-item" role="button" tabIndex={0} onClick={()=>{if(v.url)window.open(v.url,'_blank')}}><span style={{width:28,height:28,borderRadius:8,background:`linear-gradient(135deg,${obj.accentSoft},rgba(198,160,91,.06))`,border:`1px solid ${obj.accentBorder}`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}><IcMonoE size={13} color={obj.accent} letter={letters[i%6]}/></span><div style={{flex:1}}><div style={{fontSize:14,fontWeight:600,color:"#1A1A1A"}}>{v.title}</div><div style={{fontSize:11,color:"#6B7280"}}>{v.duration}{v.description?` · ${v.description}`:""}</div></div><span style={{fontSize:14,color:"#6B7280"}}>{v.url?"▶":"›"}</span></div>)}
+
+      <div className="section-label" style={{marginTop:8}}>Guides de situation</div>
+      <div style={{fontSize:13,color:"#6B7280",marginBottom:12}}>Conseils pratiques pour gérer les moments du quotidien.</div>
+      {capsList.map((c,i)=>{
         const isOpen=expandedCapsule===c.id;
         return <div key={c.id||i} className="card" role="button" tabIndex={0} style={{marginBottom:10,padding:0,overflow:"hidden",cursor:"pointer"}} onClick={()=>setExpandedCapsule(isOpen?null:c.id)}>
           <div style={{display:"flex",alignItems:"center",gap:12,padding:"14px 16px"}}>
@@ -2040,6 +2090,99 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
     {["Conditions d'utilisation","Politique de confidentialité","Licences open-source"].map((n,i)=><div key={i} className="menu-item"><span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>{n}</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>)}
     {signOut&&<button onClick={signOut} style={{width:"100%",padding:14,borderRadius:14,background:"rgba(255,59,48,.08)",border:"1px solid rgba(255,59,48,.2)",color:"#FF3B30",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit",marginTop:20}}>Se déconnecter</button>}
   </div>;
+
+  if(subScreen==="equivalences"){
+    const catalogue=d?.CATALOGUE||DEFAULT_CATALOGUE;
+    const fullCat=d?.FULL_CATALOGUE||DEFAULT_CATALOGUE;
+    // Only show plan eqs — supplement items from FULL_CATALOGUE when CATALOGUE items are empty
+    const planEqs=catalogue.map(eq=>{
+      if(eq.items&&eq.items.length>0)return eq;
+      const fullEq=fullCat.find(fc=>fc.eqId===eq.eqId);
+      if(fullEq&&fullEq.items&&fullEq.items.length>0)return{...eq,items:fullEq.items};
+      return eq;
+    });
+    const typeGroups={vvpo:{label:"Protéines (VVPO)",icon:"🥩"},carbs:{label:"Féculents & céréales",icon:"🍞"},veg:{label:"Légumes",icon:"🥦"},fruits:{label:"Fruits",icon:"🍎"},dairy:{label:"Produits laitiers",icon:"🥛"},fat:{label:"Matières grasses",icon:"🫒"},extras:{label:"Extras & plaisir",icon:"🍫"},drinks:{label:"Boissons",icon:"🍷"}};
+    const q=eqSearch.toLowerCase().trim();
+    const filtered=q?planEqs.filter(eq=>eq.label.toLowerCase().includes(q)||eq.items?.some(it=>it.foodLabel.toLowerCase().includes(q))):planEqs;
+    const grouped={};
+    filtered.forEach(eq=>{const t=eq.type||"extras";if(!grouped[t])grouped[t]=[];grouped[t].push(eq)});
+    const toggleGroup=(t)=>setEqExpanded(prev=>({...prev,[t]:!prev[t]}));
+
+    return <div className="page">
+      <button aria-label="Retour" className="hdr-back" onClick={()=>{setSubScreen(null);setEqSearch("")}} style={{marginBottom:12,padding:0}}>← Retour</button>
+      <div className="page-title">Mes équivalences</div>
+      <div style={{fontSize:13,color:"#6B7280",marginBottom:12}}>Consulte les portions de chaque aliment de ton plan.</div>
+      <input type="text" value={eqSearch} onChange={e=>setEqSearch(e.target.value)} placeholder="Rechercher un aliment..." style={{width:"100%",padding:"10px 14px",borderRadius:12,border:`1px solid ${obj.accentBorder}`,fontSize:14,fontFamily:"inherit",background:"#fff",marginBottom:16,boxSizing:"border-box",outline:"none"}}/>
+      {Object.entries(typeGroups).map(([type,grp])=>{
+        const eqs=grouped[type];
+        if(!eqs||eqs.length===0)return null;
+        const isOpen=q||eqExpanded[type];
+        return <div key={type} style={{marginBottom:12}}>
+          <div role="button" tabIndex={0} onClick={()=>toggleGroup(type)} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 14px",borderRadius:12,background:"#fff",border:`1px solid ${obj.accentBorder}`,cursor:"pointer",boxShadow:"0 2px 8px rgba(0,0,0,.04)"}}>
+            <span style={{fontSize:18}}>{grp.icon}</span>
+            <span style={{flex:1,fontSize:14,fontWeight:700,color:"#1A1A1A"}}>{grp.label}</span>
+            <span style={{fontSize:12,color:"#9CA3AF",fontWeight:600}}>{eqs.length}</span>
+            <span style={{fontSize:14,color:"#6B7280",transition:"transform .2s",transform:isOpen?"rotate(90deg)":"none"}}>›</span>
+          </div>
+          {isOpen&&<div style={{marginTop:6}}>
+            {eqs.map(eq=>{
+              const isR=eq.eqMode==="R";
+              const hasItems=eq.items&&eq.items.length>0;
+              // R mode: qtyPlanGrams = qty_max (portion count), NOT grams → don't display
+              // F mode: qtyPlanGrams = actual grams → display "1 portion = Xg"
+              // Veg type: minimum portion → "≥"
+              const isVeg=eq.type==="veg";
+              const portionLabel=!isR&&eq.qtyPlanGrams>0?`1 portion ${isVeg?"≥":"="} ${eq.qtyPlanGrams}g`:null;
+              return <div key={eq.eqId} className="card" style={{marginBottom:8,padding:0,overflow:"hidden"}}>
+                <div style={{padding:"10px 14px",display:"flex",alignItems:"center",gap:10,borderBottom:hasItems?`1px solid rgba(15,30,46,.06)`:"none"}}>
+                  <span style={{fontSize:16}}>{eq.icon}</span>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:13,fontWeight:700,color:"#1A1A1A"}}>{eq.label}</div>
+                    {portionLabel&&<div style={{fontSize:12,color:"#6B7280",marginTop:2}}>{portionLabel}</div>}
+                  </div>
+                  {eq.nutrientsPerPortion&&eq.nutrientsPerPortion.kcal>0&&<div style={{textAlign:"right",flexShrink:0}}>
+                    <div style={{fontSize:11,fontWeight:700,color:obj.accent}}>{Math.round(eq.nutrientsPerPortion.kcal)} kcal</div>
+                    <div style={{fontSize:10,color:"#9CA3AF"}}>P{Math.round(eq.nutrientsPerPortion.p)} L{Math.round(eq.nutrientsPerPortion.l)} G{Math.round(eq.nutrientsPerPortion.g)}</div>
+                  </div>}
+                </div>
+                {hasItems&&<div style={{padding:"6px 14px 10px"}}>
+                  {eq.items.map(item=>{
+                    const s=item.stepper;
+                    const eqG=eq.qtyPlanGrams||0;
+                    let rightText=null;
+                    if(isR&&s){
+                      // R mode: each item has its own portion (defaultUnits × usualGPerUnit)
+                      const pg=Math.round(s.usualGPerUnit*s.defaultUnits);
+                      const ul=s.defaultUnits<=1?s.usualUnitSg:s.usualUnitPl;
+                      rightText=<><span style={{fontSize:12,fontWeight:700,color:"#374151"}}>{s.defaultUnits} {ul}</span>{pg>0&&<span style={{fontSize:11,color:"#9CA3AF",marginLeft:4}}>({pg}g)</span>}</>;
+                    } else if(!isR&&s&&s.usualGPerUnit>0&&eqG>0){
+                      // F mode WITH stepper: show how many units = 1 eq portion
+                      const units=Math.round(eqG/s.usualGPerUnit);
+                      if(units>0){
+                        const ul=units<=1?s.usualUnitSg:s.usualUnitPl;
+                        rightText=<><span style={{fontSize:12,fontWeight:700,color:"#374151"}}>{units} {ul}</span><span style={{fontSize:11,color:"#9CA3AF",marginLeft:4}}>({eqG}g)</span></>;
+                      }
+                    } else if(!isR&&eqG>0){
+                      // F mode WITHOUT stepper: just eq-level grams
+                      rightText=<span style={{fontSize:12,color:"#9CA3AF"}}>{eqG}g</span>;
+                    }
+                    return <div key={item.itemId} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"5px 0",borderBottom:"1px solid rgba(15,30,46,.04)"}}>
+                      <div style={{flex:1}}>
+                        <span style={{fontSize:13,fontWeight:600,color:"#1A1A1A"}}>{item.foodLabel}</span>
+                        {item.isRecommended&&<span style={{fontSize:9,fontWeight:700,color:obj.accent,marginLeft:6,verticalAlign:"middle"}}>REC</span>}
+                      </div>
+                      {rightText&&<div style={{textAlign:"right",flexShrink:0}}>{rightText}</div>}
+                    </div>
+                  })}
+                </div>}
+              </div>
+            })}
+          </div>}
+        </div>
+      })}
+      {filtered.length===0&&<div style={{textAlign:"center",padding:32,color:"#9CA3AF",fontSize:14}}>Aucun résultat pour "{eqSearch}"</div>}
+    </div>
+  }
 
   const menuLetter=(ch)=><span style={{width:28,height:28,borderRadius:8,background:`linear-gradient(135deg,${obj.accentSoft},rgba(198,160,91,.06))`,border:`1px solid ${obj.accentBorder}`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}><IcMonoE size={13} color={obj.accent} letter={ch}/></span>;
 
@@ -2073,18 +2216,17 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
         <div style={{fontSize:11,color:"#6B7280",textAlign:"center",marginTop:8}}>{milestones?.length||0}/{milestoneDefs.length} débloqués</div>
       </div>
     </>}
-    <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("why")}>{menuLetter("É")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Pourquoi ce plan est le tien</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
     <div className="section-label">Outils</div>
+    <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("why")}>{menuLetter("É")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Pourquoi ce plan est le tien</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
     <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("measures")}>{menuLetter("L")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Suivi mesures & graphiques</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
-    <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("recipes")}>{menuLetter("E")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Recettes</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
-    <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("messages")}>{menuLetter("V")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Messages de ton diététicien</span>{dietUnread>0&&<span style={{fontSize:10,fontWeight:800,color:"#fff",background:obj.accent,borderRadius:99,padding:"2px 8px",minWidth:18,textAlign:"center"}}>{dietUnread}</span>}<span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
+    <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("equivalences")}>{menuLetter("E")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Mes équivalences</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
+    <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("recipes")}>{menuLetter("V")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Recettes</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
+    <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("messages")}>{menuLetter("I")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Messages de ton diététicien</span>{dietUnread>0&&<span style={{fontSize:10,fontWeight:800,color:"#fff",background:obj.accent,borderRadius:99,padding:"2px 8px",minWidth:18,textAlign:"center"}}>{dietUnread}</span>}<span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
     <div className="section-label">Apprendre</div>
-    <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("situation")}>{menuLetter("I")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Guides de situation</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
-    <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("guides")}>{menuLetter("A")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Guides & tutoriels</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
-    <div className="menu-item">{menuLetter("É")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Comprendre ton plan</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
+    <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("guides")}>{menuLetter("A")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Guides & ressources</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
     {(d?.PROGRESSION?.length>0)&&<div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("progression")}>{menuLetter("É")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Ma roadmap</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>}
     <div className="section-label">Réglages</div>
-    <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("settings")}><span style={{width:28,height:28,borderRadius:8,background:"rgba(15,30,46,.04)",border:"1px solid rgba(15,30,46,.08)",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,color:"#6B7280"}}>⚙</span><span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Paramètres</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
+    <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("settings")}><span style={{width:28,height:28,borderRadius:8,background:"rgba(15,30,46,.06)",border:"1px solid rgba(15,30,46,.10)",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,color:"#6B7280"}}>⚙</span><span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Paramètres</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
     <div style={{textAlign:"center",marginTop:20,fontSize:11,color:"rgba(15,30,46,.50)"}}>Élevia v1.1.0 (build 42)</div>
   </div>
 }
@@ -2130,7 +2272,11 @@ export default function EleviaApp({ session, signOut, planData, logs: externalLo
   return <DataCtx.Provider value={planData||null}>
     <style>{css}{themeVars}</style>
     <div className="app-shell">
-      <div className="hdr"><IcLogo height={20}/></div>
+      <div className="hdr">
+        <svg width="24" height="24" viewBox="0 0 32 32" style={{flexShrink:0}}><rect width="32" height="32" rx="6" fill="#C6A05B"/><text x="16" y="24" textAnchor="middle" fontFamily="Georgia,'Times New Roman',serif" fontWeight="400" fontSize="24" fill="#0E1E2E">E</text><line x1="11.5" y1="5.5" x2="15.5" y2="5.5" stroke="#0E1E2E" strokeWidth="2" strokeLinecap="round"/></svg>
+        <span style={{fontSize:19,fontWeight:800,letterSpacing:4,color:"#C6A05B",fontStyle:"italic",fontFamily:"'Playfair Display','Cormorant Garamond','Georgia',serif"}}>ÉLEVIA</span>
+        <div style={{width:24}}/>
+      </div>
       <div className="content">
         {tab==="plan"&&<PlanTab logs={logs} onAddLog={addLog} onDeleteLog={onDeleteLog} weekConsumed={weekConsumed} weekNutrients={weekNutrients} streak={externalStreak} onIncrementStreak={onIncrementStreak} onCheckMilestones={onCheckMilestones} bilanCount={planData?.BILANS?.length||0} dietMessages={dietMessages} onDietMarkRead={onDietMarkRead} onSwitchTab={setTab} quickLog={quickLog}/>}
         {tab==="advice"&&<AdviceTab onCreateBilan={onCreateBilan}/>}

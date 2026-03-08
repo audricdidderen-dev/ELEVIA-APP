@@ -101,9 +101,8 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
     label: s.slot_label,
     time: '', // no time stored in DB, filled client-side
   }))
-  // Default times
-  const defaultTimes = { breakfast: '7h30', snack1: '10h', coldMeal: '12h30', snack2: '16h', hotMeal: '19h30', preWorkout: '17h', postWorkout: '19h' }
-  SLOTS.forEach(s => { if (!s.time) s.time = defaultTimes[s.id] || '' })
+  // No hardcoded times — user schedule varies (night shifts, etc.)
+  SLOTS.forEach(s => { if (!s.time) s.time = '' })
 
   // --- SLOT_ALLOWED ---
   const SLOT_ALLOWED = {}
@@ -112,10 +111,15 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
     SLOT_ALLOWED[sm.slot_id].push(sm.eq_id)
   }
 
-  // --- PLAN_TARGETS ---
+  // --- PLAN_TARGETS (normalize to portions) ---
   const PLAN_TARGETS = {}
   for (const t of targets) {
-    PLAN_TARGETS[t.eq_id] = Number(t.target_week)
+    const eq = CATALOGUE.find(c => c.eqId === t.eq_id)
+    const portionGrams = eq?.qtyPlanGrams || 0
+    const raw = Number(t.target_week)
+    // If portion size > 1g, target is in grams → convert to portions
+    // If portion size <= 1 (count-based eq like fruits), target is already portions
+    PLAN_TARGETS[t.eq_id] = portionGrams > 1 ? Math.round(raw / portionGrams) : raw
   }
 
   // --- ADVICES ---
