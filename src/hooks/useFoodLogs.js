@@ -142,9 +142,13 @@ export function useFoodLogs(session, planData) {
       g: prev.g + (logEntry.g || 0),
     }))
 
-    // Persist to Supabase
+    // Quick-Log entries are already persisted by submitQuickLog — only update local state
+    if (logEntry.eqId?.startsWith?.('ql_')) return
+
+    // Persist to Supabase using the same UUID generated client-side
     const today = localToday()
     const { error } = await supabase.from('food_logs').insert({
+      id: logEntry.id,
       user_id: userId,
       plan_id: planId,
       log_date: today,
@@ -187,10 +191,12 @@ export function useFoodLogs(session, planData) {
       g: Math.max(0, prev.g - g),
     }))
 
-    // Soft-delete (RLS only allows UPDATE, not DELETE)
-    const { error } = await supabase.from('food_logs')
+    // Soft-delete
+    console.log('[deleteLog] logId:', logId, 'type:', typeof logId)
+    const { error, status, statusText } = await supabase.from('food_logs')
       .update({ deleted_at: new Date().toISOString() })
       .eq('id', logId)
+    console.log('[deleteLog] result:', { error, status, statusText })
     if (error) console.error('Error deleting food log:', error)
   }, [])
 

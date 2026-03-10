@@ -304,6 +304,7 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);overflo
 .hdr-logo{font-size:20px;font-weight:800;letter-spacing:2px;color:var(--accent);font-style:italic}
 .hdr-back{background:none;border:none;color:var(--accent);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
 .content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:88px}.content::-webkit-scrollbar{display:none}
+.variant-scroll{display:flex;gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none}.variant-scroll::-webkit-scrollbar{display:none}
 .tbar{position:absolute;bottom:0;left:12px;right:12px;margin-bottom:env(safe-area-inset-bottom,8px);background:rgba(18,30,45,.92);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border:1px solid var(--accent-border);border-radius:22px;display:flex;height:auto;padding:10px 4px;box-shadow:0 8px 32px rgba(0,0,0,.25),0 2px 8px rgba(0,0,0,.15);z-index:50}
 .tbar-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding-top:6px;cursor:pointer;background:none;border:none;font-family:inherit}
 .tbar-ic{font-size:22px;line-height:1}.tbar-lb{font-size:11px;font-weight:700}
@@ -480,7 +481,7 @@ function AperoSession({slotId,onClose,onBack,onLog,quickLog}){
       const prot=Number(p.p)*it.qty;
       const lip=Number(p.l)*it.qty;
       const glu=Number(p.g)*it.qty;
-      await quickLog.submitQuickLog({
+      const {data:qlData}=await quickLog.submitQuickLog({
         slotId,qlItemId:it.item_id,optionKey:p.option_key,
         labelSnapshot:it.label,
         portionLabelSnapshot:`${it.qty}x ${p.label_short||p.option_key}`,
@@ -488,7 +489,7 @@ function AperoSession({slotId,onClose,onBack,onLog,quickLog}){
         flagsSnapshot:it.flags,slotStatus:'REPLACED',
       });
       onLog({
-        id:`ql${Date.now()}_${it.slug}`,slotId,eqId:`ql_${it.slug}`,itemId:null,
+        id:qlData?.id||crypto.randomUUID(),slotId,eqId:`ql_${it.slug}`,itemId:null,
         nbUnits:it.qty,qtyPortion:it.qty,isOutOfPlan:true,qlLabel:it.label,
         kcal:Math.round(kcal),p:Math.round(prot*10)/10,l:Math.round(lip*10)/10,g:Math.round(glu*10)/10,
       });
@@ -573,7 +574,7 @@ function AperoSession({slotId,onClose,onBack,onLog,quickLog}){
 }
 
 /* ═══ ADD MODAL (Plan + Hors Plan + Quick-Log) ═══ */
-function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,quickLog}){
+function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quickLog}){
   const d=useData();
   const obj=useObjective();
   const CATALOGUE=d?.CATALOGUE||DEFAULT_CATALOGUE;
@@ -584,6 +585,12 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,quickLog}){
   const TYPE_LABELS=d?.TYPE_LABELS||DEFAULT_TYPE_LABELS;
   const SLOTS=d?.SLOTS||DEFAULT_SLOTS;
   const {getEq,isInPlan}=useHelpers();
+  const SLOT_QTY=d?.SLOT_QTY||{};
+  function slotDefault(eq,stepper){
+    const sq=SLOT_QTY[eq?.eqId]?.[slotId];
+    if(sq&&eq?.eqMode==='R'&&stepper)return sq.qtyMax;
+    return stepper?.defaultUnits||1;
+  }
 
   const [tab,setTab]=useState("plan");
   const [selEq,setSelEq]=useState(null);
@@ -594,6 +601,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,quickLog}){
   const [showTable,setShowTable]=useState(false);
   const [showHpEdu,setShowHpEdu]=useState(false);
   const [showNote,setShowNote]=useState(false);
+  const [expandedVariants,setExpandedVariants]=useState(new Set());
   const [search,setSearch]=useState("");
   const [dietFilter,setDietFilter]=useState(null); // null | 'vegetarian' | 'glutenFree' | 'lactoseFree'
 
@@ -677,7 +685,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,quickLog}){
     if(!error){
       // Also fire onLog so the local state updates immediately
       onLog({
-        id:data?.id||`ql${Date.now()}`,slotId,eqId:`ql_${qlSelected.slug||qlSelected.item_id}`,itemId:null,
+        id:data?.id||crypto.randomUUID(),slotId,eqId:`ql_${qlSelected.slug||qlSelected.item_id}`,itemId:null,
         nbUnits:1,qtyPortion:1,isOutOfPlan:true,qlLabel:qlSelected.label,
         kcal:Math.round(Number(qlPortion.kcal)),
         p:Math.round(Number(qlPortion.p)*10)/10,
@@ -698,9 +706,9 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,quickLog}){
     if(eq.qtyUi.appInputMode==="ITEM_FIRST_PICK"){
       setShowStepper(true);
       const rec=eq.items.find(i=>i.isRecommended)||eq.items[0];
-      if(rec){setSelItem(rec);setUnits(rec.stepper?.defaultUnits||1)}
+      if(rec){setSelItem(rec);setUnits(slotDefault(eq,rec.stepper))}
     } else if(eq.qtyUi.appInputMode==="PORTION_TAP"){setPortion(1)}
-    else{const rec=eq.items.find(i=>i.isRecommended)||eq.items[0];if(rec){setSelItem(rec);setUnits(rec.stepper?.defaultUnits||1)}}
+    else{const rec=eq.items.find(i=>i.isRecommended)||eq.items[0];if(rec){setSelItem(rec);setUnits(slotDefault(eq,rec.stepper))}}
     if(hp&&!everLoggedHp)setShowHpEdu(true);
   }
 
@@ -710,7 +718,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,quickLog}){
       ?{kcal:item.nutrientsPerUnit.kcal*qty,p:item.nutrientsPerUnit.p*qty,l:item.nutrientsPerUnit.l*qty,g:item.nutrientsPerUnit.g*qty}
       :{kcal:eq.nutrientsPerPortion.kcal*port,p:eq.nutrientsPerPortion.p*port,l:eq.nutrientsPerPortion.l*port,g:eq.nutrientsPerPortion.g*port};
     const oop=hp||!isInPlan(eq.eqId)||!allowed.includes(eq.eqId);
-    onLog({id:`l${Date.now()}`,slotId,eqId:eq.eqId,itemId:item?.itemId||null,nbUnits:qty,qtyPortion:port,isOutOfPlan:oop,
+    onLog({id:crypto.randomUUID(),slotId,eqId:eq.eqId,itemId:item?.itemId||null,nbUnits:qty,qtyPortion:port,isOutOfPlan:oop,
       kcal:Math.round(n.kcal),p:Math.round(n.p*10)/10,l:Math.round(n.l*10)/10,g:Math.round(n.g*10)/10});
     onClose();
   }
@@ -812,11 +820,10 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,quickLog}){
 
       {mode!=="PORTION_TAP"&&<>
         {!showStepper&&!showTable&&<>
-          {selEq.eqMode!=='R'&&selItem?.stepper&&<div style={{fontSize:12,color:"#6B7280",margin:"4px 0 12px"}}>
-            1 portion ≈ {selItem.stepper.defaultUnits} {selItem.stepper.defaultUnits<=1?selItem.stepper.usualUnitSg:selItem.stepper.usualUnitPl}
-            {selItem.stepper.usualGPerUnit>0&&` (${Math.round(selItem.stepper.usualGPerUnit*selItem.stepper.defaultUnits)}g)`}
-          </div>}
-          <button className="btn-primary" onClick={()=>doLog(selEq,selItem,selItem?.stepper?.defaultUnits||1,1,curHp)}>Ajouter 1 portion</button>
+          {selItem?.stepper&&(()=>{const du=slotDefault(selEq,selItem.stepper);const g=Math.round(selItem.stepper.usualGPerUnit*du);return <div style={{fontSize:12,color:"#6B7280",margin:"4px 0 12px"}}>
+            1 portion = {du} {du<=1?selItem.stepper.usualUnitSg:selItem.stepper.usualUnitPl}{g>0&&` (${g}g)`}
+          </div>})()}
+          <button className="btn-primary" onClick={()=>doLog(selEq,selItem,slotDefault(selEq,selItem?.stepper),1,curHp)}>Ajouter 1 portion</button>
           <div style={{display:"flex",gap:8,justifyContent:"center",marginTop:4}}>
             <button className="btn-text" onClick={()=>setShowStepper(true)} style={{margin:0}}>Modifier la quantité →</button>
             {selEq.items.length>1&&<button className="btn-text" onClick={()=>setShowTable(true)} style={{margin:0,opacity:.7}}>Mes équivalences</button>}
@@ -828,13 +835,12 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,quickLog}){
             <span style={{fontSize:11,color:"#9CA3AF",fontStyle:"italic"}}>1 ligne = 1 portion</span>
           </div>
           {selEq.items.map(item=>(
-            <div key={item.itemId} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"9px 12px",marginBottom:4,borderRadius:12,background:item.isRecommended?obj.accentSoft:"rgba(15,30,46,.02)",border:`1px solid ${item.isRecommended?obj.accentBorder:"rgba(15,30,46,.06)"}`}}>
+            <div key={item.itemId} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"9px 12px",marginBottom:4,borderRadius:12,background:"rgba(15,30,46,.02)",border:"1px solid rgba(15,30,46,.06)"}}>
               <div style={{display:"flex",alignItems:"center",gap:6,minWidth:0}}>
-                {item.isRecommended&&<IcStar size={12} color={obj.accent}/>}
                 <span style={{fontSize:13,fontWeight:600,color:"#1A1A1A",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.foodLabel}</span>
               </div>
               <span style={{fontSize:12,color:"#6B7280",whiteSpace:"nowrap",marginLeft:8}}>
-                {item.stepper?`${item.stepper.defaultUnits} ${item.stepper.defaultUnits<=1?item.stepper.usualUnitSg:item.stepper.usualUnitPl} (${Math.round(item.stepper.usualGPerUnit*item.stepper.defaultUnits)}g)`:selEq.qtyPlanGrams>0?`${selEq.qtyPlanGrams}g`:'—'}
+                {item.stepper?(()=>{const du=slotDefault(selEq,item.stepper);return `${du} ${du<=1?item.stepper.usualUnitSg:item.stepper.usualUnitPl} (${Math.round(item.stepper.usualGPerUnit*du)}g)`})():selEq.qtyPlanGrams>0?`${selEq.qtyPlanGrams}g`:'—'}
               </span>
             </div>
           ))}
@@ -845,10 +851,9 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,quickLog}){
             <div className="modal-section">{mode==="ITEM_FIRST_PICK"?"Choisis ton item":"Items"}</div>
             {selEq.items.map(item=>(
               <div key={item.itemId} className={`item-row ${selItem?.itemId===item.itemId?"selected":""}`}
-                onClick={()=>{setSelItem(item);setUnits(item.stepper?.defaultUnits||1)}}>
-                {item.isRecommended&&<IcStar size={13} color={obj.accent}/>}
+                onClick={()=>{setSelItem(item);setUnits(slotDefault(selEq,item.stepper))}}>
                 <span className="item-label">{item.foodLabel}</span>
-                <span className="item-detail">{item.stepper?`${item.stepper.defaultUnits} ${item.stepper.usualUnitPl}`:""}</span>
+                <span className="item-detail">{item.stepper?(()=>{const du=slotDefault(selEq,item.stepper);return `${du} ${du<=1?item.stepper.usualUnitSg:item.stepper.usualUnitPl}`})():""}</span>
               </div>
             ))}
           </>}
@@ -876,9 +881,16 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,quickLog}){
       <button className={`modal-tab ${tab==="quicklog"?"active":""}`} onClick={()=>setTab("quicklog")} style={{position:"relative"}}>Repas ext.</button>
     </div>
     {tab==="plan"&&planEqs.map(eq=>{
-      const c=WEEK_CONSUMED[eq.eqId]||0,t=PLAN_TARGETS[eq.eqId]||0;
+      const wc=WEEK_CONSUMED[eq.eqId]||0,wt=PLAN_TARGETS[eq.eqId]||0;
+      // Determine if eq is daily: sum of freqWeek across all slots = 7
+      const sqSlots=SLOT_QTY[eq.eqId]||{};
+      const totalFreq=Object.values(sqSlots).reduce((s,v)=>s+(v.freqWeek||0),0);
+      const isDaily=totalFreq>=7;
+      // Today's consumed for this eq
+      const tc=isDaily?(todayLogs||[]).filter(l=>l.eqId===eq.eqId).reduce((s,l)=>s+(l.qtyPortion||1),0):0;
+      const dt=isDaily?Math.round(wt/7):0;
       return <div key={eq.eqId} className="eq-card" role="button" tabIndex={0} onClick={()=>pickEq(eq,false)}>
-        <span style={{width:30,display:"flex",alignItems:"center",justifyContent:"center"}}><EqIcon eqId={eq.eqId} size={20}/></span><div className="eq-body"><div className="eq-name">{eq.label}</div><div className="eq-progress">{c}/{t} sem.</div></div><span style={{fontSize:18,color:obj.accent}}>+</span>
+        <span style={{width:30,display:"flex",alignItems:"center",justifyContent:"center"}}><EqIcon eqId={eq.eqId} size={20}/></span><div className="eq-body"><div className="eq-name">{eq.label}</div><div className="eq-progress">{isDaily?`${tc}/${dt} jour`:`${wc}/${wt} sem.`}</div></div><span style={{fontSize:18,color:obj.accent}}>+</span>
       </div>
     })}
     {tab==="hors_plan"&&<>
@@ -1185,9 +1197,25 @@ function PlanTab({logs,onAddLog,onDeleteLog,weekConsumed,weekNutrients,streak,on
   }
 
   const planStart=d?._planStartDate?new Date(d._planStartDate):null;
-  const daysSinceStart=planStart?Math.max(0,Math.floor((new Date()-planStart)/86400000)):null;
-  const weekNum=daysSinceStart!=null?Math.floor(daysSinceStart/7)+1:null;
-  const dayNum=daysSinceStart!=null?daysSinceStart+1:null;
+  // If plan starts Wed-Sun, official week 1 = next Monday
+  const officialStart=useMemo(()=>{
+    if(!planStart)return null;
+    const dow=planStart.getDay(); // 0=Sun,1=Mon,...6=Sat
+    if(dow>=3||dow===0){ // Wed(3)-Sat(6) or Sun(0) → next Monday
+      const next=new Date(planStart);
+      const daysUntilMon=dow===0?1:(8-dow);
+      next.setDate(next.getDate()+daysUntilMon);
+      next.setHours(0,0,0,0);
+      return next;
+    }
+    return planStart; // Mon or Tue → starts immediately
+  },[planStart]);
+  const now=new Date();
+  const isWarmup=officialStart&&now<officialStart;
+  const warmupDaysLeft=isWarmup?Math.ceil((officialStart-now)/86400000):0;
+  const daysSinceStart=officialStart?Math.max(0,Math.floor((now-officialStart)/86400000)):null;
+  const weekNum=(!isWarmup&&daysSinceStart!=null)?Math.floor(daysSinceStart/7)+1:null;
+  const dayNum=(!isWarmup&&daysSinceStart!=null)?daysSinceStart+1:null;
 
   const todayLabel=(()=>{const now=new Date();const days=["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"];const months=["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];return `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]}`})();
   const greetHour=new Date().getHours();
@@ -1200,9 +1228,16 @@ function PlanTab({logs,onAddLog,onDeleteLog,weekConsumed,weekNutrients,streak,on
       <div style={{fontSize:12,color:"#6B7280",fontWeight:500,marginTop:2}}>{todayLabel.charAt(0).toUpperCase()+todayLabel.slice(1)}{weekNum?` · Semaine ${weekNum}`:""}</div>
     </div>
     <div className="seg" data-tour="seg-toggle"><button className={`seg-btn ${view==="day"?"active":""}`} onClick={()=>setView("day")}>Jour</button><button className={`seg-btn ${view==="week"?"active":""}`} onClick={()=>setView("week")}>Semaine</button></div>
+    {isWarmup&&<div style={{padding:"14px 16px",borderRadius:16,background:"linear-gradient(135deg,rgba(198,160,91,.06),rgba(198,160,91,.02))",border:`1px solid ${obj.accentBorder}`,marginBottom:10}}>
+      <div style={{fontSize:13,fontWeight:700,color:"#1A1A1A",marginBottom:4}}>Prise en main</div>
+      <div style={{fontSize:12,color:"#6B7280",lineHeight:1.5}}>Ton suivi officiel commence dans <strong style={{color:obj.accent}}>{warmupDaysLeft} jour{warmupDaysLeft>1?"s":""}</strong>. D'ici là, familiarise-toi avec l'app et tes équivalences.</div>
+      <div style={{display:"flex",gap:4,marginTop:8}}>
+        {Array.from({length:warmupDaysLeft},(_,i)=><div key={i} style={{flex:1,height:4,borderRadius:2,background:i<(warmupDaysLeft-warmupDaysLeft)?obj.accent:"rgba(15,30,46,.08)"}}/>)}
+      </div>
+    </div>}
     <DietMessageBanner messages={dietMessages} accent={obj.accent} accentSoft={obj.accentSoft} accentBorder={obj.accentBorder} onMarkRead={onDietMarkRead} onOpenInbox={()=>onSwitchTab?.("profile")}/>
-    {streak&&<StreakBanner current={streak.current} longest={streak.longest} lastDate={streak.lastDate} firstName={d?.CLIENT?.firstName} accent={obj.accent} accentSoft={obj.accentSoft} accentBorder={obj.accentBorder}/>}
-    <WeeklyChallenge objectiveCode={d?.CLIENT?.objectiveCode} accent={obj.accent} accentSoft={obj.accentSoft} accentBorder={obj.accentBorder}/>
+    {!isWarmup&&streak&&<StreakBanner current={streak.current} longest={streak.longest} lastDate={streak.lastDate} firstName={d?.CLIENT?.firstName} accent={obj.accent} accentSoft={obj.accentSoft} accentBorder={obj.accentBorder}/>}
+    {!isWarmup&&<WeeklyChallenge objectiveCode={d?.CLIENT?.objectiveCode} accent={obj.accent} accentSoft={obj.accentSoft} accentBorder={obj.accentBorder}/>}
     {MICRO_TIPS.length>0&&(()=>{const dayOfYear=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/(1000*60*60*24));const tip=MICRO_TIPS[dayOfYear%MICRO_TIPS.length];return <div style={{display:"flex",alignItems:"flex-start",gap:8,padding:"8px 12px",borderRadius:12,background:"rgba(15,30,46,.02)",marginBottom:10}}>
       <span style={{flexShrink:0,marginTop:1}}><IcBulb size={14} color={obj.accent}/></span>
       <div style={{fontSize:11,color:"#6B7280",lineHeight:1.5,fontWeight:500}}>{tip.textFr}</div>
@@ -1266,11 +1301,10 @@ function PlanTab({logs,onAddLog,onDeleteLog,weekConsumed,weekNutrients,streak,on
           <div className="slot-header"><div className="slot-left"><div><div className="slot-name">{slotDisplay.name}</div>{slotDisplay.hint&&<div style={{fontSize:10,color:obj.accent,fontWeight:600,marginTop:1,opacity:.7}}>{slotDisplay.hint}</div>}<div className="slot-time">{sl.length>0?<><span style={{color:obj.accent,fontWeight:600}}>{Math.round(sk)} kcal</span></>:<span style={{color:"rgba(15,30,46,.25)",fontSize:11}}>Appuie sur + pour commencer</span>}</div></div></div><button aria-label="Ajouter un aliment" className="slot-add" data-tour={slotIdx===0?"slot-add":undefined} onClick={()=>setAddSlot(slot.id)}>+</button></div>
           {sl.length>0&&<div style={{marginTop:6}}>{sl.map(l=>{const isQl=typeof l.eqId==='string'&&l.eqId.startsWith('ql_');return <div className="log-item" role="button" tabIndex={0} key={l.id} onClick={()=>setConfirmDel(l)} style={{cursor:"pointer"}}><div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:0}}><span style={{width:22,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{isQl?<span style={{fontSize:14}}>🍽</span>:<EqIcon eqId={l.eqId} size={17}/>}</span><span className="log-name">{isQl?(l.qlLabel||getLogLabel(l.eqId,l.itemId)):getLogLabel(l.eqId,l.itemId)}</span>{isQl?<span style={{display:"inline-block",fontSize:9,fontWeight:800,background:"rgba(232,134,58,.08)",color:"#E8863A",padding:"2px 7px",borderRadius:99,marginLeft:6,border:"1px solid rgba(232,134,58,.15)"}}>Repas ext.</span>:l.isOutOfPlan&&<span className="chip-hp">HP</span>}</div><div style={{textAlign:"right",flexShrink:0,paddingLeft:8,display:"flex",alignItems:"baseline",gap:6}}><span style={{fontSize:12,fontWeight:700,color:"#1A1A1A"}}>{l.kcal}</span><span style={{fontSize:10,color:l.qtyPortion===1?obj.accentLine:"#E8863A",fontWeight:600,minWidth:38}}>{l.qtyPortion===1?"1 port.":l.qtyPortion+" port."}</span></div></div>})}</div>}
           {sl.length===0&&<div style={{height:4}}/>}
-          {(()=>{const recent=recentBySlot[slot.id]||[];if(!recent.length)return null;return <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:6}}>{recent.map(r=><button key={r.key} onClick={()=>{const id=crypto.randomUUID?.()|| `${Date.now()}-${Math.random()}`;handleLog({id,slotId:slot.id,eqId:r.eqId,itemId:r.itemId,nbUnits:r.qtyPortion||1,qtyPortion:r.qtyPortion||1,isOutOfPlan:r.isOutOfPlan||false,kcal:r.kcal||0,p:r.p||0,l:r.l||0,g:r.g||0})}} style={{padding:"4px 10px",borderRadius:99,fontSize:11,fontWeight:600,background:"rgba(15,30,46,.03)",border:`1px solid ${obj.accentBorder}`,color:"#6B7280",cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",gap:4}}><span style={{color:obj.accent,fontWeight:700}}>+</span>{getLogLabel(r.eqId,r.itemId)}</button>)}</div>})()}
         </div>
       })}
-    </>:<WeekView logs={logs} onAdd={setAddSlot} weekConsumed={weekConsumed} weekNutrients={weekNutrients}/>}
-    {addSlot&&<AddModal slotId={addSlot} onClose={()=>setAddSlot(null)} onLog={handleLog} everLoggedHp={hasHp} weekConsumed={weekConsumed} quickLog={quickLog}/>}
+    </>:<WeekView logs={logs} weekConsumed={weekConsumed} weekNutrients={weekNutrients}/>}
+    {addSlot&&<AddModal slotId={addSlot} onClose={()=>setAddSlot(null)} onLog={handleLog} everLoggedHp={hasHp} weekConsumed={weekConsumed} todayLogs={logs} quickLog={quickLog}/>}
     {confirmDel&&<div className="overlay" onClick={()=>setConfirmDel(null)}><div style={{position:"absolute",bottom:0,left:0,right:0,background:"#fff",borderRadius:"24px 24px 0 0",padding:"20px 20px 32px",animation:"slideUp .25s ease-out"}} onClick={e=>e.stopPropagation()}>
       <div className="modal-handle"/>
       <div style={{textAlign:"center",marginBottom:16}}>
@@ -1286,7 +1320,7 @@ function PlanTab({logs,onAddLog,onDeleteLog,weekConsumed,weekNutrients,streak,on
   </div>
 }
 
-function WeekView({logs,onAdd,weekConsumed,weekNutrients}){
+function WeekView({logs,weekConsumed,weekNutrients}){
   const d=useData();
   const obj=useObjective();
   const CATALOGUE=d?.CATALOGUE||DEFAULT_CATALOGUE;
@@ -1343,7 +1377,7 @@ function WeekView({logs,onAdd,weekConsumed,weekNutrients}){
       return <div className="eq-card" key={eq.eqId}>
         <span style={{width:36,display:"flex",alignItems:"center",justifyContent:"center"}}><EqIcon eqId={eq.eqId} size={22}/></span>
         <div className="eq-body"><div className="eq-name">{eq.label}</div><div className="eq-progress">{c}/{t} sem.{done&&!over&&" — complété"}{over&&" — au-dessus"}{late&&" — en retard"}</div><div className="eq-bar"><div className="eq-bar-fill" style={{width:`${Math.min(pct,100)}%`,background:col}}/></div></div>
-        {done?<span style={{display:"flex"}}><IcCheck size={16} color="#34C759"/></span>:<button aria-label="Ajouter" className="eq-add-btn" onClick={()=>onAdd("hotMeal")}>+</button>}
+        {done&&<span style={{display:"flex"}}><IcCheck size={16} color="#34C759"/></span>}
       </div>
     })}
   </>
@@ -1379,7 +1413,7 @@ function AdviceDetail({adv,onClose,status}){const obj=useObjective();
 }
 
 /* ═══ TAB: CONSEILS ═══ */
-function AdviceTab({onCreateBilan}){
+function AdviceTab({onCreateBilan,isWarmup}){
   const d=useData();
   const obj=useObjective();
   const ADVICES=d?.ADVICES||DEFAULT_ADVICES;
@@ -1419,20 +1453,21 @@ function AdviceTab({onCreateBilan}){
   )}
 
   return <div className="page">
-    <div className="page-title">Conseils</div><div className="page-meta">{(()=>{const ps=d?._planStartDate?new Date(d._planStartDate):null;if(!ps)return"";const w=Math.floor(Math.max(0,(new Date()-ps)/86400000)/7)+1;return `Semaine ${w}`})()}</div>
+    <div className="page-title">Conseils</div><div className="page-meta">{isWarmup?"Prise en main":(()=>{const ps=d?._planStartDate?new Date(d._planStartDate):null;if(!ps)return"";const dow=ps.getDay();let start=ps;if(dow>=3||dow===0){start=new Date(ps);start.setDate(start.getDate()+(dow===0?1:8-dow));start.setHours(0,0,0,0)}const w=Math.floor(Math.max(0,(new Date()-start)/86400000)/7)+1;return `Semaine ${w}`})()}</div>
     <div className="seg"><button className={`seg-btn ${view==="focus"?"active":""}`} onClick={()=>setView("focus")}>Focus</button><button className={`seg-btn ${view==="biblio"?"active":""}`} onClick={()=>setView("biblio")}>Bibliothèque</button></div>
     {MICRO_TIPS.length>0&&(()=>{const dayOfYear=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/(1000*60*60*24));const tip=MICRO_TIPS[dayOfYear%MICRO_TIPS.length];return <div className="tip-banner"><span style={{display:"flex"}}><IcBulb size={18} color={obj.accent}/></span><div className="tip-text">{tip.textFr}</div></div>})()}
     {view==="focus"?<>
       <div className="section-label">Axes prioritaires</div>{pri.map(a=><AdvItem key={a.id} a={a}/>)}
       <div className="section-label">Axes secondaires</div>{sec.map(a=><AdvItem key={a.id} a={a}/>)}
-      <div className="card" role="button" tabIndex={0} style={{textAlign:"center",marginTop:16,cursor:"pointer"}} onClick={()=>setEvalOpen(true)}><div style={{fontSize:14,fontWeight:700,color:"#1A1A1A"}}>Évaluer ma semaine →</div><div style={{fontSize:12,color:"#6B7280",marginTop:4}}>Disponible dimanche</div></div>
+      {isWarmup?<div className="card" style={{textAlign:"center",marginTop:16,opacity:.5}}><div style={{fontSize:14,fontWeight:700,color:"#6B7280"}}>Évaluation disponible après ta première semaine</div></div>
+      :<div className="card" role="button" tabIndex={0} style={{textAlign:"center",marginTop:16,cursor:"pointer"}} onClick={()=>setEvalOpen(true)}><div style={{fontSize:14,fontWeight:700,color:"#1A1A1A"}}>Évaluer ma semaine →</div><div style={{fontSize:12,color:"#6B7280",marginTop:4}}>Disponible dimanche</div></div>}
     </>:<>
       <input className="search" placeholder="Rechercher un conseil…"/>
       {Object.entries(byStatus).map(([st,advs])=>advs.length>0&&<div key={st}><div className="section-label">{st}</div>{advs.map(a=><AdvItem key={a.id} a={a}/>)}</div>)}
     </>}
     {selAdv&&<AdviceDetail adv={selAdv} onClose={()=>setSelAdv(null)} status={getStatus(selAdv)}/>}
     {evalOpen&&<div className="overlay" onClick={()=>setEvalOpen(false)}><div role="dialog" className="modal" onClick={e=>e.stopPropagation()}>
-      <div className="modal-handle"/><div className="modal-title">Évaluation semaine 8</div><div className="modal-sub">Comment s'est passée ta semaine ?</div>
+      <div className="modal-handle"/><div className="modal-title">Évaluation {(()=>{const ps=d?._planStartDate?new Date(d._planStartDate):null;if(!ps)return"";const dow=ps.getDay();let start=ps;if(dow>=3||dow===0){start=new Date(ps);start.setDate(start.getDate()+(dow===0?1:8-dow));start.setHours(0,0,0,0)}const w=Math.floor(Math.max(0,(new Date()-start)/86400000)/7)+1;return `semaine ${w}`})()}</div><div className="modal-sub">Comment s'est passée ta semaine ?</div>
       {[...pri,...sec].map(a=><div key={a.id} style={{marginBottom:12}}>
         <div style={{fontSize:13,fontWeight:700,color:"#1A1A1A",marginBottom:6}}>{a.title}</div>
         <div style={{display:"flex",gap:6}}>{[{v:2,l:"Solide",c:"#34C759"},{v:1,l:"En progrès",c:obj.accent},{v:0,l:"Pas encore",c:"#E5342D"}].map(o=>{const sel=evalScores[a.id]===o.v;return <button key={o.v} onClick={()=>setEvalScores(s=>({...s,[a.id]:o.v}))} style={{flex:1,padding:"8px 4px",borderRadius:10,fontSize:11,fontWeight:700,background:sel?`${o.c}10`:"#F5F4F1",border:`1px solid ${sel?`${o.c}40`:"rgba(15,30,46,.10)"}`,color:sel?o.c:"#6B7280",cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:5}}><span style={{width:6,height:6,borderRadius:3,background:o.c,flexShrink:0}}/>{o.l}</button>})}</div>
@@ -1525,13 +1560,15 @@ function BilanDetail({bilan,allBilans,onBack}){
   </div>
 }
 
-function HistoryTab({logs}){
+function HistoryTab({logs,onDeleteLog}){
   const d=useData();
   const obj=useObjective();
   const BILANS=d?.BILANS||DEFAULT_BILANS;
   const SLOTS=d?.SLOTS||DEFAULT_SLOTS;
   const {getLogLabel}=useHelpers();
   const [viewBilan,setViewBilan]=useState(null);
+  const [confirmDel,setConfirmDel]=useState(null);
+  const [snack,setSnack]=useState(null);
 
   if(viewBilan) return <BilanDetail bilan={viewBilan} allBilans={BILANS} onBack={()=>setViewBilan(null)}/>;
 
@@ -1560,10 +1597,22 @@ function HistoryTab({logs}){
       </div>
     })}</div>:<div style={{textAlign:"center",padding:"20px",fontSize:13,color:"#6B7280",border:"1px dashed rgba(15,30,46,.10)",borderRadius:16}}>Tes bilans hebdomadaires apparaîtront ici au fil des semaines.</div>}
     <div className="section-label">Ajouts récents</div>
-    {logs.length>0?<div className="card" style={{padding:0,overflow:"hidden"}}>{logs.slice().reverse().slice(0,8).map((l,i,arr)=><div key={l.id} style={{padding:"10px 14px",borderBottom:i<arr.length-1?"1px solid rgba(15,30,46,.06)":"none"}}>
+    {logs.length>0?<div className="card" style={{padding:0,overflow:"hidden"}}>{logs.slice().reverse().slice(0,8).map((l,i,arr)=><div key={l.id} role="button" tabIndex={0} onClick={()=>setConfirmDel(l)} style={{padding:"10px 14px",borderBottom:i<arr.length-1?"1px solid rgba(15,30,46,.06)":"none",cursor:"pointer",transition:"background .15s"}}>
       <div className="flex-between"><span style={{display:"flex",alignItems:"center",gap:8,fontSize:13,fontWeight:700,color:"#1A1A1A"}}><EqIcon eqId={l.eqId} size={15}/>{getLogLabel(l.eqId,l.itemId)}{l.isOutOfPlan&&<span className="chip-hp">HP</span>}</span><span style={{fontSize:12,fontWeight:700,color:"#6B7280"}}>{l.kcal} kcal</span></div>
       <div style={{fontSize:11,color:"#6B7280",marginTop:2,paddingLeft:23}}>{SLOTS.find(s=>s.id===l.slotId)?.label} · P{l.p} L{l.l} G{l.g}</div>
     </div>)}</div>:<div style={{textAlign:"center",padding:"20px",fontSize:13,color:"#6B7280",border:"1px dashed rgba(15,30,46,.10)",borderRadius:16}}>Tes ajouts du jour apparaîtront ici. Commence par logger ton premier repas !</div>}
+    {confirmDel&&<div className="overlay" onClick={()=>setConfirmDel(null)}><div style={{position:"absolute",bottom:0,left:0,right:0,background:"#fff",borderRadius:"24px 24px 0 0",padding:"20px 20px 32px",animation:"slideUp .25s ease-out"}} onClick={e=>e.stopPropagation()}>
+      <div className="modal-handle"/>
+      <div style={{textAlign:"center",marginBottom:16}}>
+        <div style={{fontSize:15,fontWeight:700,color:"#1A1A1A"}}>Supprimer cet ajout ?</div>
+        <div style={{fontSize:13,color:"#6B7280",marginTop:6}}>{getLogLabel(confirmDel.eqId,confirmDel.itemId)} · {confirmDel.kcal} kcal</div>
+      </div>
+      <div style={{display:"flex",gap:10}}>
+        <button onClick={()=>setConfirmDel(null)} style={{flex:1,padding:"12px 0",borderRadius:14,border:"1px solid rgba(15,30,46,.10)",background:"#F5F4F1",fontSize:14,fontWeight:700,color:"#6B7280",cursor:"pointer",fontFamily:"inherit"}}>Annuler</button>
+        <button onClick={()=>{onDeleteLog?.(confirmDel.id,confirmDel.eqId,confirmDel.qtyPortion,confirmDel.kcal,confirmDel.p,confirmDel.l,confirmDel.g);setConfirmDel(null);setSnack("Supprimé");setTimeout(()=>setSnack(null),2000)}} style={{flex:1,padding:"12px 0",borderRadius:14,border:"none",background:"#FF3B30",fontSize:14,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit"}}>Supprimer</button>
+      </div>
+    </div></div>}
+    {snack&&<div className="snackbar">{snack}</div>}
   </div>
 }
 
@@ -1584,7 +1633,8 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
   const [selRecipe,setSelRecipe]=useState(null);
   const [expandedCapsule,setExpandedCapsule]=useState(null);
   const [eqSearch,setEqSearch]=useState("");
-  const [eqExpanded,setEqExpanded]=useState({});
+  const [eqCategory,setEqCategory]=useState(null);
+  const [eqDetail,setEqDetail]=useState(null);
   const m=MEASUREMENTS&&MEASUREMENTS.length>0?MEASUREMENTS:DEFAULT_MEASUREMENTS;
   const latest=m[0];const first=m[m.length-1];
 
@@ -2094,93 +2144,175 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
   if(subScreen==="equivalences"){
     const catalogue=d?.CATALOGUE||DEFAULT_CATALOGUE;
     const fullCat=d?.FULL_CATALOGUE||DEFAULT_CATALOGUE;
-    // Only show plan eqs — supplement items from FULL_CATALOGUE when CATALOGUE items are empty
     const planEqs=catalogue.map(eq=>{
       if(eq.items&&eq.items.length>0)return eq;
       const fullEq=fullCat.find(fc=>fc.eqId===eq.eqId);
       if(fullEq&&fullEq.items&&fullEq.items.length>0)return{...eq,items:fullEq.items};
       return eq;
     });
-    const typeGroups={vvpo:{label:"Protéines (VVPO)",icon:"🥩"},carbs:{label:"Féculents & céréales",icon:"🍞"},veg:{label:"Légumes",icon:"🥦"},fruits:{label:"Fruits",icon:"🍎"},dairy:{label:"Produits laitiers",icon:"🥛"},fat:{label:"Matières grasses",icon:"🫒"},extras:{label:"Extras & plaisir",icon:"🍫"},drinks:{label:"Boissons",icon:"🍷"}};
+    const SLOT_QTY=d?.SLOT_QTY||{};
+    const slotLabel=(sid)=>({PDJ:'Petit-déjeuner',REPAS_FROID_PAIN:'Repas froid',REPAS_FROID_BOWL:'Repas froid bowl',REPAS_CHAUD:'Repas chaud',COLLATION:'Collation',PRE_WO:'Avant entraînement',POST_WO:'Après entraînement',EN_CAS_MAT:'En-cas matin'})[sid]||sid;
+    const eqIconFile=(eqId)=>({pain:'pain',cereales_ig_modere:'cereales',feculents_chauds:'feculents',fruits_natures:'fruits',legumes_cuits:'legumes_cuits',legumes_crus:'legumes_crus',viandes_faibles_kcal:'Viandes_maigres',poissons_maigres:'poissons_maigres',poissons_gras:'poissons-gras-a',oleagineux_nature:'oleagineux',pl_0_riche_p:'lait_riche_en_p',pl_50_100_kcal:'Laitages_classique',fromages_20_30_mg:'fromages',assaisonnement_repas_froid:'assaisonnement_chaud_froid',assaisonnement_repas_chaud:'assaisonnement_chaud_froid',mg_cuisson:'matière_grasse_cuisson',mg_tartinables:'beurre',garnitures_sucrees_pain:'garniture_sucree_bowl',chocolat_noir_mt70:'chocolat',charcuteries_maigres:'viande_elevee_kcal',alcool_leger_1u:'alcool_leger',extras_except_patisserie:'extra_pdj',patisserie:'patisserie',oeufs:'Oeuf',legumineuses:'legumineuses',laits_vegetaux:'laits_vegetaux',graines:'graines',fruits_secs:'fruits_secs',soupes:'soupes',avocat:'avocat',poudre_proteine:'poudre_protéine',poissons_conserve:'Poisson_conserve',cafe_the:'café',eau:'eau'})[eqId]||null;
+    const EqImg=({eqId,size=18,fallback})=>{const f=eqIconFile(eqId);return f?<img src={`/icons/${f}.svg`} alt="" width={size} height={size} style={{opacity:.7,flexShrink:0}}/>:<span style={{fontSize:size,lineHeight:1,flexShrink:0}}>{fallback||"•"}</span>};
+    const typeGroups={vvpo:{label:"Protéines (VVPO)",icon:"Viandes_maigres"},carbs:{label:"Féculents & céréales",icon:"pain"},veg:{label:"Légumes",icon:"legumes_cuits"},fruits:{label:"Fruits",icon:"fruits"},dairy:{label:"Produits laitiers",icon:"Laitages_classique"},fat:{label:"Matières grasses",icon:"oleagineux"},extras:{label:"Extras & plaisir",icon:"chocolat"},drinks:{label:"Boissons",icon:"alcool_leger"}};
     const q=eqSearch.toLowerCase().trim();
     const filtered=q?planEqs.filter(eq=>eq.label.toLowerCase().includes(q)||eq.items?.some(it=>it.foodLabel.toLowerCase().includes(q))):planEqs;
     const grouped={};
     filtered.forEach(eq=>{const t=eq.type||"extras";if(!grouped[t])grouped[t]=[];grouped[t].push(eq)});
-    const toggleGroup=(t)=>setEqExpanded(prev=>({...prev,[t]:!prev[t]}));
 
-    return <div className="page">
-      <button aria-label="Retour" className="hdr-back" onClick={()=>{setSubScreen(null);setEqSearch("")}} style={{marginBottom:12,padding:0}}>← Retour</button>
-      <div className="page-title">Mes équivalences</div>
-      <div style={{fontSize:13,color:"#6B7280",marginBottom:12}}>Consulte les portions de chaque aliment de ton plan.</div>
-      <input type="text" value={eqSearch} onChange={e=>setEqSearch(e.target.value)} placeholder="Rechercher un aliment..." style={{width:"100%",padding:"10px 14px",borderRadius:12,border:`1px solid ${obj.accentBorder}`,fontSize:14,fontFamily:"inherit",background:"#fff",marginBottom:16,boxSizing:"border-box",outline:"none"}}/>
-      {Object.entries(typeGroups).map(([type,grp])=>{
-        const eqs=grouped[type];
-        if(!eqs||eqs.length===0)return null;
-        const isOpen=q||eqExpanded[type];
-        return <div key={type} style={{marginBottom:12}}>
-          <div role="button" tabIndex={0} onClick={()=>toggleGroup(type)} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 14px",borderRadius:12,background:"#fff",border:`1px solid ${obj.accentBorder}`,cursor:"pointer",boxShadow:"0 2px 8px rgba(0,0,0,.04)"}}>
-            <span style={{fontSize:18}}>{grp.icon}</span>
-            <span style={{flex:1,fontSize:14,fontWeight:700,color:"#1A1A1A"}}>{grp.label}</span>
-            <span style={{fontSize:12,color:"#9CA3AF",fontWeight:600}}>{eqs.length}</span>
-            <span style={{fontSize:14,color:"#6B7280",transition:"transform .2s",transform:isOpen?"rotate(90deg)":"none"}}>›</span>
+    /* --- Render helpers --- */
+    const renderEqCompact=(eq)=>{
+      const sqEntries=Object.entries(SLOT_QTY[eq.eqId]||{});
+      const isR=eq.eqMode==="R";
+      const isVeg=eq.type==="veg";
+      const fGrams=(!isR&&eq.qtyPlanGrams>0)?`${isVeg?"≥ ":""}${eq.qtyPlanGrams}g`:null;
+      return <div key={eq.eqId} role="button" tabIndex={0} onClick={()=>setEqDetail(eq.eqId)} className="card" style={{padding:0,overflow:"hidden",border:"1px solid rgba(15,30,46,.07)",boxShadow:"0 1px 4px rgba(0,0,0,.03)",cursor:"pointer",transition:"box-shadow .15s"}}>
+        <div style={{padding:"14px 14px",display:"flex",alignItems:"center",gap:10}}>
+          <EqImg eqId={eq.eqId} size={18} fallback={eq.icon}/>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:13,fontWeight:700,color:"#1A1A1A",lineHeight:1.3}}>{eq.label}</div>
+            {sqEntries.length>0&&<div style={{display:"flex",gap:4,flexWrap:"wrap",alignItems:"center",marginTop:5}}>
+              {sqEntries.map(([sid])=><span key={sid} style={{fontSize:9,fontWeight:600,padding:"2px 8px",borderRadius:99,background:"rgba(15,30,46,.04)",color:"#9CA3AF",lineHeight:"13px"}}>{slotLabel(sid)}{!isR&&fGrams&&<span style={{marginLeft:3}}>· {fGrams}</span>}</span>)}
+            </div>}
           </div>
-          {isOpen&&<div style={{marginTop:6}}>
-            {eqs.map(eq=>{
-              const isR=eq.eqMode==="R";
-              const hasItems=eq.items&&eq.items.length>0;
-              // R mode: qtyPlanGrams = qty_max (portion count), NOT grams → don't display
-              // F mode: qtyPlanGrams = actual grams → display "1 portion = Xg"
-              // Veg type: minimum portion → "≥"
-              const isVeg=eq.type==="veg";
-              const portionLabel=!isR&&eq.qtyPlanGrams>0?`1 portion ${isVeg?"≥":"="} ${eq.qtyPlanGrams}g`:null;
-              return <div key={eq.eqId} className="card" style={{marginBottom:8,padding:0,overflow:"hidden"}}>
-                <div style={{padding:"10px 14px",display:"flex",alignItems:"center",gap:10,borderBottom:hasItems?`1px solid rgba(15,30,46,.06)`:"none"}}>
-                  <span style={{fontSize:16}}>{eq.icon}</span>
-                  <div style={{flex:1}}>
-                    <div style={{fontSize:13,fontWeight:700,color:"#1A1A1A"}}>{eq.label}</div>
-                    {portionLabel&&<div style={{fontSize:12,color:"#6B7280",marginTop:2}}>{portionLabel}</div>}
+          {eq.nutrientsPerPortion&&eq.nutrientsPerPortion.kcal>0&&<div style={{textAlign:"right",flexShrink:0}}>
+            <div style={{fontSize:11,fontWeight:700,color:obj.accent}}>{Math.round(eq.nutrientsPerPortion.kcal)} kcal</div>
+          </div>}
+          <span style={{fontSize:14,color:"#C8CDD3",flexShrink:0}}>›</span>
+        </div>
+      </div>
+    };
+
+    /* ══════ LEVEL 3: Eq detail ══════ */
+    if(eqDetail){
+      const eq=planEqs.find(e=>e.eqId===eqDetail);
+      if(!eq){setEqDetail(null);return null}
+      const isR=eq.eqMode==="R";
+      const hasItems=eq.items&&eq.items.length>0;
+      const sqEntries=Object.entries(SLOT_QTY[eq.eqId]||{});
+      const uniqueQtys=[...new Set(sqEntries.map(([,v])=>v.qtyMax))];
+      const isMultiQty=uniqueQtys.length>1;
+      const singleQty=sqEntries.length>0?sqEntries[0][1].qtyMax:null;
+      const isVeg=eq.type==="veg";
+      const fGrams=(!isR&&eq.qtyPlanGrams>0)?`${isVeg?"≥ ":""}${eq.qtyPlanGrams}g`:null;
+      const hasNote=eq.noteElevia&&eq.noteElevia.length>0;
+      return <div className="page">
+        <button aria-label="Retour" className="hdr-back" onClick={()=>setEqDetail(null)} style={{marginBottom:12,padding:0}}>← Retour</button>
+        <div className="card" style={{padding:0,overflow:"hidden",border:"1px solid rgba(15,30,46,.07)",boxShadow:"0 1px 4px rgba(0,0,0,.03)"}}>
+          {/* Header */}
+          <div style={{padding:"16px 14px 12px",display:"flex",alignItems:"flex-start",gap:10,borderBottom:(hasItems||hasNote)?"1px solid rgba(15,30,46,.06)":"none"}}>
+            <EqImg eqId={eq.eqId} size={20} fallback={eq.icon}/>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:14,fontWeight:700,color:"#1A1A1A",lineHeight:1.3}}>{eq.label}</div>
+              {sqEntries.length>0&&<div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",marginTop:6}}>
+                {sqEntries.map(([sid])=><span key={sid} style={{fontSize:9,fontWeight:600,padding:"3px 10px",borderRadius:99,background:"rgba(15,30,46,.04)",color:"#6B7280",lineHeight:"13px",letterSpacing:".02em"}}>{slotLabel(sid)}{!isR&&fGrams&&<span style={{color:"#9CA3AF",marginLeft:3}}>· {fGrams}</span>}</span>)}
+              </div>}
+            </div>
+            {eq.nutrientsPerPortion&&eq.nutrientsPerPortion.kcal>0&&<div style={{textAlign:"right",flexShrink:0}}>
+              <div style={{fontSize:12,fontWeight:700,color:obj.accent}}>{Math.round(eq.nutrientsPerPortion.kcal)} kcal</div>
+              <div style={{fontSize:10,color:"#9CA3AF",marginTop:1}}>P{Math.round(eq.nutrientsPerPortion.p)} · L{Math.round(eq.nutrientsPerPortion.l)} · G{Math.round(eq.nutrientsPerPortion.g)}</div>
+            </div>}
+          </div>
+          {/* Note Élevia */}
+          {hasNote&&<div style={{padding:"8px 14px",background:"linear-gradient(135deg,rgba(198,160,91,.04),rgba(198,160,91,.02))",borderBottom:hasItems?"1px solid rgba(15,30,46,.05)":"none",display:"flex",alignItems:"flex-start",gap:8}}>
+            <span style={{fontSize:10,color:"#C6A05B",flexShrink:0,marginTop:2,opacity:.8}}>✦</span>
+            <span style={{fontSize:11,color:"#7A7062",lineHeight:1.55,fontStyle:"italic"}}>{eq.noteElevia}</span>
+          </div>}
+          {/* Items */}
+          {hasItems&&<div style={{padding:"4px 14px 10px"}}>
+            {eq.items.map((item,idx)=>{
+              const s=item.stepper;
+              const eqG=eq.qtyPlanGrams||0;
+              let rightText=null;
+              if(isR&&s){
+                const uPerRef=(item.qty1x>0&&s.usualGPerUnit>0)?item.qty1x/s.usualGPerUnit:1;
+                const labelHasCount=/^[\d½¼⅓⅔¾]/.test(s.usualUnitSg);
+                if(isMultiQty&&sqEntries.length>1){
+                  rightText=<div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:3}}>
+                    {sqEntries.map(([sid,v])=>{const tu=labelHasCount?1:Math.round(v.qtyMax*uPerRef)||1;const pg=Math.round(s.usualGPerUnit*tu);const ul=tu<=1?s.usualUnitSg:s.usualUnitPl;return <div key={sid} style={{display:"flex",alignItems:"center",gap:4}}>
+                      <span style={{fontSize:9,color:"#9CA3AF"}}>{slotLabel(sid)}</span>
+                      <span style={{fontSize:11,fontWeight:700,color:"#374151",background:"rgba(15,30,46,.04)",padding:"2px 8px",borderRadius:99}}>{labelHasCount?ul:`${tu} ${ul}`}</span>
+                      {pg>0&&<span style={{fontSize:10,color:"#9CA3AF"}}>({pg}g)</span>}
+                    </div>})}
+                  </div>;
+                } else {
+                  const portionQty=singleQty||1;
+                  const tu=labelHasCount?1:Math.round(portionQty*uPerRef)||1;
+                  const pg=Math.round(s.usualGPerUnit*tu);
+                  const ul=tu<=1?s.usualUnitSg:s.usualUnitPl;
+                  rightText=<span style={{display:"inline-flex",alignItems:"center",gap:4}}><span style={{fontSize:11,fontWeight:700,color:"#374151",background:"rgba(15,30,46,.04)",padding:"2px 9px",borderRadius:99}}>{labelHasCount?ul:`${tu} ${ul}`}</span>{pg>0&&<span style={{fontSize:10,color:"#9CA3AF"}}>({pg}g)</span>}</span>;
+                }
+              } else if(!isR&&s&&s.usualGPerUnit>0&&eqG>0){
+                const rawUnits=eqG/s.usualGPerUnit;
+                const units=rawUnits>=1?Math.round(rawUnits):Math.round(rawUnits*2)/2;
+                if(units>0){
+                  const fmtU=units===0.5?'½':units%1===0.5?`${Math.floor(units)}½`:String(units);
+                  const ul=units<=1?s.usualUnitSg:s.usualUnitPl;
+                  const labelHasCount=/^[\d½¼⅓⅔¾]/.test(ul);
+                  const gLabel=isVeg?`(≥ ${eqG}g)`:`(${eqG}g)`;
+                  rightText=<span style={{display:"inline-flex",alignItems:"center",gap:4}}><span style={{fontSize:11,fontWeight:700,color:"#374151",background:"rgba(15,30,46,.04)",padding:"2px 9px",borderRadius:99}}>{labelHasCount?ul:`${fmtU} ${ul}`}</span><span style={{fontSize:10,color:"#9CA3AF"}}>{gLabel}</span></span>;
+                }
+              } else if(!isR&&eqG>0){
+                rightText=<span style={{fontSize:11,color:"#6B7280",background:"rgba(15,30,46,.04)",padding:"2px 9px",borderRadius:99,fontWeight:600}}>{isVeg?`≥ ${eqG}g`:`${eqG}g`}</span>;
+              }
+              const hasV=item.variants&&item.variants.length>0;
+              return <div key={item.itemId} style={{paddingTop:idx===0?4:0}}>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"7px 0",borderBottom:(!hasV&&idx<eq.items.length-1)?"1px solid rgba(15,30,46,.04)":"none"}}>
+                  <div style={{flex:1,display:"flex",alignItems:"center",gap:5,minWidth:0}}>
+                    <span style={{fontSize:13,fontWeight:600,color:"#1A1A1A",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.foodLabel}</span>
                   </div>
-                  {eq.nutrientsPerPortion&&eq.nutrientsPerPortion.kcal>0&&<div style={{textAlign:"right",flexShrink:0}}>
-                    <div style={{fontSize:11,fontWeight:700,color:obj.accent}}>{Math.round(eq.nutrientsPerPortion.kcal)} kcal</div>
-                    <div style={{fontSize:10,color:"#9CA3AF"}}>P{Math.round(eq.nutrientsPerPortion.p)} L{Math.round(eq.nutrientsPerPortion.l)} G{Math.round(eq.nutrientsPerPortion.g)}</div>
-                  </div>}
+                  {rightText&&<div style={{textAlign:"right",flexShrink:0,marginLeft:8}}>{rightText}</div>}
                 </div>
-                {hasItems&&<div style={{padding:"6px 14px 10px"}}>
-                  {eq.items.map(item=>{
-                    const s=item.stepper;
-                    const eqG=eq.qtyPlanGrams||0;
-                    let rightText=null;
-                    if(isR&&s){
-                      // R mode: each item has its own portion (defaultUnits × usualGPerUnit)
-                      const pg=Math.round(s.usualGPerUnit*s.defaultUnits);
-                      const ul=s.defaultUnits<=1?s.usualUnitSg:s.usualUnitPl;
-                      rightText=<><span style={{fontSize:12,fontWeight:700,color:"#374151"}}>{s.defaultUnits} {ul}</span>{pg>0&&<span style={{fontSize:11,color:"#9CA3AF",marginLeft:4}}>({pg}g)</span>}</>;
-                    } else if(!isR&&s&&s.usualGPerUnit>0&&eqG>0){
-                      // F mode WITH stepper: show how many units = 1 eq portion
-                      const units=Math.round(eqG/s.usualGPerUnit);
-                      if(units>0){
-                        const ul=units<=1?s.usualUnitSg:s.usualUnitPl;
-                        rightText=<><span style={{fontSize:12,fontWeight:700,color:"#374151"}}>{units} {ul}</span><span style={{fontSize:11,color:"#9CA3AF",marginLeft:4}}>({eqG}g)</span></>;
-                      }
-                    } else if(!isR&&eqG>0){
-                      // F mode WITHOUT stepper: just eq-level grams
-                      rightText=<span style={{fontSize:12,color:"#9CA3AF"}}>{eqG}g</span>;
-                    }
-                    return <div key={item.itemId} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"5px 0",borderBottom:"1px solid rgba(15,30,46,.04)"}}>
-                      <div style={{flex:1}}>
-                        <span style={{fontSize:13,fontWeight:600,color:"#1A1A1A"}}>{item.foodLabel}</span>
-                        {item.isRecommended&&<span style={{fontSize:9,fontWeight:700,color:obj.accent,marginLeft:6,verticalAlign:"middle"}}>REC</span>}
-                      </div>
-                      {rightText&&<div style={{textAlign:"right",flexShrink:0}}>{rightText}</div>}
-                    </div>
-                  })}
+                {hasV&&<div className="variant-scroll" style={{paddingBottom:7,borderBottom:idx<eq.items.length-1?"1px solid rgba(15,30,46,.04)":"none"}}>
+                  {item.variants.map((v,vi)=><span key={vi} style={{fontSize:9.5,fontWeight:500,padding:"2px 8px",borderRadius:99,background:"rgba(15,30,46,.03)",border:"1px solid rgba(15,30,46,.05)",color:"#9CA3AF",lineHeight:"14px",whiteSpace:"nowrap",flexShrink:0}}>{v.label}</span>)}
                 </div>}
               </div>
             })}
           </div>}
         </div>
-      })}
-      {filtered.length===0&&<div style={{textAlign:"center",padding:32,color:"#9CA3AF",fontSize:14}}>Aucun résultat pour "{eqSearch}"</div>}
+      </div>
+    }
+
+    /* ══════ LEVEL 2: Category detail ══════ */
+    if(eqCategory&&!q){
+      const eqs=grouped[eqCategory]||[];
+      const grp=typeGroups[eqCategory];
+      if(!grp){setEqCategory(null);return null}
+      return <div className="page">
+        <button aria-label="Retour" className="hdr-back" onClick={()=>setEqCategory(null)} style={{marginBottom:12,padding:0}}>← Retour</button>
+        <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}>
+          <img src={`/icons/${grp.icon}.svg`} alt="" width={22} height={22} style={{opacity:.65}}/>
+          <div className="page-title" style={{margin:0}}>{grp.label}</div>
+          <span style={{fontSize:11,color:"#9CA3AF",fontWeight:600,background:"rgba(15,30,46,.04)",padding:"2px 8px",borderRadius:99}}>{eqs.length}</span>
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          {eqs.map(eq=>renderEqCompact(eq))}
+        </div>
+        {eqs.length===0&&<div style={{textAlign:"center",padding:32,color:"#9CA3AF",fontSize:14}}>Aucune équivalence dans cette catégorie.</div>}
+      </div>
+    }
+
+    /* ══════ LEVEL 1: Category list (+ search results) ══════ */
+    return <div className="page">
+      <button aria-label="Retour" className="hdr-back" onClick={()=>{setSubScreen(null);setEqSearch("");setEqCategory(null);setEqDetail(null)}} style={{marginBottom:12,padding:0}}>← Retour</button>
+      <div className="page-title">Mes équivalences</div>
+      <div style={{fontSize:13,color:"#6B7280",marginBottom:12}}>Consulte les portions de chaque aliment de ton plan.</div>
+      <input type="text" value={eqSearch} onChange={e=>setEqSearch(e.target.value)} placeholder="Rechercher un aliment..." style={{width:"100%",padding:"10px 14px",borderRadius:12,border:`1px solid ${obj.accentBorder}`,fontSize:14,fontFamily:"inherit",background:"#fff",marginBottom:16,boxSizing:"border-box",outline:"none"}}/>
+      {q?<div style={{display:"flex",flexDirection:"column",gap:8}}>
+        {filtered.map(eq=>renderEqCompact(eq))}
+        {filtered.length===0&&<div style={{textAlign:"center",padding:32,color:"#9CA3AF",fontSize:14}}>Aucun résultat pour "{eqSearch}"</div>}
+      </div>:<div style={{display:"flex",flexDirection:"column",gap:8}}>
+        {Object.entries(typeGroups).map(([type,grp])=>{
+          const eqs=grouped[type];
+          if(!eqs||eqs.length===0)return null;
+          return <div key={type} role="button" tabIndex={0} onClick={()=>setEqCategory(type)} style={{display:"flex",alignItems:"center",gap:12,padding:"13px 14px",borderRadius:14,background:"#fff",border:`1px solid ${obj.accentBorder}`,cursor:"pointer",boxShadow:"0 2px 8px rgba(0,0,0,.04)",transition:"box-shadow .15s"}}>
+            <img src={`/icons/${grp.icon}.svg`} alt="" width={20} height={20} style={{opacity:.65}}/>
+            <span style={{flex:1,fontSize:14,fontWeight:700,color:"#1A1A1A"}}>{grp.label}</span>
+            <span style={{fontSize:11,color:"#9CA3AF",fontWeight:600,background:"rgba(15,30,46,.04)",padding:"2px 8px",borderRadius:99}}>{eqs.length}</span>
+            <span style={{fontSize:14,color:"#C8CDD3"}}>›</span>
+          </div>
+        })}
+      </div>}
     </div>
   }
 
@@ -2241,6 +2373,20 @@ export default function EleviaApp({ session, signOut, planData, logs: externalLo
   const weekConsumed=externalWeekConsumed||DEFAULT_WEEK_CONSUMED;
   const weekNutrients=externalWeekNutrients||{kcal:0,p:0,l:0,g:0};
 
+  // Warmup: plan started Wed-Sun → official week 1 = next Monday
+  const appIsWarmup=useMemo(()=>{
+    const ps=planData?._planStartDate?new Date(planData._planStartDate):null;
+    if(!ps)return false;
+    const dow=ps.getDay();
+    if(dow>=3||dow===0){
+      const next=new Date(ps);
+      next.setDate(next.getDate()+(dow===0?1:8-dow));
+      next.setHours(0,0,0,0);
+      return new Date()<next;
+    }
+    return false;
+  },[planData?._planStartDate]);
+
   const [splash,setSplash]=useState(true);
   const [showOnboarding,setShowOnboarding]=useState(()=>!localStorage.getItem('elevia_onboarding_done'));
   const [showTour,setShowTour]=useState(()=>localStorage.getItem('elevia_onboarding_done')==='1'&&!localStorage.getItem('elevia_tour_done'));
@@ -2279,8 +2425,8 @@ export default function EleviaApp({ session, signOut, planData, logs: externalLo
       </div>
       <div className="content">
         {tab==="plan"&&<PlanTab logs={logs} onAddLog={addLog} onDeleteLog={onDeleteLog} weekConsumed={weekConsumed} weekNutrients={weekNutrients} streak={externalStreak} onIncrementStreak={onIncrementStreak} onCheckMilestones={onCheckMilestones} bilanCount={planData?.BILANS?.length||0} dietMessages={dietMessages} onDietMarkRead={onDietMarkRead} onSwitchTab={setTab} quickLog={quickLog}/>}
-        {tab==="advice"&&<AdviceTab onCreateBilan={onCreateBilan}/>}
-        {tab==="history"&&<HistoryTab logs={logs}/>}
+        {tab==="advice"&&<AdviceTab onCreateBilan={onCreateBilan} isWarmup={appIsWarmup}/>}
+        {tab==="history"&&<HistoryTab logs={logs} onDeleteLog={onDeleteLog}/>}
         {tab==="profile"&&<ProfileTab signOut={signOut} onAddMeasurement={onAddMeasurement} milestones={milestones} milestoneDefs={milestoneDefs} dietMessages={dietMessages} dietUnread={dietUnread} onDietMarkRead={onDietMarkRead}/>}
       </div>
       <div style={{position:"absolute",bottom:76,left:0,right:0,height:24,background:"linear-gradient(to bottom,transparent,#F5F4F1)",pointerEvents:"none",zIndex:10}}/>

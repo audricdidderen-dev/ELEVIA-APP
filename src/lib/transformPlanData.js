@@ -4,7 +4,52 @@ import { getObjectiveConfig, getScoreLabel } from './objectiveConfig.js'
  * Transform Supabase rows into the exact shapes expected by elevia-prototype.jsx
  */
 
-export function transformPlanData({ profile, plan, equivalences, items, slots, slotMapping, targets, advices, microTips, refMicroTips, measurements, bilans, refEqMaster, refEqItems, videoGuides, recipes, progression, capsules }) {
+export function transformPlanData({ profile, plan, equivalences, items, slots, slotMapping, targets, advices, microTips, refMicroTips, measurements, bilans, refEqMaster, refEqItems, videoGuides, recipes, progression, capsules, usualRules, itemVariants }) {
+
+  // --- VARIANTS LOOKUP (eq_id + item_id → variants[]) ---
+  const variantsByItem = {}
+  for (const v of (itemVariants || [])) {
+    const key = `${v.parent_eq_id}::${v.parent_item_id}`
+    if (!variantsByItem[key]) variantsByItem[key] = []
+    variantsByItem[key].push({ label: v.variant_label, rank: v.rank, featured: v.is_featured })
+  }
+
+  // --- USUAL RULES LOOKUP (for PROFILE mode resolution) ---
+  const rulesByProfile = {}
+  for (const rule of (usualRules || [])) {
+    const pid = rule.usual_profile_id
+    if (!rulesByProfile[pid]) rulesByProfile[pid] = []
+    rulesByProfile[pid].push(rule)
+  }
+  // Sort each profile's rules by min_g ascending
+  for (const pid of Object.keys(rulesByProfile)) {
+    rulesByProfile[pid].sort((a, b) => Number(a.min_g || 0) - Number(b.min_g || 0))
+  }
+
+  /** Resolve PROFILE item → stepper by matching qty against rules */
+  function resolveProfileStepper(item, planQty) {
+    const profileId = item.usual_profile_id
+    // Use plan portion qty (from plan_equivalences.qty_plan_grams) for matching,
+    // fall back to item.qty_1x (ref qty) if not available
+    const qty = planQty > 0 ? planQty : (Number(item.qty_1x) || 0)
+    const rules = rulesByProfile[profileId]
+    if (!rules || rules.length === 0) return null
+    const match = rules.find(r => {
+      const min = Number(r.min_g) || 0
+      const max = Number(r.max_g) || 9999
+      return qty >= min && qty <= max
+    })
+    if (!match) return null
+    return {
+      usualGPerUnit: Number(match.usual_g_per_unit),
+      usualUnitSg: match.usual_unit_sg || '',
+      usualUnitPl: match.usual_unit_pl || '',
+      unitStep: Number(item.app_unit_step) || 1,
+      defaultUnits: 1,
+      minUnits: 0,
+      maxUnits: 10,
+    }
+  }
 
   // --- CLIENT ---
   const CLIENT = {
@@ -61,6 +106,7 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
       l: Number(eq.lipids_per_portion),
       g: Number(eq.carbs_per_portion),
     },
+    refQty: Number(eq.ref_qty) || 0,
     qtyPlanGrams: Number(eq.qty_plan_grams) || 0,
     qtyUi: {
       appInputMode: eq.app_input_mode || 'ITEM_UNIT_STEPPER',
@@ -77,6 +123,7 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
       foodLabel: it.food_label,
       isRecommended: it.is_recommended || false,
       cookedFactor: cookedFactorByItem[it.item_id] || (it.cooked_factor != null ? Number(it.cooked_factor) : null),
+      qty1x: Number(it.qty_1x) || 0,
       stepper: (it.usual_g_per_unit != null) ? {
         usualGPerUnit: Number(it.usual_g_per_unit),
         usualUnitSg: it.usual_unit_sg || '',
@@ -85,15 +132,32 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
         defaultUnits: Number(it.app_default_units) || 1,
         minUnits: Number(it.app_min_units) || 0,
         maxUnits: Number(it.app_max_units) || 10,
-      } : null,
+      } : (it.usual_mode === 'PROFILE' && it.usual_profile_id)
+        ? resolveProfileStepper(it, Number(eq.qty_plan_grams) || 0)
+        : null,
       nutrientsPerUnit: (it.kcal_per_unit != null && Number(it.kcal_per_unit) > 0) ? {
         kcal: Number(it.kcal_per_unit),
         p: Number(it.protein_per_unit),
         l: Number(it.lipids_per_unit),
         g: Number(it.carbs_per_unit),
       } : null,
+      variants: variantsByItem[`${eq.eq_id}::${it.item_id}`] || [],
     })),
   }))
+
+  // --- SLOT_QTY (cascade output: qty per eq × slot) ---
+  const adjustedState = plan.auto_calculation_log?.adjusted_state || []
+  const SLOT_QTY = {}
+  for (const entry of adjustedState) {
+    const eqId = entry.eq_id
+    const sid = entry.slot_id
+    if (!SLOT_QTY[eqId]) SLOT_QTY[eqId] = {}
+    SLOT_QTY[eqId][sid] = {
+      qtyMax: Number(entry.qty_max),
+      qtyMin: Number(entry.qty_min),
+      freqWeek: Number(entry.freq_week),
+    }
+  }
 
   // --- SLOTS ---
   const SLOTS = slots.map(s => ({
@@ -291,7 +355,9 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
             defaultUnits: Number(it.app_default_units) || 1,
             minUnits: Number(it.app_min_units) || 0,
             maxUnits: Number(it.app_max_units) || 10,
-          } : null,
+          } : (it.usual_mode === 'PROFILE' && it.usual_profile_id)
+            ? resolveProfileStepper(it, 0)
+            : null,
           nutrientsPerUnit,
         }
       }),
@@ -381,6 +447,7 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
     FULL_CATALOGUE,
     SLOTS,
     SLOT_ALLOWED,
+    SLOT_QTY,
     PLAN_TARGETS,
     ADVICES,
     MICRO_TIPS,
