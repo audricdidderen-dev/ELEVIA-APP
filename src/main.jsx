@@ -16,7 +16,7 @@ function App() {
   const { session, loading: authLoading, signIn, signOut } = useAuth()
   const { data: planData, loading: dataLoading, error: dataError } = usePlanData(session)
   const { logs, weekConsumed, weekNutrients, loading: logsLoading, addLog, deleteLog } = useFoodLogs(session, planData)
-  const { measurements, addMeasurement } = useMeasurements(session, planData?.MEASUREMENTS)
+  const { measurements, addMeasurement, deleteMeasurement } = useMeasurements(session, planData?.MEASUREMENTS)
   const { bilans, createBilan } = useWeeklyBilans(session, planData?._planId, planData?.BILANS)
   const { streak, incrementStreak } = useStreaks(session)
   const { milestones, milestoneDefs, newlyUnlocked, checkAndAward, dismissPopup } = useMilestones(session)
@@ -76,6 +76,7 @@ function App() {
       onAddLog={addLog}
       onDeleteLog={deleteLog}
       onAddMeasurement={addMeasurement}
+      onDeleteMeasurement={deleteMeasurement}
       onCreateBilan={createBilan}
       streak={streak}
       onIncrementStreak={incrementStreak}
@@ -109,19 +110,19 @@ class ErrorBoundary extends React.Component {
       return (
         <div style={{
           width: '100%', maxWidth: 430, height: '100dvh', margin: '0 auto',
-          background: 'linear-gradient(160deg, #0A1620 0%, #121E2D 40%, #122438 100%)',
+          background: '#F5F4F1',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           fontFamily: "'DM Sans', sans-serif", padding: 32, textAlign: 'center',
         }}>
-          <div style={{ fontSize: 18, fontWeight: 700, color: '#FF3B30', marginBottom: 12 }}>
-            Une erreur est survenue
+          <div style={{ fontSize: 20, fontWeight: 700, color: '#0E1E2E', marginBottom: 12 }}>
+            Oups, quelque chose s'est mal pass&eacute;.
           </div>
-          <div style={{ fontSize: 14, color: 'rgba(255,255,255,.6)', lineHeight: 1.6, marginBottom: 24 }}>
-            L'application a rencontré un problème inattendu. Essaie de recharger la page.
+          <div style={{ fontSize: 14, color: 'rgba(14,30,46,.55)', lineHeight: 1.6, marginBottom: 24 }}>
+            L'application a rencontr&eacute; un probl&egrave;me inattendu.
           </div>
           <button onClick={() => window.location.reload()} style={{
-            padding: '12px 32px', borderRadius: 14, background: 'rgba(198,160,91,.15)',
-            border: '1px solid rgba(198,160,91,.3)', color: '#C6A05B', fontSize: 14,
+            padding: '12px 32px', borderRadius: 14, background: '#C6A05B',
+            border: 'none', color: '#fff', fontSize: 14,
             fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
           }}>Recharger</button>
         </div>

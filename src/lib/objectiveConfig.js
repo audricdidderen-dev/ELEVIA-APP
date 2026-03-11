@@ -196,6 +196,52 @@ const OBJECTIVE_CONFIG = {
     kpiSign: '+',
   },
 
+  /* ── Recomposition corporelle ── */
+  RECOMP: {
+    code: 'RECOMP',
+    accent: '#C6A05B',
+    accentSoft: 'rgba(198,160,91,.12)',
+    accentBorder: 'rgba(198,160,91,.22)',
+    accentBorderStrong: 'rgba(198,160,91,.34)',
+    accentLine: 'rgba(198,160,91,.55)',
+
+    kcalFraming: 'Budget',
+    kcalVerb: 'consommé',
+    progressDir: 'neutral',
+    ringOrangeThreshold: 1.15,
+    ringOrangeDir: 'above',
+    pbarOrangeAbove: 120,
+    pbarGreenAbove: 100,
+
+    dayHint: "Ton poids peut rester stable — c'est ta composition corporelle qui évolue.",
+    hpEducation: "Logger ce qui est hors plan, c'est garder un suivi honnête. L'objectif est d'améliorer ta composition corporelle.",
+    welcomeSubtitle: 'Recomposition corporelle',
+
+    scoreLabels: [
+      { min: 85, label: 'Très solide' },
+      { min: 70, label: 'Solide' },
+      { min: 55, label: 'Correct' },
+      { min: 0,  label: 'À ajuster' },
+    ],
+
+    bilanSummary: {
+      85: "Excellente semaine ! Tu suis ton plan avec rigueur — ta composition corporelle évolue dans le bon sens.",
+      70: "Bonne semaine. Continue à respecter tes cibles protéines et ton cadre calorique.",
+      55: "Semaine correcte. Veille à atteindre tes protéines chaque jour pour soutenir la recomposition.",
+      0:  "Semaine à ajuster. La recomposition demande de la constance — reprends le cadre dès demain.",
+    },
+
+    weekAlertTitle: 'Protéines — attention cette semaine',
+    weekAlertMsg: "Tes protéines sont en dessous de la cible. Elles sont essentielles pour la recomposition corporelle.",
+
+    eqFilterField: 'obj_recomp',
+
+    kpiDir: 0,
+    kpiColor: '#C6A05B',
+    kpiArrow: '→',
+    kpiSign: '',
+  },
+
   /* ── Prise guidée ── */
   GAIN_GUIDE: {
     code: 'GAIN_GUIDE',

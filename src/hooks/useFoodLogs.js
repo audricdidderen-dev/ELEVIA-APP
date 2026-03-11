@@ -51,7 +51,10 @@ export function useFoodLogs(session, planData) {
       const wn = { kcal: 0, p: 0, l: 0, g: 0 }
       for (const log of (weekRes.data || [])) {
         const eqId = log.eq_id
-        wc[eqId] = (wc[eqId] || 0) + Number(log.qty || 1)
+        // Skip quicklog entries with null eq_id to avoid a null key in weekConsumed
+        if (eqId != null) {
+          wc[eqId] = (wc[eqId] || 0) + Number(log.qty || 1)
+        }
         const transformed = transformLog(log)
         wn.kcal += transformed.kcal
         wn.p += transformed.p

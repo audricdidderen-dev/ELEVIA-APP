@@ -113,23 +113,42 @@ export function useQuickLog(session) {
 
   // ── Fetch Apero items (for session mode) ──
   const fetchAperoItems = useCallback(async () => {
-    const { data, error } = await supabase
-      .from('ql_items')
-      .select(`
-        id, slug, label, description, portion_profile_id, is_featured,
-        ql_item_portions ( option_key, label_short, grams_or_ml, kcal, p, l, g ),
-        ql_flags ( flag_key )
-      `)
-      .eq('category_id', 'APERO')
-      .eq('is_active', true)
-      .order('popularity_rank', { nullsFirst: false })
-      .order('label')
+    const [itemsRes, optionsRes] = await Promise.all([
+      supabase
+        .from('ql_items')
+        .select(`
+          id, slug, label, description, portion_profile_id, is_featured,
+          ql_item_portions ( option_key, grams_or_ml, kcal, p, l, g ),
+          ql_flags ( flag_key )
+        `)
+        .eq('category_id', 'APERO')
+        .eq('is_active', true)
+        .order('popularity_rank', { nullsFirst: false })
+        .order('label'),
+      supabase
+        .from('ql_portion_options')
+        .select('portion_profile_id, option_key, label_short, label_long'),
+    ])
 
-    if (error) {
-      console.error('fetchAperoItems error:', error)
+    if (itemsRes.error) {
+      console.error('fetchAperoItems error:', itemsRes.error)
       return []
     }
-    return data || []
+
+    // Build label lookup from portion options
+    const optLabels = {}
+    for (const opt of (optionsRes.data || [])) {
+      optLabels[`${opt.portion_profile_id}::${opt.option_key}`] = opt.label_short || opt.label_long || opt.option_key
+    }
+
+    // Enrich item portions with label_short
+    return (itemsRes.data || []).map(item => ({
+      ...item,
+      ql_item_portions: (item.ql_item_portions || []).map(p => ({
+        ...p,
+        label_short: optLabels[`${item.portion_profile_id}::${p.option_key}`] || p.option_key,
+      })),
+    }))
   }, [])
 
   // ── Submit Quick-Log ──

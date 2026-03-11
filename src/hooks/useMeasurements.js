@@ -40,5 +40,18 @@ export function useMeasurements(session, initialMeasurements) {
     }
   }, [userId])
 
-  return { measurements, addMeasurement }
+  const deleteMeasurement = useCallback(async (id) => {
+    // Optimistic
+    setMeasurements(prev => prev.filter(m => m.id !== id))
+
+    const { error } = await supabase.from('measurements').delete().eq('id', id)
+
+    if (error) {
+      console.error('Error deleting measurement:', error)
+      // Re-fetch to restore
+      if (initialMeasurements) setMeasurements(initialMeasurements)
+    }
+  }, [initialMeasurements])
+
+  return { measurements, addMeasurement, deleteMeasurement }
 }

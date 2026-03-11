@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect, useRef, createContext, useContext } from "react";
-import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, ReferenceLine } from "recharts";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, ReferenceLine } from "recharts";
 import { getObjectiveConfig, getScoreLabel, getBilanSummary } from "./src/lib/objectiveConfig.js";
 import { computeIngredientDisplay, computeRecipeMacros } from "./src/lib/recipeHelpers.js";
 import OnboardingOverlay from "./src/components/OnboardingOverlay.jsx";
@@ -19,6 +19,7 @@ const IcCalendar=({size=20,color="currentColor"})=><svg width={size} height={siz
 const IcBulb=({size=20,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5"><path d="M15 17.24v2.72c0 1.42-1.2 2-3 2s-3-.58-3-2v-2.72"/><path d="M13 17.45v-6a1 1 0 1 1 1 1h-4a1 1 0 0 1 0-2 .95.95 0 0 1 1 1v6"/><path d="M14.5 17.45a6.34 6.34 0 0 0 4-6 6.62 6.62 0 0 0-6.5-6.5 6.62 6.62 0 0 0-6.5 6.5 6.34 6.34 0 0 0 4 6z"/><path d="m9 19.45 6 0M12 .55v1.9M12 21.95v1.5M1 10.45h2.29M3.59 3.05 5.5 4.95M23 10.45h-2.29M20.41 3.05 18.5 4.95"/></svg>;
 const IcHistory=({size=20,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5"><path d="m13 7 0 5.5 5 0"/><path d="m.5 9 3 4.5 3.5-4"/><path d="M13 21.5A9.5 9.5 0 1 0 3.5 12v1.5"/></svg>;
 const IcProfile=({size=20,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5"><circle cx="12" cy="6.75" r="5.5"/><path d="M3 22.75a9 9 0 0 1 18 0z"/></svg>;
+
 const IcTarget=({size=14,color="#C6A05B"})=><svg width={size} height={size} viewBox="-0.25 -0.25 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2"><circle cx="11.75" cy="11.75" r="7.83"/><path d="m11.75.98 0 5.87M.98 11.75h5.87M11.75 22.52v-5.87M22.52 11.75h-5.87"/></svg>;
 const IcCheck=({size=12,color="#34C759"})=><svg width={size} height={size} viewBox="-0.25 -0.25 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"><path d="m23 .49-16.16 22.52-6.36-6.36"/></svg>;
 const IcApple=({size=18,color="#C6A05B"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2"><path d="M12 22.5c1.5 0 .5 1 3.5 1s6-6 6-10-2.5-7-5.5-7-3 1-4 1-1-1-4-1-5.5 3-5.5 7 3 10 6 10 2-1 3.5-1z"/><path d="M12 7.5v-2a2 2 0 0 0-2-2H8"/><path d="M14.63 4.92a4.5 4.5 0 0 0 3.83-3.83.52.52 0 0 0-.59-.59 4.5 4.5 0 0 0-3.83 3.83.52.52 0 0 0 .58.58z"/></svg>;
@@ -27,28 +28,12 @@ const IcBottle=({size=18,color="#C6A05B"})=><svg width={size} height={size} view
 const IcAcorn=({size=18,color="#C6A05B"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2"><path d="M1.62 21.75c.05.14.14.28.25.38.11.11.24.19.38.25 7.38 2.77 12.25.11 17.11-4.76L6.38 4.64c-4.87 4.86-7.53 9.73-4.76 17.11z"/><path d="M23.18 3.11a1.08 1.08 0 0 0 0-1.53l-.76-.76a1.08 1.08 0 0 0-1.53 0l-2.34 2.34a8.5 8.5 0 0 0-6.32-2.12 8.5 8.5 0 0 0-6.2 2.45c-.17.16-.18.43-.02.6L19.74 18c.17.17.44.16.6-.01a8.5 8.5 0 0 0 2.45-6.2 8.5 8.5 0 0 0-2.12-6.32l2.34-2.34z"/></svg>;
 const IcDrumstick=({size=18,color="#C6A05B"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M4.821 22.7a3.339 3.339 0 0 1-.673-2.795 3.428 3.428 0 0 1-2.848-.722c-2.493-2.493 1.381-6.367 4.076-2.7l3.015-3.073 2.122 2.121L7.5 18.606c3.69 2.673-.185 6.594-2.679 4.094Z"/><path d="m11.27 16.289-3.535-3.537c-1.891-1.89 6.435-17.678 13.813-10.3 7.43 7.428-8.628 15.486-10.278 13.837Z"/></svg>;
 const IcCarrot=({size=18,color="#C6A05B"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M20.56 10.47a32.7 32.7 0 0 0-3.24-3.79 32.7 32.7 0 0 0-3.79-3.24 1.58 1.58 0 0 0-2.1.4L.77 21.31a1.37 1.37 0 0 0 1.92 1.92l17.47-10.66a1.58 1.58 0 0 0 .4-2.1Z"/><path d="M15.89 5.34 17.83.5"/><path d="m18.66 8.11 4.84-1.94"/><path d="m17.32 6.68 4.52-4.52"/><path d="m10.42 5.5 4.03 4.04"/><path d="m11.11 12.15 3.69 3.69"/><path d="m8.19 16.53 2.08 2.07"/></svg>;
-const IcStar=({size=14,color="#C6A05B"})=><svg width={size} height={size} viewBox="0 0 24 24" fill={color} stroke="none"><path d="M16.37 12.56a1.18 1.18 0 0 0 .3-1.38l-1.11-2.55a.24.24 0 0 1 .06-.28l2-1.94a1.19 1.19 0 0 0 .28-1.31 1.18 1.18 0 0 0-1.11-.72h-2.25a.25.25 0 0 1-.23-.15L13.1 1.57A1.22 1.22 0 0 0 12 .88a1.22 1.22 0 0 0-1.1.69L9.69 4.23a.25.25 0 0 1-.23.15H7.2a1.17 1.17 0 0 0-1.11.72 1.2 1.2 0 0 0 .29 1.32l2 1.93a.24.24 0 0 1 .06.28l-1.11 2.55a1.18 1.18 0 0 0 .3 1.38 1.22 1.22 0 0 0 1.43.16l2.82-1.59a.25.25 0 0 1 .24 0l2.82 1.59a1.21 1.21 0 0 0 1.43-.16z"/></svg>;
 
 const IcMonoE=({size=16,color="#C6A05B",letter="É"})=><span style={{fontSize:size,fontWeight:700,fontStyle:"italic",color,fontFamily:"'Cormorant Garamond','Georgia','Times New Roman',serif",lineHeight:1,display:"flex",alignItems:"center",justifyContent:"center"}}>{letter}</span>;
 
 const IcInfoEq=({size=14,color="rgba(198,160,91,.5)"})=><svg width={size} height={size} viewBox="-0.25 -0.25 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2"><circle cx="11.75" cy="11.75" r="10.77"/><path d="M11.69 16.5v-6a.86.86 0 0 0-.25-.61.86.86 0 0 0-.61-.25h-.86"/><circle cx="11.26" cy="7.35" r=".43"/><path d="M9.97 16.5h3.55"/></svg>;
-const IcInfo=({size=14,color="#3B82F6"})=><svg width={size} height={size} viewBox="-0.25 -0.25 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2"><circle cx="11.75" cy="11.75" r="10.77"/><path d="M11.69 16.5v-6a.86.86 0 0 0-.25-.61.86.86 0 0 0-.61-.25h-.86"/><circle cx="11.26" cy="7.35" r=".43"/><path d="M9.97 16.5h3.55"/></svg>;
+
 const IcLogo=({height=16})=><svg height={height} viewBox="70 125 250 100" fill="none"><g transform="translate(192,126)"><g fill="#f6f3ee"><g transform="translate(1.54,83.04)"><path d="M.63-48.84h10.89l11.51 37.19h.42l11.44-37.19h10.89L30.14.06H16.27z"/></g><g transform="translate(43.9,83.04)"><path d="M4.11-48.84h10.97V0H4.11z"/></g><g transform="translate(57.58,83.04)"><path d="M31.41-11.3H15.77L12.28 0H1.25l17.38-48.84h10.12L45.98 0H34.95zM28.75-19.61l-5.03-15.77h-.41l-4.89 15.77z"/></g></g></g><g transform="translate(78,142)"><g fill="#f6f3ee"><g transform="translate(1.29,77.92)"><path d="M20.56-33.45c2.84 0 5.23-.17 7.16-.52 1.93-.34 3.46-.88 4.59-1.62 1.14-.74 1.96-1.69 2.45-2.85.5-1.15.75-2.52.75-4.11h2.77v21.59h-2.77c0-1.58-.22-2.95-.67-4.11-.45-1.16-1.24-2.13-2.38-2.89-1.13-.77-2.66-1.35-4.59-1.75-1.92-.39-4.36-.59-7.31-.59v17.88c0 1.74.21 3.18.63 4.31.42 1.14 1.15 2.07 2.19 2.78 1.03.71 2.38 1.21 4.06 1.5 1.69.28 3.77.42 6.25.42 2.8 0 5.18-.2 7.13-.59 1.94-.39 3.58-1.07 4.89-2.02 1.32-.94 2.38-2.2 3.17-3.75.79-1.55 1.45-3.49 1.98-5.81h3l-1.19 15.58H3.56v-3c1.85-.05 3.33-.21 4.47-.47 1.13-.27 2.02-.72 2.64-1.36.63-.63 1.06-1.53 1.27-2.69.22-1.16.33-2.66.33-4.5v-36.86c0-1.84-.09-3.33-.28-4.47-.19-1.13-.56-2.03-1.11-2.69-.55-.66-1.36-1.11-2.42-1.34-1.05-.24-2.42-.41-4.11-.52v-3.02h45.72l.72 13.92h-2.77c-.32-2.1-.84-3.83-1.55-5.17-.71-1.34-1.68-2.41-2.92-3.2-1.24-.79-2.81-1.34-4.72-1.66-1.9-.32-4.19-.48-6.87-.48h-10.05c-.9 0-1.34.45-1.34 1.34z"/></g><g transform="translate(53.17,77.92)"><path d="M16.53-12.34c0 2.01.08 3.62.24 4.84.15 1.21.48 2.16.98 2.84.51.68 1.22 1.15 2.14 1.42.93.26 2.15.42 3.67.47v2.77H1.73v-2.77c1.58-.05 2.85-.22 3.8-.52.94-.29 1.69-.75 2.25-1.37.56-.63.93-1.52 1.11-2.66.19-1.13.28-2.62.28-4.47v-34.09c0-2.84-.04-5.23-.13-7.16-.07-1.93-.18-3.24-.34-3.92-.26-1.21-.88-2.03-1.86-2.44-.98-.43-2.73-.64-5.26-.64v-2.69l14.95-2.92z"/></g><g transform="translate(73.34,77.92)"><path d="M41.28-7.36c-4.48 5.44-10.04 8.16-16.69 8.16-3.1 0-5.92-.52-8.45-1.55-2.53-1.03-4.71-2.48-6.53-4.34-1.82-1.88-3.23-4.12-4.23-6.72s-1.5-5.5-1.5-8.67c0-3.22.52-6.2 1.58-8.94 1.06-2.74 2.55-5.08 4.47-7.03 1.93-1.96 4.22-3.49 6.88-4.59 2.66-1.1 5.58-1.66 8.75-1.66 5.11 0 9.07 1.39 11.86 4.16 2.8 2.76 4.2 6.72 4.2 11.89 0 .74-.15 1.19-.44 1.34-.29.16-.96.24-2.01.24H13.13c-.11.43-.19.95-.24 1.55-.05.6-.08 1.28-.08 2.01 0 2.74.33 5.23.98 7.48.67 2.24 1.62 4.15 2.86 5.74 1.24 1.57 2.71 2.8 4.42 3.67 1.72.87 3.63 1.3 5.74 1.3 2.22 0 4.27-.48 6.17-1.45 1.89-.98 3.84-2.58 5.84-4.8zM28.23-28.72c1.05 0 1.89-.02 2.53-.08.63-.05 1.11-.16 1.42-.31.32-.16.54-.38.64-.67.1-.29.16-.67.16-1.14 0-2.43-.78-4.37-2.34-5.81-1.55-1.46-3.67-2.19-6.36-2.19-5.7 0-9.23 3.4-10.59 10.21z"/></g></g></g></svg>;
-
-const B = {
-  navy: "#121E2D", gold: "#C6A05B", goldSoft: "rgba(198,160,91,.12)",
-  goldBorder: "rgba(198,160,91,.22)", goldBorderStrong: "rgba(198,160,91,.34)",
-  goldLine: "rgba(198,160,91,.55)", ivory: "#F5F4F1", white: "#FFFFFF",
-  text: "#1A1A1A", textMuted: "#6B7280", textFaint: "rgba(15,30,46,.50)",
-  hairline: "rgba(15,30,46,.10)", border: "#E5E7EB",
-  orange: "#E8863A", orangeLight: "rgba(232,134,58,.12)",
-  green: "#34C759", greenSoft: "rgba(52,199,89,.12)",
-  red: "#FF3B30", blue: "#3B82F6", blueSoft: "rgba(59,130,246,.1)",
-};
-
-/* Muted secondary color — no aggressive blue */
-const SEC_COLOR = "#6B8299"; // desaturated navy-blue
-const SEC_BG = "rgba(107,130,153,.1)";
 
 /* ═══ HARDCODED DEFAULTS (used as fallback when no planData) ═══ */
 const DEFAULT_CLIENT = { firstName: "Dupont", programme: "Perte de poids", heightCm: 178 };
@@ -140,11 +125,40 @@ const DEFAULT_CATALOGUE = [
     nutrientsPerPortion:{kcal:80,p:7,l:5.5,g:0.5},qtyPlanGrams:30,
     qtyUi:{appInputMode:"ITEM_UNIT_STEPPER",showItemListDefault:false,defaultAction:"LOG_1_PORTION",showGramFallback:true},noteElevia:"Fromages allégés.",items:[]},
   { eqId:"assaisonnement_repas_froid",label:"Assaisonnement froid",eqMode:"F",type:"fat",eqGroupId:"fat_group",eqImportance:"flex",icon:"🫒",
-    nutrientsPerPortion:{kcal:45,p:0.1,l:5,g:0.2},qtyPlanGrams:5,
-    qtyUi:{appInputMode:"ITEM_UNIT_STEPPER",showItemListDefault:false,defaultAction:"LOG_1_PORTION",showGramFallback:false},noteElevia:"Vinaigrette maison.",items:[]},
+    nutrientsPerPortion:{kcal:90,p:0.2,l:10,g:0.4},qtyPlanGrams:10,
+    qtyUi:{appInputMode:"ITEM_UNIT_STEPPER",showItemListDefault:false,defaultAction:"LOG_1_PORTION",showGramFallback:false},noteElevia:"Vinaigrette maison ou huile d'assaisonnement.",
+    items:[
+      {itemId:"huile_dolivecolza",foodLabel:"Huile olive/colza",isRecommended:true,qty1x:10,stepper:{usualGPerUnit:5,usualUnitSg:"c. à café",usualUnitPl:"c. à café",unitStep:1,defaultUnits:2,minUnits:0,maxUnits:6}},
+      {itemId:"mayonnaise_colza_froid",foodLabel:"Mayonnaise colza",isRecommended:false,qty1x:12,stepper:{usualGPerUnit:12,usualUnitSg:"c. à soupe rase",usualUnitPl:"c. à soupe rases",unitStep:1,defaultUnits:1,minUnits:0,maxUnits:4}},
+      {itemId:"mayonnaise_allegee_froid",foodLabel:"Mayonnaise allégée",isRecommended:false,qty1x:30,stepper:{usualGPerUnit:15,usualUnitSg:"c. à soupe",usualUnitPl:"c. à soupe",unitStep:1,defaultUnits:2,minUnits:0,maxUnits:6}},
+      {itemId:"vinaigrette_vdm_ciboulette",foodLabel:"Vinaigrette Vandemoortele ciboulette",isRecommended:false,qty1x:30,stepper:{usualGPerUnit:15,usualUnitSg:"c. à soupe",usualUnitPl:"c. à soupe",unitStep:1,defaultUnits:2,minUnits:0,maxUnits:6}},
+      {itemId:"vinaigrette_vdm_fh_allegee",foodLabel:"Vinaigrette Vandemoortele fines herbes allégée",isRecommended:false,qty1x:60,stepper:{usualGPerUnit:15,usualUnitSg:"c. à soupe",usualUnitPl:"c. à soupe",unitStep:1,defaultUnits:4,minUnits:0,maxUnits:8}},
+      {itemId:"vinaigrette_tahini",foodLabel:"Vinaigrette tahini",isRecommended:true,qty1x:30,stepper:{usualGPerUnit:30,usualUnitSg:"portion",usualUnitPl:"portions",unitStep:1,defaultUnits:1,minUnits:0,maxUnits:2}},
+      {itemId:"sauce_yaourt_grec",foodLabel:"Sauce yaourt grec",isRecommended:true,qty1x:56,stepper:{usualGPerUnit:56,usualUnitSg:"portion",usualUnitPl:"portions",unitStep:1,defaultUnits:1,minUnits:0,maxUnits:2}},
+      {itemId:"sauce_yaourt",foodLabel:"Sauce au yaourt",isRecommended:true,qty1x:70,stepper:{usualGPerUnit:70,usualUnitSg:"portion",usualUnitPl:"portions",unitStep:1,defaultUnits:1,minUnits:0,maxUnits:2}},
+      {itemId:"sauce_avocat_lime",foodLabel:"Sauce avocat-lime",isRecommended:false,qty1x:78,stepper:{usualGPerUnit:78,usualUnitSg:"portion",usualUnitPl:"portions",unitStep:1,defaultUnits:1,minUnits:0,maxUnits:2}},
+      {itemId:"vinaigrette_moutarde_miel",foodLabel:"Vinaigrette moutarde miel",isRecommended:true,qty1x:38,stepper:{usualGPerUnit:38,usualUnitSg:"portion",usualUnitPl:"portions",unitStep:1,defaultUnits:1,minUnits:0,maxUnits:2}},
+    ]},
   { eqId:"assaisonnement_repas_chaud",label:"Assaisonnement chaud",eqMode:"F",type:"fat",eqGroupId:"fat_group",eqImportance:"flex",icon:"🧈",
-    nutrientsPerPortion:{kcal:45,p:0,l:5,g:0},qtyPlanGrams:5,
-    qtyUi:{appInputMode:"ITEM_UNIT_STEPPER",showItemListDefault:false,defaultAction:"LOG_1_PORTION",showGramFallback:false},noteElevia:"Noisette de beurre ou huile.",items:[]},
+    nutrientsPerPortion:{kcal:90,p:0,l:10,g:0},qtyPlanGrams:10,
+    qtyUi:{appInputMode:"ITEM_UNIT_STEPPER",showItemListDefault:false,defaultAction:"LOG_1_PORTION",showGramFallback:false},noteElevia:"Noisette de beurre, filet d'huile ou sauce maison.",
+    items:[
+      {itemId:"huile_dolive",foodLabel:"Huile d'olive",isRecommended:true,qty1x:10,stepper:{usualGPerUnit:5,usualUnitSg:"c. à café",usualUnitPl:"c. à café",unitStep:1,defaultUnits:2,minUnits:0,maxUnits:6}},
+      {itemId:"beurre",foodLabel:"Beurre",isRecommended:true,qty1x:12,stepper:{usualGPerUnit:12,usualUnitSg:"noisette",usualUnitPl:"noisettes",unitStep:1,defaultUnits:1,minUnits:0,maxUnits:4}},
+      {itemId:"mayonnaise_colza",foodLabel:"Mayonnaise colza",isRecommended:false,qty1x:12,stepper:{usualGPerUnit:12,usualUnitSg:"c. à soupe rase",usualUnitPl:"c. à soupe rases",unitStep:1,defaultUnits:1,minUnits:0,maxUnits:4}},
+      {itemId:"mayonnaise_allegee",foodLabel:"Mayonnaise allégée",isRecommended:false,qty1x:30,stepper:{usualGPerUnit:15,usualUnitSg:"c. à soupe",usualUnitPl:"c. à soupe",unitStep:1,defaultUnits:2,minUnits:0,maxUnits:6}},
+      {itemId:"creme_40",foodLabel:"Crème 40%",isRecommended:false,qty1x:25,stepper:{usualGPerUnit:12.5,usualUnitSg:"c. à soupe",usualUnitPl:"c. à soupe",unitStep:1,defaultUnits:2,minUnits:0,maxUnits:6}},
+      {itemId:"creme_35",foodLabel:"Crème 35%",isRecommended:false,qty1x:30,stepper:{usualGPerUnit:15,usualUnitSg:"c. à soupe",usualUnitPl:"c. à soupe",unitStep:1,defaultUnits:2,minUnits:0,maxUnits:6}},
+      {itemId:"creme_20",foodLabel:"Crème 20%",isRecommended:false,qty1x:50,stepper:{usualGPerUnit:15,usualUnitSg:"c. à soupe",usualUnitPl:"c. à soupe",unitStep:1,defaultUnits:3,minUnits:0,maxUnits:8}},
+      {itemId:"bechamel_classique",foodLabel:"Béchamel classique",isRecommended:false,qty1x:80,stepper:{usualGPerUnit:80,usualUnitSg:"portion",usualUnitPl:"portions",unitStep:1,defaultUnits:1,minUnits:0,maxUnits:2}},
+      {itemId:"jus_de_viande_au_beurre",foodLabel:"Jus de viande au beurre",isRecommended:false,qty1x:100,stepper:{usualGPerUnit:100,usualUnitSg:"portion",usualUnitPl:"portions",unitStep:1,defaultUnits:1,minUnits:0,maxUnits:2}},
+      {itemId:"sauce_moutarde",foodLabel:"Sauce moutarde",isRecommended:true,qty1x:40,stepper:{usualGPerUnit:40,usualUnitSg:"portion",usualUnitPl:"portions",unitStep:1,defaultUnits:1,minUnits:0,maxUnits:2}},
+      {itemId:"sauce_a_lamande",foodLabel:"Sauce à l'amande",isRecommended:false,qty1x:40,stepper:{usualGPerUnit:40,usualUnitSg:"portion",usualUnitPl:"portions",unitStep:1,defaultUnits:1,minUnits:0,maxUnits:2}},
+      {itemId:"sauce_pesto",foodLabel:"Sauce pesto",isRecommended:true,qty1x:24,stepper:{usualGPerUnit:24,usualUnitSg:"portion",usualUnitPl:"portions",unitStep:1,defaultUnits:1,minUnits:0,maxUnits:2}},
+      {itemId:"sauce_aux_herbes_et_ricotta",foodLabel:"Sauce herbes et ricotta",isRecommended:false,qty1x:68,stepper:{usualGPerUnit:68,usualUnitSg:"portion",usualUnitPl:"portions",unitStep:1,defaultUnits:1,minUnits:0,maxUnits:2}},
+      {itemId:"sauce_miso_et_sesame",foodLabel:"Sauce miso et sésame",isRecommended:false,qty1x:44,stepper:{usualGPerUnit:44,usualUnitSg:"portion",usualUnitPl:"portions",unitStep:1,defaultUnits:1,minUnits:0,maxUnits:2}},
+      {itemId:"sauce_tomatee",foodLabel:"Sauce tomatée",isRecommended:true,qty1x:100,stepper:{usualGPerUnit:100,usualUnitSg:"portion",usualUnitPl:"portions",unitStep:1,defaultUnits:1,minUnits:0,maxUnits:2}},
+    ]},
   { eqId:"mg_cuisson",label:"MG cuisson",eqMode:"F",type:"fat",eqGroupId:"fat_group",eqImportance:"flex",icon:"🍳",
     nutrientsPerPortion:{kcal:45,p:0,l:5,g:0},qtyPlanGrams:5,
     qtyUi:{appInputMode:"ITEM_UNIT_STEPPER",showItemListDefault:false,defaultAction:"LOG_1_PORTION",showGramFallback:false},noteElevia:"MG cuisson.",items:[]},
@@ -289,8 +303,9 @@ function useHelpers(){
   }),[allEq,planTargets]);
 }
 
+const eqIconFile=(eqId)=>({pain:'pain',cereales_ig_modere:'cereales',feculents_chauds:'feculents',fruits_natures:'fruits',legumes_cuits:'legumes_cuits',legumes_crus:'legumes_crus',viandes_faibles_kcal:'Viandes_maigres',poissons_maigres:'poissons_maigres',poissons_gras:'poissons-gras-a',oleagineux_nature:'oleagineux',pl_0_riche_p:'lait_riche_en_p',pl_50_100_kcal:'Laitages_classique',fromages_20_30_mg:'fromages',assaisonnement_repas_froid:'assaisonnement_chaud_froid',assaisonnement_repas_chaud:'assaisonnement_chaud_froid',mg_cuisson:'matière_grasse_cuisson',mg_tartinables:'beurre',garnitures_sucrees_pain:'garniture_sucree_bowl',chocolat_noir_mt70:'chocolat',charcuteries_maigres:'viande_elevee_kcal',alcool_leger_1u:'alcool_leger',extras_except_patisserie:'extra_pdj',patisserie:'patisserie',oeufs:'Oeuf',legumineuses:'legumineuses',laits_vegetaux:'laits_vegetaux',graines:'graines',fruits_secs:'fruits_secs',soupes:'soupes',avocat:'avocat',poudre_proteine:'poudre_protéine',poissons_conserve:'Poisson_conserve',cafe_the:'café',eau:'eau'})[eqId]||null;
 const EQ_ICONS={pain:IcBread,fruits_natures:IcApple,oleagineux_nature:IcAcorn,pl_0_riche_p:IcBottle,pl_50_100_kcal:IcBottle,fromages_20_30_mg:IcBottle,viandes_faibles_kcal:IcDrumstick,legumes_crus:IcCarrot};
-function EqIcon({eqId,size=18,color}){const obj=useObjective();const c=color||obj.accent;const Ic=EQ_ICONS[eqId];if(Ic)return <Ic size={size} color={c}/>;const {getEq}=useHelpers();const eq=getEq(eqId);return <span style={{fontSize:size,lineHeight:1}}>{eq?.icon||"•"}</span>}
+function EqIcon({eqId,size=18,color}){const obj=useObjective();const c=color||obj.accent;const Ic=EQ_ICONS[eqId];if(Ic)return <Ic size={size} color={c}/>;const f=eqIconFile(eqId);if(f)return <img src={`/icons/${f}.svg`} alt="" width={size} height={size} style={{opacity:.7}}/>;const {getEq}=useHelpers();const eq=getEq(eqId);const icon=eq?.icon;return <span style={{fontSize:size,lineHeight:1}}>{icon&&!icon.endsWith('.svg')?icon:"•"}</span>}
 
 /* ═══ CSS ═══ */
 const css = `
@@ -377,7 +392,7 @@ body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);overflo
 @keyframes snackPop{0%{transform:translateX(-50%) translateY(16px) scale(.95);opacity:0}50%{transform:translateX(-50%) translateY(-3px) scale(1.02)}100%{transform:translateX(-50%) translateY(0) scale(1);opacity:1}}
 @keyframes milestoneIn{0%{transform:scale(.6) translateY(20px);opacity:0}100%{transform:scale(1) translateY(0);opacity:1}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes fadeUp{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes splashLogo{from{opacity:0;transform:scale(.8) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
 @keyframes splashTag{from{opacity:0;transform:translateY(8px)}60%{opacity:0}to{opacity:1;transform:translateY(0)}}
 @keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -433,7 +448,7 @@ function AperoSession({slotId,onClose,onBack,onLog,quickLog}){
   const [loading,setLoading]=useState(true);
   const [submitting,setSubmitting]=useState(false);
 
-  // Load APERO items on mount
+  // Load APERO items when quickLog becomes available
   useEffect(()=>{
     if(!quickLog)return;
     (async()=>{
@@ -454,7 +469,7 @@ function AperoSession({slotId,onClose,onBack,onLog,quickLog}){
       setItems(mapped);
       setLoading(false);
     })();
-  },[]);
+  },[quickLog]);
 
   function toggle(idx){
     setItems(prev=>prev.map((it,i)=>i===idx?{...it,checked:!it.checked}:it));
@@ -520,12 +535,20 @@ function AperoSession({slotId,onClose,onBack,onLog,quickLog}){
 
     {loading&&<div style={{textAlign:"center",padding:"24px 0",fontSize:13,color:"#6B7280"}}>Chargement...</div>}
 
+    {!loading&&items.length===0&&<div style={{textAlign:"center",padding:"32px 16px"}}>
+      <div style={{fontSize:32,marginBottom:10}}>🍻</div>
+      <div style={{fontSize:14,fontWeight:600,color:"#1A1A1A",marginBottom:6}}>Pas encore d'items apéro</div>
+      <div style={{fontSize:12,color:"#6B7280",lineHeight:1.5}}>Les items apéro seront bientôt disponibles.<br/>En attendant, utilise la recherche pour logger tes consommations.</div>
+    </div>}
+
     {!loading&&Object.entries(groups).map(([groupName,groupItems])=><div key={groupName}>
       <div style={{fontSize:11,fontWeight:700,color:"#6B7280",textTransform:"uppercase",letterSpacing:".5px",marginBottom:6,marginTop:10}}>{groupName}</div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4}}>
       {groupItems.map(it=>{
         const idx=items.indexOf(it);
         return <div key={it.item_id} style={{
-          padding:"8px 10px",marginBottom:4,borderRadius:12,cursor:"pointer",
+          gridColumn:it.checked?"1 / -1":undefined,
+          padding:"8px 10px",marginBottom:0,borderRadius:12,cursor:"pointer",
           background:it.checked?"rgba(232,134,58,.06)":"rgba(15,30,46,.02)",
           border:`1px solid ${it.checked?"rgba(232,134,58,.25)":"rgba(15,30,46,.06)"}`,
           transition:"all .15s",
@@ -555,6 +578,7 @@ function AperoSession({slotId,onClose,onBack,onLog,quickLog}){
           </div>}
         </div>
       })}
+      </div>
     </div>)}
 
     {/* Sticky footer with total */}
@@ -573,6 +597,67 @@ function AperoSession({slotId,onClose,onBack,onLog,quickLog}){
   </div></div>);
 }
 
+/* resolveProfileBracket: find the right bracket label for N grams in a profile's rules.
+   Returns { label, grams } or null. */
+function resolveProfileBracket(rules, grams){
+  if(!rules||!rules.length||!grams)return null;
+  const match=rules.find(r=>{
+    const min=Number(r.min_g)||0;
+    const max=Number(r.max_g)||9999;
+    return grams>=min&&grams<=max;
+  });
+  if(match)return{label:match.usual_unit_sg||'',grams:Number(match.usual_g_per_unit)};
+  const last=rules[rules.length-1];
+  if(last&&grams>=(Number(last.min_g)||0))return{label:last.usual_unit_sg||'',grams:Number(last.usual_g_per_unit)};
+  return null;
+}
+
+/* fmtItemQty: format display for an item given total grams.
+   profileRulesMap = PROFILE_RULES from data context (all profiles).
+   - PROFILE items (digit-prefixed label or profileId): resolve bracket
+   - FIXED items: grams / usualGPerUnit → "N unité(s)" */
+/* Convert grams to c. à soupe (15ml ≈ 15g) or c. à café (5g) — assaisonnement fallback */
+function gramsToCas(g){
+  if(!g||g<=0)return'—';
+  // Sauces recettes (>20g) → "portion"
+  if(g>20){return`1 portion (${Math.round(g)}g)`;}
+  // Condiments — cuillères
+  const cas=g/15;
+  if(cas>=1){const r=Math.round(cas);return`${r} c.à s. (${Math.round(g)}g)`;}
+  const cac=g/5;
+  if(cac>=0.5){const r=Math.round(cac);return`${r>0?r:1} c.à c. (${Math.round(g)}g)`;}
+  return`${Math.round(g)}g`;
+}
+function fmtItemQty(stepper, totalGrams, profileRulesMap, eqId){
+  if(!totalGrams||totalGrams<=0)return'—';
+  // If stepper is usable, use it
+  if(stepper&&stepper.usualGPerUnit&&stepper.usualGPerUnit>0){
+    // 1. Try PROFILE bracket resolution
+    const rules=stepper.profileRules||(stepper.profileId&&profileRulesMap?.[stepper.profileId])||null;
+    if(rules){
+      const resolved=resolveProfileBracket(rules,totalGrams);
+      if(resolved)return`${resolved.label} (${Math.round(resolved.grams)}g)`;
+    }
+    // 2. Detect digit-prefixed labels ("1/2 c. à soupe") — NEVER multiply
+    if(/^[\d½¼⅓⅔¾]/.test(stepper.usualUnitSg||'')){
+      if(Math.abs(totalGrams-stepper.usualGPerUnit)<1)return`${stepper.usualUnitSg} (${Math.round(totalGrams)}g)`;
+      return`${Math.round(totalGrams)}g`;
+    }
+    // 3. Standard FIXED: "tranche", "carré", "pot", "portion"
+    const rawU=totalGrams/stepper.usualGPerUnit;
+    const du=rawU>=1?Math.round(rawU):(Math.round(rawU*2)/2||0.5);
+    const ul=du<=1?stepper.usualUnitSg:stepper.usualUnitPl;
+    if(!ul)return`${Math.round(totalGrams)}g`;
+    const fmtN=du===0.5?'½':du%1===0.5?`${Math.floor(du)}½`:String(du);
+    const pg=Math.round(stepper.usualGPerUnit*du);
+    return`${fmtN} ${ul} (${pg}g)`;
+  }
+  // No usable stepper — assaisonnement fallback: convert to c.à s. / c.à c.
+  if(eqId?.startsWith('assaisonnement'))return gramsToCas(totalGrams);
+  // Everything else: just grams
+  return`${Math.round(totalGrams)}g`;
+}
+
 /* ═══ ADD MODAL (Plan + Hors Plan + Quick-Log) ═══ */
 function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quickLog}){
   const d=useData();
@@ -586,13 +671,25 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
   const SLOTS=d?.SLOTS||DEFAULT_SLOTS;
   const {getEq,isInPlan}=useHelpers();
   const SLOT_QTY=d?.SLOT_QTY||{};
-  function slotDefault(eq,stepper){
+  const PROFILE_RULES=d?.PROFILE_RULES||{};
+  /* slotTargetGrams: total GRAMS for this item at this slot.
+     R-mode: qty_max × item.qty1x (qty_max is a multiplier)
+     F-mode: qty_max IS grams directly
+     Fallback: item.qty1x or eq.qtyPlanGrams */
+  function slotTargetGrams(eq,item){
     const sq=SLOT_QTY[eq?.eqId]?.[slotId];
-    if(sq&&eq?.eqMode==='R'&&stepper)return sq.qtyMax;
-    return stepper?.defaultUnits||1;
+    const refG=item?.qty1x>0?item.qty1x:(eq?.qtyPlanGrams||0);
+    if(!sq||sq.qtyMax<=0)return refG||0;
+    if(eq?.eqMode==='R')return sq.qtyMax*refG;
+    return sq.qtyMax; // F-mode: qty_max = grams
+  }
+  /* portionGrams: grams for 1 CASCADE PORTION (for "Ajouter 1 portion" button) */
+  function portionGrams(eq,item){
+    return item?.qty1x>0?item.qty1x:(eq?.qtyPlanGrams||0);
   }
 
-  const [tab,setTab]=useState("plan");
+  const [view,setView]=useState("main");
+  const [peekEq,setPeekEq]=useState(null); // eq to peek at (table view without logging)
   const [selEq,setSelEq]=useState(null);
   const [selItem,setSelItem]=useState(null);
   const [units,setUnits]=useState(1);
@@ -626,12 +723,12 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
   const hpFiltered=search?hpAfterDiet.filter(eq=>eq.label.toLowerCase().includes(search.toLowerCase())):hpAfterDiet;
   const hpGroups={};hpFiltered.forEach(eq=>{if(!hpGroups[eq.type])hpGroups[eq.type]=[];hpGroups[eq.type].push(eq)});
 
-  // Load QL categories on first tab switch
+  // Load QL categories on mount
   useEffect(()=>{
-    if(tab==="quicklog"&&quickLog&&quickLog.categories.length===0){
+    if(quickLog&&quickLog.categories?.length===0){
       quickLog.fetchCategories();
     }
-  },[tab]);
+  },[quickLog]);
 
   // QL search with debounce
   function handleQlSearch(val){
@@ -706,9 +803,9 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
     if(eq.qtyUi.appInputMode==="ITEM_FIRST_PICK"){
       setShowStepper(true);
       const rec=eq.items.find(i=>i.isRecommended)||eq.items[0];
-      if(rec){setSelItem(rec);setUnits(slotDefault(eq,rec.stepper))}
+      if(rec){setSelItem(rec);const g=slotTargetGrams(eq,rec);setUnits(rec.stepper?.usualGPerUnit>0?Math.round(g/rec.stepper.usualGPerUnit)||1:1)}
     } else if(eq.qtyUi.appInputMode==="PORTION_TAP"){setPortion(1)}
-    else{const rec=eq.items.find(i=>i.isRecommended)||eq.items[0];if(rec){setSelItem(rec);setUnits(slotDefault(eq,rec.stepper))}}
+    else{const rec=eq.items.find(i=>i.isRecommended)||eq.items[0];if(rec){const g=slotTargetGrams(eq,rec);setUnits(rec.stepper?.usualGPerUnit>0?Math.round(g/rec.stepper.usualGPerUnit)||1:1)}}
     if(hp&&!everLoggedHp)setShowHpEdu(true);
   }
 
@@ -733,10 +830,51 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
     return{grams,kcal:Math.round(npu.kcal*units),p:Math.round(npu.p*units*10)/10,l:Math.round(npu.l*units*10)/10,g:Math.round(npu.g*units*10)/10,portion:port};
   },[selEq,selItem,units,portion]);
 
-  const curHp=tab==="hors_plan"||(selEq&&!allowed.includes(selEq.eqId));
+  const curHp=selEq&&!allowed.includes(selEq.eqId);
 
   // Apero session overlay
   if(showApero)return <AperoSession slotId={slotId} onClose={onClose} onBack={()=>setShowApero(false)} onLog={onLog} quickLog={quickLog}/>;
+
+  // Peek at eq table (consultation only, no logging)
+  if(peekEq)return(
+    <div className="overlay" onClick={onClose}><div role="dialog" className="modal" onClick={e=>e.stopPropagation()}>
+      <div className="modal-handle"/>
+      <button aria-label="Retour" className="hdr-back" onClick={()=>setPeekEq(null)} style={{padding:0,marginBottom:8}}>← Retour</button>
+      <div className="modal-title" style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}><EqIcon eqId={peekEq.eqId} size={20}/> {peekEq.label}</div>
+      {isInPlan(peekEq.eqId)&&<div style={{display:"flex",gap:12,marginBottom:14}}>
+        <div style={{flex:1,padding:"10px 12px",borderRadius:12,background:"rgba(15,30,46,.03)",textAlign:"center"}}>
+          <div style={{fontSize:10,color:"#9CA3AF",fontWeight:600,textTransform:"uppercase",letterSpacing:".3px",marginBottom:2}}>Cible semaine</div>
+          <div style={{fontSize:18,fontWeight:800,color:"#1A1A1A"}}>{PLAN_TARGETS[peekEq.eqId]}</div>
+        </div>
+        <div style={{flex:1,padding:"10px 12px",borderRadius:12,background:"rgba(15,30,46,.03)",textAlign:"center"}}>
+          <div style={{fontSize:10,color:"#9CA3AF",fontWeight:600,textTransform:"uppercase",letterSpacing:".3px",marginBottom:2}}>Consommé</div>
+          <div style={{fontSize:18,fontWeight:800,color:obj.accent}}>{WEEK_CONSUMED[peekEq.eqId]||0}</div>
+        </div>
+      </div>}
+      {peekEq.noteElevia&&<div style={{marginBottom:14,padding:10,background:obj.accentSoft,border:`1px solid ${obj.accentBorder}`,borderRadius:14,fontSize:12,color:"#1A1A1A",lineHeight:1.6}}>{peekEq.noteElevia}</div>}
+      <div style={{fontSize:12,fontWeight:700,color:obj.accent,textTransform:"uppercase",letterSpacing:".3px",marginBottom:8}}>Tes équivalences</div>
+      {peekEq.items.length===0&&<div style={{textAlign:"center",padding:"16px 0",fontSize:12,color:"#6B7280"}}>Aucune équivalence détaillée</div>}
+      {peekEq.items.map(item=>{
+        const isRecipe=peekEq.type==='recette'||item.foodLabel?.toLowerCase().includes('recette');
+        const hasV=item.variants&&item.variants.length>0&&!isRecipe;
+        return <div key={item.itemId} style={{padding:"10px 12px",marginBottom:4,borderRadius:12,background:"rgba(15,30,46,.02)",border:"1px solid rgba(15,30,46,.06)"}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <div style={{display:"flex",alignItems:"center",gap:6,minWidth:0,flex:1}}>
+              {item.isRecommended&&<span style={{fontSize:8,color:obj.accent}}>★</span>}
+              <span style={{fontSize:13,fontWeight:600,color:"#1A1A1A",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.foodLabel}</span>
+            </div>
+            {isInPlan(peekEq.eqId)&&<span style={{fontSize:12,color:"#6B7280",whiteSpace:"nowrap",marginLeft:8}}>
+              {fmtItemQty(item.stepper,slotTargetGrams(peekEq,item),PROFILE_RULES,peekEq.eqId)}
+            </span>}
+          </div>
+          {hasV&&<div style={{display:"flex",flexWrap:"wrap",gap:4,marginTop:5}}>
+            {item.variants.map((v,vi)=><span key={vi} style={{fontSize:9.5,fontWeight:500,padding:"2px 7px",borderRadius:99,background:"rgba(15,30,46,.03)",border:"1px solid rgba(15,30,46,.05)",color:"#9CA3AF",lineHeight:"14px",whiteSpace:"nowrap"}}>{v.label}</span>)}
+          </div>}
+        </div>}
+      )}
+      <button className="btn-primary" style={{marginTop:14}} onClick={()=>{setPeekEq(null);pickEq(peekEq,!allowed.includes(peekEq.eqId))}}>Logger cette équivalence</button>
+    </div></div>
+  );
 
   if(showHpEdu)return(
     <div className="overlay" onClick={onClose}><div role="dialog" className="modal" onClick={e=>e.stopPropagation()} style={{maxHeight:"50%"}}>
@@ -751,7 +889,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
   );
 
   // QL portion picker sub-view
-  if(tab==="quicklog"&&qlSelected){
+  if(qlSelected){
     const portions=qlSelected.portions||[];
     const flags=qlSelected.flags||[];
     return(
@@ -805,7 +943,16 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
       </div>
       {showNote&&selEq.noteElevia&&<div style={{marginBottom:12,padding:10,background:obj.accentSoft,border:`1px solid ${obj.accentBorder}`,borderRadius:14,fontSize:12,color:"#1A1A1A",lineHeight:1.6,animation:"fadeUp .2s ease-out"}}>{selEq.noteElevia}</div>}
       <div className="modal-title" style={{display:"flex",alignItems:"center",gap:8}}><EqIcon eqId={selEq.eqId} size={20}/> {selEq.label}{curHp&&<span className="chip-hp" style={{marginLeft:8}}>Hors plan</span>}</div>
-      {isInPlan(selEq.eqId)&&<div className="modal-sub">Cible sem. : {PLAN_TARGETS[selEq.eqId]} · Consommé : {WEEK_CONSUMED[selEq.eqId]||0}</div>}
+      {isInPlan(selEq.eqId)&&<div style={{display:"flex",gap:12,margin:"10px 0 6px"}}>
+        <div style={{flex:1,padding:"8px 10px",borderRadius:10,background:"rgba(15,30,46,.03)",textAlign:"center"}}>
+          <div style={{fontSize:9,color:"#9CA3AF",fontWeight:600,textTransform:"uppercase",letterSpacing:".3px",marginBottom:1}}>Cible semaine</div>
+          <div style={{fontSize:16,fontWeight:800,color:"#1A1A1A"}}>{PLAN_TARGETS[selEq.eqId]}</div>
+        </div>
+        <div style={{flex:1,padding:"8px 10px",borderRadius:10,background:"rgba(15,30,46,.03)",textAlign:"center"}}>
+          <div style={{fontSize:9,color:"#9CA3AF",fontWeight:600,textTransform:"uppercase",letterSpacing:".3px",marginBottom:1}}>Consommé</div>
+          <div style={{fontSize:16,fontWeight:800,color:obj.accent}}>{WEEK_CONSUMED[selEq.eqId]||0}</div>
+        </div>
+      </div>}
 
       {mode==="PORTION_TAP"&&<>
         <div style={{fontSize:12,color:"#6B7280",marginBottom:8}}>1 portion = {selEq.qtyPlanGrams}g</div>
@@ -820,30 +967,28 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
 
       {mode!=="PORTION_TAP"&&<>
         {!showStepper&&!showTable&&<>
-          {selItem?.stepper&&(()=>{const du=slotDefault(selEq,selItem.stepper);const g=Math.round(selItem.stepper.usualGPerUnit*du);return <div style={{fontSize:12,color:"#6B7280",margin:"4px 0 12px"}}>
-            1 portion = {du} {du<=1?selItem.stepper.usualUnitSg:selItem.stepper.usualUnitPl}{g>0&&` (${g}g)`}
-          </div>})()}
-          <button className="btn-primary" onClick={()=>doLog(selEq,selItem,slotDefault(selEq,selItem?.stepper),1,curHp)}>Ajouter 1 portion</button>
-          <div style={{display:"flex",gap:8,justifyContent:"center",marginTop:4}}>
-            <button className="btn-text" onClick={()=>setShowStepper(true)} style={{margin:0}}>Modifier la quantité →</button>
-            {selEq.items.length>1&&<button className="btn-text" onClick={()=>setShowTable(true)} style={{margin:0,opacity:.7}}>Mes équivalences</button>}
-          </div>
+          <button className="btn-primary" style={{marginTop:12}} onClick={()=>{const pg=portionGrams(selEq,selItem);const u=selItem?.stepper?.usualGPerUnit>0?Math.round(pg/selItem.stepper.usualGPerUnit)||1:1;doLog(selEq,selItem,u,1,curHp)}}>Ajouter 1 portion</button>
+          <button className="btn-text" onClick={()=>setShowStepper(true)} style={{margin:"12px auto 0",display:"block",textAlign:"center"}}>Modifier la quantité →</button>
         </>}
         {showTable&&<>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
-            <div className="modal-section" style={{margin:0}}>Mes équivalences</div>
-            <span style={{fontSize:11,color:"#9CA3AF",fontStyle:"italic"}}>1 ligne = 1 portion</span>
-          </div>
-          {selEq.items.map(item=>(
-            <div key={item.itemId} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"9px 12px",marginBottom:4,borderRadius:12,background:"rgba(15,30,46,.02)",border:"1px solid rgba(15,30,46,.06)"}}>
-              <div style={{display:"flex",alignItems:"center",gap:6,minWidth:0}}>
-                <span style={{fontSize:13,fontWeight:600,color:"#1A1A1A",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.foodLabel}</span>
+          <div className="modal-section" style={{marginBottom:8}}>Mes équivalences</div>
+          {selEq.items.map(item=>{
+            const isRecipe=selEq.type==='recette'||item.foodLabel?.toLowerCase().includes('recette');
+            const hasV=item.variants&&item.variants.length>0&&!isRecipe;
+            return <div key={item.itemId} style={{padding:"9px 12px",marginBottom:4,borderRadius:12,background:"rgba(15,30,46,.02)",border:"1px solid rgba(15,30,46,.06)"}}>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                <div style={{display:"flex",alignItems:"center",gap:6,minWidth:0}}>
+                  <span style={{fontSize:13,fontWeight:600,color:"#1A1A1A",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.foodLabel}</span>
+                </div>
+                {isInPlan(selEq.eqId)&&<span style={{fontSize:12,color:"#6B7280",whiteSpace:"nowrap",marginLeft:8}}>
+                  {fmtItemQty(item.stepper,slotTargetGrams(selEq,item),PROFILE_RULES,selEq.eqId)}
+                </span>}
               </div>
-              <span style={{fontSize:12,color:"#6B7280",whiteSpace:"nowrap",marginLeft:8}}>
-                {item.stepper?(()=>{const du=slotDefault(selEq,item.stepper);return `${du} ${du<=1?item.stepper.usualUnitSg:item.stepper.usualUnitPl} (${Math.round(item.stepper.usualGPerUnit*du)}g)`})():selEq.qtyPlanGrams>0?`${selEq.qtyPlanGrams}g`:'—'}
-              </span>
-            </div>
-          ))}
+              {hasV&&<div style={{display:"flex",flexWrap:"wrap",gap:4,marginTop:5}}>
+                {item.variants.map((v,vi)=><span key={vi} style={{fontSize:9.5,fontWeight:500,padding:"2px 7px",borderRadius:99,background:"rgba(15,30,46,.03)",border:"1px solid rgba(15,30,46,.05)",color:"#9CA3AF",lineHeight:"14px",whiteSpace:"nowrap"}}>{v.label}</span>)}
+              </div>}
+            </div>}
+          )}
           <button className="btn-text" onClick={()=>setShowTable(false)} style={{marginTop:8}}>← Retour</button>
         </>}
         {showStepper&&<>
@@ -851,9 +996,9 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
             <div className="modal-section">{mode==="ITEM_FIRST_PICK"?"Choisis ton item":"Items"}</div>
             {selEq.items.map(item=>(
               <div key={item.itemId} className={`item-row ${selItem?.itemId===item.itemId?"selected":""}`}
-                onClick={()=>{setSelItem(item);setUnits(slotDefault(selEq,item.stepper))}}>
+                onClick={()=>{setSelItem(item);const g=slotTargetGrams(selEq,item);setUnits(item.stepper?.usualGPerUnit>0?Math.round(g/item.stepper.usualGPerUnit)||1:1)}}>
                 <span className="item-label">{item.foodLabel}</span>
-                <span className="item-detail">{item.stepper?(()=>{const du=slotDefault(selEq,item.stepper);return `${du} ${du<=1?item.stepper.usualUnitSg:item.stepper.usualUnitPl}`})():""}</span>
+                <span className="item-detail">{isInPlan(selEq.eqId)?fmtItemQty(item.stepper,slotTargetGrams(selEq,item),PROFILE_RULES,selEq.eqId):""}</span>
               </div>
             ))}
           </>}
@@ -875,40 +1020,28 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
   <div className="overlay" onClick={onClose}><div role="dialog" className="modal" onClick={e=>e.stopPropagation()}>
     <div className="modal-handle"/>
     <div style={{display:"flex",alignItems:"baseline",gap:6,marginBottom:4}}><span className="modal-title" style={{margin:0}}>Ajouter à</span><span style={{fontSize:14,color:"rgba(15,30,46,.25)",fontWeight:300}}> — </span><span style={{fontSize:17,fontWeight:800,color:"var(--accent)",fontFamily:"'Cormorant Garamond',serif"}}>{SLOTS.find(s=>s.id===slotId)?.label?.replace(/\s*\(.*\)\s*$/,"")}</span></div>
-    <div className="modal-tabs">
-      <button className={`modal-tab ${tab==="plan"?"active":""}`} onClick={()=>setTab("plan")}>Mon plan</button>
-      <button className={`modal-tab ${tab==="hors_plan"?"active":""}`} onClick={()=>setTab("hors_plan")}>Autres</button>
-      <button className={`modal-tab ${tab==="quicklog"?"active":""}`} onClick={()=>setTab("quicklog")} style={{position:"relative"}}>Repas ext.</button>
-    </div>
-    {tab==="plan"&&planEqs.map(eq=>{
-      const wc=WEEK_CONSUMED[eq.eqId]||0,wt=PLAN_TARGETS[eq.eqId]||0;
-      // Determine if eq is daily: sum of freqWeek across all slots = 7
-      const sqSlots=SLOT_QTY[eq.eqId]||{};
-      const totalFreq=Object.values(sqSlots).reduce((s,v)=>s+(v.freqWeek||0),0);
-      const isDaily=totalFreq>=7;
-      // Today's consumed for this eq
-      const tc=isDaily?(todayLogs||[]).filter(l=>l.eqId===eq.eqId).reduce((s,l)=>s+(l.qtyPortion||1),0):0;
-      const dt=isDaily?Math.round(wt/7):0;
-      return <div key={eq.eqId} className="eq-card" role="button" tabIndex={0} onClick={()=>pickEq(eq,false)}>
-        <span style={{width:30,display:"flex",alignItems:"center",justifyContent:"center"}}><EqIcon eqId={eq.eqId} size={20}/></span><div className="eq-body"><div className="eq-name">{eq.label}</div><div className="eq-progress">{isDaily?`${tc}/${dt} jour`:`${wc}/${wt} sem.`}</div></div><span style={{fontSize:18,color:obj.accent}}>+</span>
-      </div>
-    })}
-    {tab==="hors_plan"&&<>
-      <input className="search" placeholder="Rechercher…" value={search} onChange={e=>setSearch(e.target.value)}/>
-      <div style={{display:"flex",gap:6,marginBottom:8,flexWrap:"wrap"}}>
-        {[{key:null,label:"Tout"},{key:"vegetarian",label:"Végé 🌱"},{key:"glutenFree",label:"Sans gluten"},{key:"lactoseFree",label:"Sans lactose"}].map(f=>{const sel=dietFilter===f.key;return <button key={f.key||"all"} onClick={()=>setDietFilter(f.key)} style={{padding:"4px 10px",borderRadius:99,fontSize:10,fontWeight:700,background:sel?`${obj.accent}15`:"#F5F4F1",border:`1px solid ${sel?obj.accentBorder:"rgba(15,30,46,.08)"}`,color:sel?obj.accent:"#6B7280",cursor:"pointer",fontFamily:"inherit"}}>{f.label}</button>})}
-      </div>
-      {Object.entries(hpGroups).map(([type,eqs])=><div key={type}>
-        <div className="eq-cat-header">{TYPE_LABELS[type]||type}</div>
-        {eqs.map(eq=><div key={eq.eqId} className="eq-card" role="button" tabIndex={0} onClick={()=>pickEq(eq,true)}>
-          <span style={{width:30,display:"flex",alignItems:"center",justifyContent:"center"}}><EqIcon eqId={eq.eqId} size={20}/></span><div className="eq-body"><div className="eq-name">{eq.label}{isInPlan(eq.eqId)&&<span style={{fontSize:10,color:"#6B7280",marginLeft:4}}>(plan, autre slot)</span>}</div><div className="eq-progress" style={{fontSize:11}}>{eq.nutrientsPerPortion.kcal} kcal/portion</div></div><span style={{fontSize:18,color:"#E8863A"}}>+</span>
-        </div>)}
-      </div>)}
-    </>}
-    {tab==="quicklog"&&<>
-      <input className="search" placeholder="Pizza, kebab, sushi..." value={qlSearch} onChange={e=>handleQlSearch(e.target.value)} autoFocus/>
-      {/* Category chips */}
-      <div style={{display:"flex",gap:5,marginBottom:8,overflowX:"auto",paddingBottom:4,WebkitOverflowScrolling:"touch"}}>
+
+    {view==="main"&&<>
+      {/* Plan equivalences */}
+      <div style={{fontSize:11,fontWeight:700,color:"rgba(15,30,46,.35)",textTransform:"uppercase",letterSpacing:".5px",marginBottom:6}}>Tes équivalences pour ce repas</div>
+      {planEqs.map(eq=>{
+        const wc=WEEK_CONSUMED[eq.eqId]||0,wt=PLAN_TARGETS[eq.eqId]||0;
+        const sqSlots=SLOT_QTY[eq.eqId]||{};
+        const totalFreq=Object.values(sqSlots).reduce((s,v)=>s+(v.freqWeek||0),0);
+        const isDaily=totalFreq>=7;
+        const tc=isDaily?(todayLogs||[]).filter(l=>l.eqId===eq.eqId).reduce((s,l)=>s+(l.qtyPortion||1),0):0;
+        const dt=isDaily?Math.round(wt/7):0;
+        return <div key={eq.eqId} className="eq-card" role="button" tabIndex={0} onClick={()=>pickEq(eq,false)}>
+          <span style={{width:30,display:"flex",alignItems:"center",justifyContent:"center"}}><EqIcon eqId={eq.eqId} size={20}/></span><div className="eq-body"><div className="eq-name">{eq.label}</div><div className="eq-progress">{isDaily?`${tc}/${dt} jour`:`${wc}/${wt} sem.`}</div></div><span onClick={e=>{e.stopPropagation();setPeekEq(eq)}} style={{fontSize:14,color:"rgba(15,30,46,.3)",padding:"4px 6px",cursor:"pointer"}} title="Voir le tableau">ℹ</span><span style={{fontSize:18,color:obj.accent}}>+</span>
+        </div>
+      })}
+
+      {/* Divider + QL search */}
+      <div style={{borderTop:"1px solid rgba(15,30,46,.06)",margin:"14px 0 10px"}}/>
+      <input className="search" placeholder="Autre chose ? Pizza, sushi, kebab..." value={qlSearch} onChange={e=>handleQlSearch(e.target.value)} style={{marginBottom:8}}/>
+
+      {/* QL category chips — shown when user is searching or has a filter */}
+      {(quickLog?.categories||[]).length>0&&(qlSearch.length>=2||qlCatFilter)&&<div style={{display:"flex",gap:5,marginBottom:8,overflowX:"auto",paddingBottom:4,WebkitOverflowScrolling:"touch"}}>
         {(quickLog?.categories||[]).map(cat=>{
           const sel=qlCatFilter===cat.id;
           return <button key={cat.id} onClick={()=>handleQlCatFilter(cat.id)} style={{
@@ -918,14 +1051,13 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
             color:sel?"#E8863A":"#6B7280",cursor:"pointer",fontFamily:"inherit",
           }}>{cat.icon?cat.icon+" ":""}{cat.label}</button>
         })}
-      </div>
-      {/* Loading indicator */}
-      {(quickLog?.searching||quickLog?.browseLoading)&&<div style={{textAlign:"center",padding:"16px 0",fontSize:12,color:"#6B7280",fontWeight:500}}>Recherche...</div>}
-      {/* Results */}
-      {!quickLog?.searching&&!quickLog?.browseLoading&&qlBrowseItems.length===0&&(qlSearch.length>=2||qlCatFilter)&&(
-        <div style={{textAlign:"center",padding:"20px 0",fontSize:13,color:"#6B7280"}}>Aucun résultat</div>
-      )}
-      {!quickLog?.searching&&!quickLog?.browseLoading&&qlBrowseItems.map(item=>(
+      </div>}
+
+      {/* QL loading */}
+      {(quickLog?.searching||quickLog?.browseLoading)&&<div style={{textAlign:"center",padding:"12px 0",fontSize:12,color:"#6B7280",fontWeight:500}}>Recherche...</div>}
+
+      {/* QL results */}
+      {!quickLog?.searching&&!quickLog?.browseLoading&&qlBrowseItems.length>0&&qlBrowseItems.map(item=>(
         <div key={item.item_id} className="eq-card" role="button" tabIndex={0} onClick={()=>pickQlItem(item)}>
           <div className="eq-body" style={{flex:1}}>
             <div className="eq-name" style={{display:"flex",alignItems:"center",gap:6}}>
@@ -940,19 +1072,44 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
           <span style={{fontSize:18,color:"#E8863A",flexShrink:0}}>+</span>
         </div>
       ))}
-      {/* Apero shortcut */}
-      <div style={{marginTop:10,padding:"10px 14px",borderRadius:14,background:"linear-gradient(135deg,rgba(232,134,58,.06),rgba(232,134,58,.02))",border:"1px solid rgba(232,134,58,.15)",display:"flex",alignItems:"center",gap:10,cursor:"pointer"}} onClick={()=>setShowApero(true)}>
-        <span style={{fontSize:20,flexShrink:0}}>🍻</span>
-        <div style={{flex:1}}>
-          <div style={{fontSize:12,fontWeight:700,color:"#E8863A"}}>Session apéro</div>
-          <div style={{fontSize:11,color:"#6B7280",marginTop:1}}>Coche tout en 15 secondes</div>
-        </div>
-        <span style={{fontSize:14,color:"#E8863A",fontWeight:700}}>→</span>
+
+      {/* QL no results */}
+      {!quickLog?.searching&&!quickLog?.browseLoading&&qlBrowseItems.length===0&&(qlSearch.length>=2||qlCatFilter)&&(
+        <div style={{textAlign:"center",padding:"12px 0",fontSize:13,color:"#6B7280"}}>Aucun résultat</div>
+      )}
+
+      {/* Bottom action buttons */}
+      <div style={{display:"flex",gap:8,marginTop:14}}>
+        <button onClick={()=>setView("catalogue")} style={{flex:1,padding:"10px 14px",borderRadius:14,background:"rgba(15,30,46,.02)",border:"1px solid rgba(15,30,46,.06)",display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
+          <span style={{fontSize:16}}>📚</span>
+          <div style={{flex:1,textAlign:"left"}}>
+            <div style={{fontSize:12,fontWeight:700,color:"#1A1A1A"}}>Catalogue complet</div>
+            <div style={{fontSize:10,color:"#6B7280",marginTop:1}}>Toutes les équivalences</div>
+          </div>
+          <span style={{fontSize:14,color:"#C8CDD3"}}>›</span>
+        </button>
+        <button onClick={()=>setShowApero(true)} style={{padding:"10px 14px",borderRadius:14,background:"linear-gradient(135deg,rgba(232,134,58,.06),rgba(232,134,58,.02))",border:"1px solid rgba(232,134,58,.15)",display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
+          <span style={{fontSize:16}}>🍻</span>
+          <div style={{textAlign:"left"}}>
+            <div style={{fontSize:12,fontWeight:700,color:"#E8863A"}}>Apéro</div>
+          </div>
+        </button>
       </div>
-      {/* Empty state: no search, no category */}
-      {!qlSearch&&!qlCatFilter&&!quickLog?.searching&&<div style={{textAlign:"center",padding:"16px 0"}}>
-        <div style={{fontSize:13,color:"#6B7280",lineHeight:1.6}}>Tape le nom de ce que tu as mangé<br/>ou choisis une catégorie</div>
-      </div>}
+    </>}
+
+    {/* Catalogue view (was "Autres" tab) */}
+    {view==="catalogue"&&<>
+      <button aria-label="Retour" className="hdr-back" onClick={()=>setView("main")} style={{marginBottom:8,padding:0}}>← Mon plan</button>
+      <input className="search" placeholder="Rechercher…" value={search} onChange={e=>setSearch(e.target.value)}/>
+      <div style={{display:"flex",gap:6,marginBottom:8,flexWrap:"wrap"}}>
+        {[{key:null,label:"Tout"},{key:"vegetarian",label:"Végé 🌱"},{key:"glutenFree",label:"Sans gluten"},{key:"lactoseFree",label:"Sans lactose"}].map(f=>{const sel=dietFilter===f.key;return <button key={f.key||"all"} onClick={()=>setDietFilter(f.key)} style={{padding:"4px 10px",borderRadius:99,fontSize:10,fontWeight:700,background:sel?`${obj.accent}15`:"#F5F4F1",border:`1px solid ${sel?obj.accentBorder:"rgba(15,30,46,.08)"}`,color:sel?obj.accent:"#6B7280",cursor:"pointer",fontFamily:"inherit"}}>{f.label}</button>})}
+      </div>
+      {Object.entries(hpGroups).map(([type,eqs])=><div key={type}>
+        <div className="eq-cat-header">{TYPE_LABELS[type]||type}</div>
+        {eqs.map(eq=><div key={eq.eqId} className="eq-card" role="button" tabIndex={0} onClick={()=>pickEq(eq,true)}>
+          <span style={{width:30,display:"flex",alignItems:"center",justifyContent:"center"}}><EqIcon eqId={eq.eqId} size={20}/></span><div className="eq-body"><div className="eq-name">{eq.label}{isInPlan(eq.eqId)&&<span style={{fontSize:10,color:"#6B7280",marginLeft:4}}>(plan, autre slot)</span>}</div><div className="eq-progress" style={{fontSize:11}}>{eq.nutrientsPerPortion.kcal} kcal/portion</div></div><span onClick={e=>{e.stopPropagation();setPeekEq(eq)}} style={{fontSize:14,color:"rgba(15,30,46,.3)",padding:"4px 6px",cursor:"pointer"}} title="Voir le tableau">ℹ</span><span style={{fontSize:18,color:"#E8863A"}}>+</span>
+        </div>)}
+      </div>)}
     </>}
   </div></div>);
 }
@@ -1009,31 +1166,67 @@ function DietMessageBanner({messages,accent,accentSoft,accentBorder,onMarkRead,o
 }
 
 function DietInbox({messages,accent,accentSoft,accentBorder,onMarkRead,onBack}){
+  const msgs=messages||[];
+  const unreadCount=msgs.filter(m=>!m.read_at).length;
+  const MSG_TYPE_LABELS={encouragement:"Encouragement",adjustment:"Ajustement",milestone_comment:"Badge",bilan_feedback:"Bilan",alert:"Alerte",general:"Message"};
+  const handleMarkRead=(id)=>{if(onMarkRead)onMarkRead(id)};
+
   return <div className="page">
     <button aria-label="Retour" className="hdr-back" onClick={onBack} style={{marginBottom:12,padding:0}}>← Retour</button>
     <div className="page-title">Messages</div>
-    <div className="page-meta">{messages?.length||0} message{(messages?.length||0)>1?"s":""}</div>
-    {(!messages||messages.length===0)&&<div className="card" style={{textAlign:"center",padding:"32px 20px"}}>
-      <div style={{fontSize:32,marginBottom:8}}>💬</div>
-      <div style={{fontSize:14,fontWeight:700,color:"#1A1A1A"}}>Pas encore de message</div>
-      <div style={{fontSize:12,color:"#6B7280",marginTop:6,lineHeight:1.5}}>Ton diététicien t'enverra des messages personnalisés ici.</div>
+    <div style={{display:"flex",alignItems:"center",gap:8,marginTop:2,marginBottom:20}}>
+      <span style={{fontSize:12,color:"#9CA3AF",fontWeight:600}}>{msgs.length} message{msgs.length>1?"s":""}</span>
+      {unreadCount>0&&<span style={{fontSize:10,fontWeight:700,color:"#fff",background:accent,borderRadius:99,padding:"2px 8px"}}>{unreadCount} non lu{unreadCount>1?"s":""}</span>}
+    </div>
+
+    {msgs.length===0&&<div style={{textAlign:"center",padding:"56px 24px 40px"}}>
+      <div style={{width:56,height:56,borderRadius:16,background:`linear-gradient(135deg,${accentSoft},rgba(198,160,91,.06))`,border:`1px solid ${accentBorder}`,display:"inline-flex",alignItems:"center",justifyContent:"center",marginBottom:16}}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <div style={{fontSize:15,fontWeight:700,color:"#1A1A1A",marginBottom:6}}>Pas encore de message</div>
+      <div style={{fontSize:13,color:"#9CA3AF",lineHeight:1.6,maxWidth:260,margin:"0 auto"}}>Ton diététicien t'enverra des messages personnalisés pour t'accompagner au quotidien.</div>
     </div>}
-    {messages?.map(m=>{
+
+    {msgs.map((m,i)=>{
       const icon=MSG_TYPE_ICONS[m.message_type]||"💬";
+      const typeLabel=MSG_TYPE_LABELS[m.message_type]||"Message";
       const isUnread=!m.read_at;
       const date=new Date(m.created_at);
-      const dateStr=date.toLocaleDateString('fr-BE',{day:'numeric',month:'short'});
-      return <div key={m.id} className="card" role="button" tabIndex={0} style={{padding:14,marginBottom:8,borderLeft:isUnread?`3px solid ${accent}`:"3px solid transparent"}} onClick={()=>{if(isUnread)onMarkRead?.(m.id)}}>
-        <div style={{display:"flex",alignItems:"flex-start",gap:10}}>
-          <span style={{fontSize:18,flexShrink:0}}>{icon}</span>
-          <div style={{flex:1}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <span style={{fontSize:11,fontWeight:700,color:isUnread?accent:"#6B7280"}}>{m.sender_name||"Ton diététicien"}</span>
-              <span style={{fontSize:10,color:"#6B7280"}}>{dateStr}</span>
+      const dateStr=date.toLocaleDateString('fr-BE',{day:'numeric',month:'long'});
+      const timeStr=date.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'});
+      const prevMsg=i>0?msgs[i-1]:null;
+      const prevDate=prevMsg?new Date(prevMsg.created_at).toLocaleDateString('fr-BE',{day:'numeric',month:'long',year:'numeric'}):null;
+      const currDate=date.toLocaleDateString('fr-BE',{day:'numeric',month:'long',year:'numeric'});
+      const showDateSep=!prevMsg||prevDate!==currDate;
+
+      return <div key={m.id}>
+        {showDateSep&&<div style={{textAlign:"center",margin:"16px 0 12px",position:"relative"}}>
+          <span style={{fontSize:10,fontWeight:600,color:"#B0B5BC",background:"#F5F4F1",padding:"0 10px",position:"relative",zIndex:1,letterSpacing:.5,textTransform:"uppercase"}}>{currDate}</span>
+          <div style={{position:"absolute",top:"50%",left:0,right:0,height:1,background:"rgba(15,30,46,.06)"}}/>
+        </div>}
+        <div role="button" tabIndex={0} onClick={()=>{if(isUnread)handleMarkRead(m.id)}} style={{
+          padding:"16px 16px 14px",marginBottom:10,borderRadius:16,
+          background:isUnread?`linear-gradient(135deg,${accentSoft},rgba(255,255,255,.95))`:"#fff",
+          border:`1px solid ${isUnread?accentBorder:"rgba(15,30,46,.06)"}`,
+          boxShadow:isUnread?"0 2px 12px rgba(198,160,91,.08)":"0 1px 4px rgba(0,0,0,.03)",
+          cursor:isUnread?"pointer":"default",transition:"all .2s ease",
+        }}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+            <div style={{width:32,height:32,borderRadius:10,background:isUnread?`linear-gradient(135deg,${accent},rgba(198,160,91,.8))`:"rgba(15,30,46,.06)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+              <span style={{fontSize:14,filter:isUnread?"brightness(10)":"none"}}>{icon}</span>
             </div>
-            {m.title&&<div style={{fontSize:13,fontWeight:isUnread?800:600,color:"#1A1A1A",marginTop:4}}>{m.title}</div>}
-            <div style={{fontSize:12,color:"#6B7280",lineHeight:1.6,marginTop:4}}>{m.body}</div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:12,fontWeight:700,color:isUnread?accent:"#6B7280"}}>{m.sender_name||"Ton diététicien"}</div>
+              <div style={{fontSize:10,color:"#B0B5BC",marginTop:1}}>{dateStr} · {timeStr}</div>
+            </div>
+            <div style={{display:"flex",alignItems:"center",gap:6}}>
+              <span style={{fontSize:9,fontWeight:600,color:isUnread?"#1A1A1A":"#9CA3AF",background:isUnread?"rgba(198,160,91,.1)":"rgba(15,30,46,.04)",padding:"2px 8px",borderRadius:99}}>{typeLabel}</span>
+              {isUnread&&<div style={{width:8,height:8,borderRadius:99,background:accent,flexShrink:0}}/>}
+            </div>
           </div>
+          {m.title&&<div style={{fontSize:14,fontWeight:700,color:"#1A1A1A",marginBottom:6,lineHeight:1.4}}>{m.title}</div>}
+          <div style={{fontSize:13,color:isUnread?"#374151":"#6B7280",lineHeight:1.7,whiteSpace:"pre-line"}}>{m.body}</div>
+          {isUnread&&<div style={{fontSize:10,color:accent,fontWeight:600,marginTop:10,textAlign:"right"}}>Touche pour marquer comme lu</div>}
         </div>
       </div>
     })}
@@ -1121,21 +1314,23 @@ function PlanTab({logs,onAddLog,onDeleteLog,weekConsumed,weekNutrients,streak,on
   });
   const saveRecent=useCallback((slotId,log)=>{
     try{
-      const all={...recentBySlot};
-      const arr=all[slotId]||[];
-      const key=`${log.eqId}:${log.itemId||''}`;
-      const filtered=arr.filter(r=>r.key!==key);
-      filtered.unshift({key,eqId:log.eqId,itemId:log.itemId,qtyPortion:log.qtyPortion,kcal:log.kcal,p:log.p,l:log.l,g:log.g,isOutOfPlan:log.isOutOfPlan});
-      all[slotId]=filtered.slice(0,3);
-      localStorage.setItem('elevia_recent_items',JSON.stringify(all));
-      setRecentBySlot(all);
+      setRecentBySlot(prev=>{
+        const all={...prev};
+        const arr=all[slotId]||[];
+        const key=`${log.eqId}:${log.itemId||''}`;
+        const filtered=arr.filter(r=>r.key!==key);
+        filtered.unshift({key,eqId:log.eqId,itemId:log.itemId,qtyPortion:log.qtyPortion,kcal:log.kcal,p:log.p,l:log.l,g:log.g,isOutOfPlan:log.isOutOfPlan});
+        all[slotId]=filtered.slice(0,3);
+        localStorage.setItem('elevia_recent_items',JSON.stringify(all));
+        return all;
+      });
     }catch{}
-  },[recentBySlot]);
+  },[]);
   const dayNut=useMemo(()=>{const n={kcal:0,p:0,l:0,g:0};logs.forEach(l=>{n.kcal+=l.kcal;n.p+=l.p;n.l+=l.l;n.g+=l.g});return n},[logs]);
   const [ringPulse,setRingPulse]=useState(false);
-  const prevKcalRef=useMemo(()=>({v:0}),[]);
-  useEffect(()=>{if(dayNut.kcal!==prevKcalRef.v&&prevKcalRef.v!==0){setRingPulse(true);const t=setTimeout(()=>setRingPulse(false),600);return()=>clearTimeout(t)}prevKcalRef.v=dayNut.kcal},[dayNut.kcal]);
-  const logCountRef=useMemo(()=>({count:logs.length}),[]);
+  const prevKcalRef=useRef({v:0});
+  useEffect(()=>{if(dayNut.kcal!==prevKcalRef.current.v&&prevKcalRef.current.v!==0){setRingPulse(true);const t=setTimeout(()=>setRingPulse(false),600);return()=>clearTimeout(t)}prevKcalRef.current.v=dayNut.kcal},[dayNut.kcal]);
+  const logCountRef=useRef({count:0});
   function handleLog(log){
     onAddLog(log);
     saveRecent(log.slotId,log);
@@ -1177,15 +1372,15 @@ function PlanTab({logs,onAddLog,onDeleteLog,weekConsumed,weekNutrients,streak,on
       msg=`Cible ${macroCrossed[0]} du jour ✓`;
     }else if(log.isOutOfPlan){
       const hpMsgs=["C'est noté — l'important c'est la transparence","Loggé, c'est l'essentiel","Noté, on continue !"];
-      msg=hpMsgs[logCountRef.count%hpMsgs.length];
+      msg=hpMsgs[logCountRef.current.count%hpMsgs.length];
     }else{
-      logCountRef.count++;
+      logCountRef.current.count++;
       const basics=obj.progressDir==="down"
         ?["Bien joué !","C'est noté !","Tu restes dans ton budget !","On avance !"]
         :obj.progressDir==="neutral"
         ?["Bien joué !","C'est noté !","Tu maintiens l'équilibre !","On avance !"]
         :["Bien joué !","C'est noté !","Tu te rapproches de ta cible !","On avance !"];
-      msg=basics[logCountRef.count%basics.length];
+      msg=basics[logCountRef.current.count%basics.length];
     }
     setSnack(`✓ ${msg}`);
     setTimeout(()=>setSnack(null),2800);
@@ -1212,6 +1407,7 @@ function PlanTab({logs,onAddLog,onDeleteLog,weekConsumed,weekNutrients,streak,on
   },[planStart]);
   const now=new Date();
   const isWarmup=officialStart&&now<officialStart;
+  const warmupDaysTotal=isWarmup&&planStart?Math.ceil((officialStart-planStart)/86400000):0;
   const warmupDaysLeft=isWarmup?Math.ceil((officialStart-now)/86400000):0;
   const daysSinceStart=officialStart?Math.max(0,Math.floor((now-officialStart)/86400000)):null;
   const weekNum=(!isWarmup&&daysSinceStart!=null)?Math.floor(daysSinceStart/7)+1:null;
@@ -1232,7 +1428,7 @@ function PlanTab({logs,onAddLog,onDeleteLog,weekConsumed,weekNutrients,streak,on
       <div style={{fontSize:13,fontWeight:700,color:"#1A1A1A",marginBottom:4}}>Prise en main</div>
       <div style={{fontSize:12,color:"#6B7280",lineHeight:1.5}}>Ton suivi officiel commence dans <strong style={{color:obj.accent}}>{warmupDaysLeft} jour{warmupDaysLeft>1?"s":""}</strong>. D'ici là, familiarise-toi avec l'app et tes équivalences.</div>
       <div style={{display:"flex",gap:4,marginTop:8}}>
-        {Array.from({length:warmupDaysLeft},(_,i)=><div key={i} style={{flex:1,height:4,borderRadius:2,background:i<(warmupDaysLeft-warmupDaysLeft)?obj.accent:"rgba(15,30,46,.08)"}}/>)}
+        {Array.from({length:warmupDaysTotal},(_,i)=><div key={i} style={{flex:1,height:4,borderRadius:2,background:i<(warmupDaysTotal-warmupDaysLeft)?obj.accent:"rgba(15,30,46,.08)"}}/>)}
       </div>
     </div>}
     <DietMessageBanner messages={dietMessages} accent={obj.accent} accentSoft={obj.accentSoft} accentBorder={obj.accentBorder} onMarkRead={onDietMarkRead} onOpenInbox={()=>onSwitchTab?.("profile")}/>
@@ -1421,7 +1617,7 @@ function AdviceTab({onCreateBilan,isWarmup}){
 
   const [view,setView]=useState("focus");
   const [selAdv,setSelAdv]=useState(null);const [readSet,setReadSet]=useState(new Set(["adv_02","adv_05"]));
-  const [evalOpen,setEvalOpen]=useState(false);const [evalScores,setEvalScores]=useState({});
+  const [evalOpen,setEvalOpen]=useState(false);const [evalScores,setEvalScores]=useState({});const [biblioQ,setBiblioQ]=useState("");
   const [evalWellbeing,setEvalWellbeing]=useState({energy:3,hunger:3,sleep:3,stress:3});
   const allPri=ADVICES.filter(a=>a.axis==="priority").sort((a,b)=>b.priorityScore-a.priorityScore);
   const allSec=ADVICES.filter(a=>a.axis==="secondary").sort((a,b)=>b.priorityScore-a.priorityScore);
@@ -1462,8 +1658,8 @@ function AdviceTab({onCreateBilan,isWarmup}){
       {isWarmup?<div className="card" style={{textAlign:"center",marginTop:16,opacity:.5}}><div style={{fontSize:14,fontWeight:700,color:"#6B7280"}}>Évaluation disponible après ta première semaine</div></div>
       :<div className="card" role="button" tabIndex={0} style={{textAlign:"center",marginTop:16,cursor:"pointer"}} onClick={()=>setEvalOpen(true)}><div style={{fontSize:14,fontWeight:700,color:"#1A1A1A"}}>Évaluer ma semaine →</div><div style={{fontSize:12,color:"#6B7280",marginTop:4}}>Disponible dimanche</div></div>}
     </>:<>
-      <input className="search" placeholder="Rechercher un conseil…"/>
-      {Object.entries(byStatus).map(([st,advs])=>advs.length>0&&<div key={st}><div className="section-label">{st}</div>{advs.map(a=><AdvItem key={a.id} a={a}/>)}</div>)}
+      <input className="search" placeholder="Rechercher un conseil…" value={biblioQ} onChange={e=>setBiblioQ(e.target.value)}/>
+      {Object.entries(byStatus).map(([st,advs])=>{const filtered=biblioQ?advs.filter(a=>(a.title+a.shortBody).toLowerCase().includes(biblioQ.toLowerCase())):advs;return filtered.length>0&&<div key={st}><div className="section-label">{st}</div>{filtered.map(a=><AdvItem key={a.id} a={a}/>)}</div>})}
     </>}
     {selAdv&&<AdviceDetail adv={selAdv} onClose={()=>setSelAdv(null)} status={getStatus(selAdv)}/>}
     {evalOpen&&<div className="overlay" onClick={()=>setEvalOpen(false)}><div role="dialog" className="modal" onClick={e=>e.stopPropagation()}>
@@ -1617,13 +1813,13 @@ function HistoryTab({logs,onDeleteLog}){
 }
 
 /* ═══ TAB: PROFIL ═══ */
-function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, dietMessages, dietUnread, onDietMarkRead }){
+function ProfileTab({ signOut, onAddMeasurement, onDeleteMeasurement, milestones, milestoneDefs, dietMessages, dietUnread, onDietMarkRead }){
   const d=useData();
   const obj=useObjective();
   const CLIENT=d?.CLIENT||DEFAULT_CLIENT;
   const MEASUREMENTS=d?.MEASUREMENTS||DEFAULT_MEASUREMENTS;
   const BILANS=d?.BILANS||DEFAULT_BILANS;
-  const PROFILE_TEXT=d?.PROFILE_TEXT||DEFAULT_PROFILE_TEXT;
+  const PROFILE_TEXT=d?.PROFILE_TEXT||"";
 
   const [subScreen,setSubScreen]=useState(null);
   const [metric,setMetric]=useState("weight");
@@ -1635,14 +1831,75 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
   const [eqSearch,setEqSearch]=useState("");
   const [eqCategory,setEqCategory]=useState(null);
   const [eqDetail,setEqDetail]=useState(null);
-  const m=MEASUREMENTS&&MEASUREMENTS.length>0?MEASUREMENTS:DEFAULT_MEASUREMENTS;
-  const latest=m[0];const first=m[m.length-1];
+  const notifKeys=["notif_rappel_matin","notif_rappel_soir","notif_bilan_dimanche"];
+  const [notifs,setNotifs]=useState(()=>notifKeys.map(k=>{try{return localStorage.getItem(k)!=="false"}catch{return true}}));
+  const m=MEASUREMENTS||[];
+  const hasMeasures=m.length>0;
+  const latest=hasMeasures?m[0]:null;
+  const first=hasMeasures?m[m.length-1]:null;
 
   if(subScreen==="messages"){
     return <DietInbox messages={dietMessages} accent={obj.accent} accentSoft={obj.accentSoft} accentBorder={obj.accentBorder} onMarkRead={onDietMarkRead} onBack={()=>setSubScreen(null)}/>
   }
 
   if(subScreen==="measures"){
+    const weekScoreData=BILANS.slice().reverse().map(b=>({week:b.week,score:b.score,label:b.label}));
+
+    // Empty state
+    if(!hasMeasures) return <div className="page">
+      <button aria-label="Retour" className="hdr-back" onClick={()=>setSubScreen(null)} style={{marginBottom:12,padding:0}}>← Retour</button>
+      <div className="page-title">Suivi & Graphiques</div>
+      <div style={{textAlign:"center",padding:"40px 20px"}}>
+        <div style={{fontSize:40,marginBottom:16}}>📏</div>
+        <div style={{fontSize:16,fontWeight:700,color:"#1A1A1A",marginBottom:8}}>Aucune mesure enregistrée</div>
+        <div style={{fontSize:13,color:"#6B7280",lineHeight:1.6,marginBottom:24}}>Ajoute ta première mesure pour suivre ton évolution. Le poids suffit pour commencer — tu pourras compléter avec le tour de taille et la masse grasse quand tu voudras.</div>
+        <button className="btn-primary" onClick={()=>setShowMeasureForm(true)}>+ Ajouter ma première mesure</button>
+      </div>
+      {/* Weekly score trend even without measures */}
+      {weekScoreData.length>0&&<div className="card" style={{padding:16,marginTop:8}}>
+        <div className="flex-between" style={{marginBottom:4}}>
+          <span style={{fontSize:14,fontWeight:800,color:"#1A1A1A"}}>Score nutrition</span>
+          <span style={{fontSize:12,color:"#6B7280"}}>Dernières semaines</span>
+        </div>
+        <div style={{fontSize:11,color:"#9CA3AF",marginBottom:8}}>Basé sur ton adhérence au plan : portions respectées, régularité des repas.</div>
+        <div style={{width:"100%",height:140}}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={weekScoreData} margin={{top:10,right:5,left:-20,bottom:0}}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,30,46,.06)" vertical={false}/>
+              <XAxis dataKey="week" tick={{fontSize:10,fill:"#6B7280"}} axisLine={false} tickLine={false}/>
+              <YAxis domain={[0,100]} tick={{fontSize:10,fill:"#6B7280"}} axisLine={false} tickLine={false}/>
+              <ReferenceLine y={70} stroke={obj.accentLine} strokeDasharray="4 4" label={{value:getScoreLabel(obj,70),position:"right",fontSize:9,fill:obj.accent}}/>
+              <Tooltip cursor={false} contentStyle={{background:"#121E2D",border:"none",borderRadius:12,fontSize:12,color:"#fff",fontWeight:600}} labelStyle={{color:obj.accent}}/>
+              <Bar dataKey="score" radius={[6,6,0,0]} fill={obj.accent} maxBarSize={28}/>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>}
+      {showMeasureForm&&<div className="overlay" onClick={()=>setShowMeasureForm(false)}><div role="dialog" className="modal" onClick={e=>e.stopPropagation()} style={{maxHeight:"70%"}}>
+        <div className="modal-handle"/>
+        <div className="modal-title">Première mesure</div>
+        <div style={{fontSize:12,color:"#6B7280",marginBottom:16}}>Remplis uniquement ce que tu as mesuré.</div>
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          {[
+            {key:"weight",label:"Poids (kg)",step:"0.1",ph:"75",required:true},
+            {key:"waist",label:"Tour de taille (cm)",step:"0.5",ph:"85"},
+            {key:"bf",label:"% Masse grasse",step:"0.1",ph:"20"},
+            {key:"hip",label:"Tour de hanches (cm)",step:"0.5",ph:"95"},
+            {key:"muscle",label:"Masse musc. (kg)",step:"0.1",ph:"35"},
+          ].map(f=><div key={f.key} style={{display:"flex",alignItems:"center",gap:10}}>
+            <span style={{fontSize:12,fontWeight:600,color:"#374151",minWidth:110,flexShrink:0}}>{f.label}{f.required&&<span style={{color:obj.accent}}> *</span>}</span>
+            <input type="number" inputMode="decimal" step={f.step} placeholder={f.ph} value={mForm[f.key]} onChange={e=>setMForm(p=>({...p,[f.key]:e.target.value}))} style={{flex:1,padding:"9px 12px",borderRadius:10,border:"1px solid #E5E7EB",fontSize:14,fontFamily:"inherit",boxSizing:"border-box",minWidth:0}}/>
+          </div>)}
+        </div>
+        <button className="btn-primary" disabled={!mForm.weight||mSaving} style={{marginTop:16,opacity:(!mForm.weight||mSaving)?0.5:1}} onClick={async()=>{
+          setMSaving(true);
+          if(onAddMeasurement)await onAddMeasurement({weightKg:Number(mForm.weight),waistCm:mForm.waist?Number(mForm.waist):null,bodyFatPct:mForm.bf?Number(mForm.bf):null,hipCm:mForm.hip?Number(mForm.hip):null,muscleMassKg:mForm.muscle?Number(mForm.muscle):null});
+          setMSaving(false);setShowMeasureForm(false);setMForm({weight:"",waist:"",bf:"",hip:"",muscle:""});
+        }}>{mSaving?"Enregistrement…":"Enregistrer"}</button>
+      </div></div>}
+    </div>;
+
+    // Has measures — full view
     const chartData=m.slice().reverse().map(e=>({
       date:e.date.slice(5),weight:e.weightKg,waist:e.waistCm,bf:e.bodyFatPct,
       hip:e.hipCm,muscle:e.muscleMassKg,
@@ -1651,9 +1908,8 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
     }));
     const metrics={weight:{label:"Poids (kg)",key:"weight",color:obj.accent,unit:"kg",domain:['dataMin-2','dataMax+1']},waist:{label:"Tour de taille (cm)",key:"waist",color:"#E8863A",unit:"cm",domain:['dataMin-2','dataMax+2']},bf:{label:"% Masse grasse",key:"bf",color:"#3B82F6",unit:"%",domain:['dataMin-1','dataMax+1']},hip:{label:"Tour de hanches (cm)",key:"hip",color:"#F472B6",unit:"cm",domain:['dataMin-2','dataMax+2']},muscle:{label:"Masse musculaire (kg)",key:"muscle",color:"#10B981",unit:"kg",domain:['dataMin-2','dataMax+1']},bmi:{label:"IMC",key:"bmi",color:"#34C759",unit:"",domain:['dataMin-1','dataMax+1']},ratio:{label:"Ratio taille/TT",key:"ratio",color:"#8B5CF6",unit:"",domain:[0.4,0.6]}};
     const mc=metrics[metric];
-    const first=chartData[0];const last=chartData[chartData.length-1];
-    const delta=Math.round((last[mc.key]-first[mc.key])*10)/10;
-    const weekScoreData=BILANS.slice().reverse().map(b=>({week:b.week,score:b.score,label:b.label}));
+    const cfirst=chartData[0];const clast=chartData[chartData.length-1];
+    const delta=(clast?.[mc.key]!=null&&cfirst?.[mc.key]!=null)?Math.round((clast[mc.key]-cfirst[mc.key])*10)/10:null;
 
     return <div className="page">
       <button aria-label="Retour" className="hdr-back" onClick={()=>setSubScreen(null)} style={{marginBottom:12,padding:0}}>← Retour</button>
@@ -1661,15 +1917,15 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
       <div className="page-meta">Évolution depuis le début</div>
 
       {/* KPI summary row */}
-      {(()=>{
-        const wDelta=latest.weightKg-first.weightKg;const wDir=obj.kpiDir==='up'?(wDelta>=0?obj.kpiColor:"#E8863A"):(wDelta<=0?"#34C759":"#E8863A");const wArrow=wDelta>=0?"↑":"↓";
+      {latest&&first&&(()=>{
+        const wDelta=latest.weightKg&&first.weightKg?latest.weightKg-first.weightKg:null;const wDir=wDelta!=null?(obj.kpiDir==='up'?(wDelta>=0?obj.kpiColor:"#E8863A"):(wDelta<=0?"#34C759":"#E8863A")):"#6B7280";const wArrow=wDelta!=null?(wDelta>=0?"↑":"↓"):"";
         const tDelta=latest.waistCm!=null&&first.waistCm!=null?latest.waistCm-first.waistCm:null;const tDir=tDelta!=null?(tDelta<=0?"#34C759":"#E8863A"):"#6B7280";const tArrow=tDelta!=null?(tDelta>=0?"↑":"↓"):"";
         const bDelta=latest.bodyFatPct!=null&&first.bodyFatPct!=null?latest.bodyFatPct-first.bodyFatPct:null;const bDir=bDelta!=null?(bDelta<=0?"#34C759":"#E8863A"):"#6B7280";const bArrow=bDelta!=null?(bDelta>=0?"↑":"↓"):"";
         return <div className="kpi-row" style={{marginTop:12,marginBottom:16}}>
           <div style={{flex:1,background:"#fff",borderRadius:14,padding:12,textAlign:"center",border:`1px solid ${obj.accentBorder}`,boxShadow:"0 4px 24px rgba(0,0,0,.06)"}}>
             <div style={{fontSize:10,fontWeight:700,color:"#6B7280",textTransform:"uppercase"}}>Poids</div>
-            <div style={{fontSize:20,fontWeight:800,color:"#1A1A1A",marginTop:4}}>{latest.weightKg}</div>
-            <div style={{fontSize:11,fontWeight:700,color:wDir}}>{wArrow} {Math.abs(wDelta).toFixed(1)} kg</div>
+            <div style={{fontSize:20,fontWeight:800,color:"#1A1A1A",marginTop:4}}>{latest.weightKg||"—"}</div>
+            <div style={{fontSize:11,fontWeight:700,color:wDir}}>{wDelta!=null?`${wArrow} ${Math.abs(wDelta).toFixed(1)} kg`:"—"}</div>
           </div>
           <div style={{flex:1,background:"#fff",borderRadius:14,padding:12,textAlign:"center",border:`1px solid ${obj.accentBorder}`,boxShadow:"0 4px 24px rgba(0,0,0,.06)"}}>
             <div style={{fontSize:10,fontWeight:700,color:"#6B7280",textTransform:"uppercase"}}>Tour taille</div>
@@ -1710,7 +1966,7 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
       <div className="card" style={{padding:16}}>
         <div className="flex-between" style={{marginBottom:4}}>
           <span style={{fontSize:14,fontWeight:800,color:"#1A1A1A"}}>{mc.label}</span>
-          <span style={{fontSize:13,fontWeight:700,color:metric==="weight"?(obj.kpiDir==='up'?(delta>=0?obj.kpiColor:"#E8863A"):(delta<=0?"#34C759":"#E8863A")):(delta<=0?"#34C759":"#E8863A")}}>{delta>0?"+":""}{delta} {mc.unit}</span>
+          {delta!=null&&<span style={{fontSize:13,fontWeight:700,color:metric==="weight"?(obj.kpiDir==='up'?(delta>=0?obj.kpiColor:"#E8863A"):(delta<=0?"#34C759":"#E8863A")):(delta<=0?"#34C759":"#E8863A")}}>{delta>0?"+":""}{delta} {mc.unit}</span>}
         </div>
         <div style={{width:"100%",height:180}}>
           <ResponsiveContainer width="100%" height="100%">
@@ -1732,11 +1988,12 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
       </div>
 
       {/* Weekly score trend */}
-      <div className="card" style={{padding:16}}>
+      {weekScoreData.length>0&&<div className="card" style={{padding:16}}>
         <div className="flex-between" style={{marginBottom:4}}>
           <span style={{fontSize:14,fontWeight:800,color:"#1A1A1A"}}>Score nutrition</span>
           <span style={{fontSize:12,color:"#6B7280"}}>Dernières semaines</span>
         </div>
+        <div style={{fontSize:11,color:"#9CA3AF",marginBottom:8}}>Basé sur ton adhérence au plan : portions respectées, régularité des repas.</div>
         <div style={{width:"100%",height:140}}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={weekScoreData} margin={{top:10,right:5,left:-20,bottom:0}}>
@@ -1744,50 +2001,28 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
               <XAxis dataKey="week" tick={{fontSize:10,fill:"#6B7280"}} axisLine={false} tickLine={false}/>
               <YAxis domain={[0,100]} tick={{fontSize:10,fill:"#6B7280"}} axisLine={false} tickLine={false}/>
               <ReferenceLine y={70} stroke={obj.accentLine} strokeDasharray="4 4" label={{value:getScoreLabel(obj,70),position:"right",fontSize:9,fill:obj.accent}}/>
-              <Tooltip contentStyle={{background:"#121E2D",border:"none",borderRadius:12,fontSize:12,color:"#fff",fontWeight:600}} labelStyle={{color:obj.accent}}/>
-              <Bar dataKey="score" radius={[6,6,0,0]} fill={obj.accent} maxBarSize={28}>
-              </Bar>
+              <Tooltip cursor={false} contentStyle={{background:"#121E2D",border:"none",borderRadius:12,fontSize:12,color:"#fff",fontWeight:600}} labelStyle={{color:obj.accent}}/>
+              <Bar dataKey="score" radius={[6,6,0,0]} fill={obj.accent} maxBarSize={28}/>
             </BarChart>
           </ResponsiveContainer>
         </div>
-      </div>
-
-      {/* Macro weekly trend — from real bilan scores */}
-      <div className="card" style={{padding:16}}>
-        <div style={{fontSize:14,fontWeight:800,color:"#1A1A1A",marginBottom:8}}>Score d'adhérence (par semaine)</div>
-        {weekScoreData.length>0?<div style={{width:"100%",height:140}}>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={weekScoreData} margin={{top:10,right:5,left:-20,bottom:0}}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,30,46,.06)" vertical={false}/>
-              <XAxis dataKey="week" tick={{fontSize:10,fill:"#6B7280"}} axisLine={false} tickLine={false}/>
-              <YAxis domain={[0,100]} tick={{fontSize:10,fill:"#6B7280"}} axisLine={false} tickLine={false}/>
-              <ReferenceLine y={70} stroke="rgba(15,30,46,.12)" strokeDasharray="4 4"/>
-              <Tooltip contentStyle={{background:"var(--navy)",border:"none",borderRadius:12,fontSize:11,color:"#fff",fontWeight:600}} labelStyle={{color:obj.accent}} formatter={(v)=>`${v}%`}/>
-              <Bar dataKey="score" fill={obj.accent} radius={[6,6,0,0]} name="Score"/>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>:<div style={{textAlign:"center",padding:"20px 0",fontSize:13,color:"#6B7280"}}>Les données apparaîtront après ton premier bilan</div>}
-        <div style={{display:"flex",justifyContent:"center",gap:16,marginTop:6}}>
-          <span style={{fontSize:10,color:obj.accent,fontWeight:700}}>● kcal</span>
-          <span style={{fontSize:10,color:"#3B82F6",fontWeight:700}}>● Prot</span>
-          <span style={{fontSize:10,color:"#E8863A",fontWeight:700}}>● Lip</span>
-        </div>
-      </div>
+      </div>}
 
       {/* History table */}
       <div className="section-label">Historique des mesures</div>
       <div className="card" style={{padding:12}}>
         <div style={{display:"flex",justifyContent:"space-between",padding:"6px 0",fontSize:10,fontWeight:800,color:"#6B7280",textTransform:"uppercase",borderBottom:"1px solid rgba(15,30,46,.10)"}}>
-          <span style={{width:80}}>Date</span><span style={{width:50,textAlign:"right"}}>Poids</span><span style={{width:50,textAlign:"right"}}>Taille</span><span style={{width:40,textAlign:"right"}}>%MG</span><span style={{width:40,textAlign:"right"}}>IMC</span>
+          <span style={{width:70}}>Date</span><span style={{width:46,textAlign:"right"}}>Poids</span><span style={{width:42,textAlign:"right"}}>TT</span><span style={{width:38,textAlign:"right"}}>%MG</span><span style={{width:36,textAlign:"right"}}>IMC</span><span style={{width:28}}/>
         </div>
         {m.map((e,i)=>{
           const bmi=Math.round(e.weightKg/((CLIENT.heightCm/100)**2)*10)/10;
-          return <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"8px 0",borderBottom:i<m.length-1?"1px solid rgba(15,30,46,.06)":"none",fontSize:12,color:"#1A1A1A"}}>
-            <span style={{width:80,fontWeight:600}}>{e.date.slice(5)}</span>
-            <span style={{width:50,textAlign:"right"}}>{e.weightKg}</span>
-            <span style={{width:50,textAlign:"right"}}>{e.waistCm}</span>
-            <span style={{width:40,textAlign:"right"}}>{e.bodyFatPct}</span>
-            <span style={{width:40,textAlign:"right",color:"#6B7280"}}>{bmi}</span>
+          return <div key={e.id||i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:i<m.length-1?"1px solid rgba(15,30,46,.06)":"none",fontSize:12,color:"#1A1A1A"}}>
+            <span style={{width:70,fontWeight:600}}>{e.date.slice(5)}</span>
+            <span style={{width:46,textAlign:"right"}}>{e.weightKg||"—"}</span>
+            <span style={{width:42,textAlign:"right"}}>{e.waistCm||"—"}</span>
+            <span style={{width:38,textAlign:"right"}}>{e.bodyFatPct||"—"}</span>
+            <span style={{width:36,textAlign:"right",color:"#6B7280"}}>{bmi||"—"}</span>
+            <span style={{width:28,textAlign:"right"}}>{e.id&&onDeleteMeasurement?<button onClick={()=>{if(confirm("Supprimer cette mesure ?"))onDeleteMeasurement(e.id)}} style={{background:"none",border:"none",cursor:"pointer",fontSize:13,color:"#D1D5DB",padding:0,lineHeight:1}} title="Supprimer">×</button>:null}</span>
           </div>
         })}
       </div>
@@ -1797,26 +2032,21 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
       <div style={{fontSize:11,color:"rgba(15,30,46,.50)",textAlign:"center",fontStyle:"italic",marginTop:12}}>Mesures indicatives. Parle à ton diététicien pour une interprétation personnalisée.</div>
 
       {/* Measurement form modal */}
-      {showMeasureForm&&<div className="overlay" onClick={()=>setShowMeasureForm(false)}><div role="dialog" className="modal" onClick={e=>e.stopPropagation()} style={{maxHeight:"60%"}}>
+      {showMeasureForm&&<div className="overlay" onClick={()=>setShowMeasureForm(false)}><div role="dialog" className="modal" onClick={e=>e.stopPropagation()} style={{maxHeight:"70%"}}>
         <div className="modal-handle"/>
         <div className="modal-title">Nouvelle mesure</div>
-        <div style={{fontSize:12,color:"#6B7280",marginBottom:16}}>Remplis au moins le poids pour enregistrer.</div>
-        <div style={{display:"flex",flexDirection:"column",gap:12}}>
-          <label style={{fontSize:12,fontWeight:700,color:"#1A1A1A"}}>Poids (kg)
-            <input type="number" step="0.1" placeholder={latest?.weightKg||"75"} value={mForm.weight} onChange={e=>setMForm(f=>({...f,weight:e.target.value}))} style={{display:"block",width:"100%",marginTop:4,padding:"10px 12px",borderRadius:12,border:"1px solid #E5E7EB",fontSize:14,fontFamily:"inherit",boxSizing:"border-box"}}/>
-          </label>
-          <label style={{fontSize:12,fontWeight:700,color:"#1A1A1A"}}>Tour de taille (cm)
-            <input type="number" step="0.5" placeholder={latest?.waistCm||"85"} value={mForm.waist} onChange={e=>setMForm(f=>({...f,waist:e.target.value}))} style={{display:"block",width:"100%",marginTop:4,padding:"10px 12px",borderRadius:12,border:"1px solid #E5E7EB",fontSize:14,fontFamily:"inherit",boxSizing:"border-box"}}/>
-          </label>
-          <label style={{fontSize:12,fontWeight:700,color:"#1A1A1A"}}>% Masse grasse
-            <input type="number" step="0.1" placeholder={latest?.bodyFatPct||"20"} value={mForm.bf} onChange={e=>setMForm(f=>({...f,bf:e.target.value}))} style={{display:"block",width:"100%",marginTop:4,padding:"10px 12px",borderRadius:12,border:"1px solid #E5E7EB",fontSize:14,fontFamily:"inherit",boxSizing:"border-box"}}/>
-          </label>
-          <label style={{fontSize:12,fontWeight:700,color:"#1A1A1A"}}>Tour de hanches (cm)
-            <input type="number" step="0.5" placeholder="95" value={mForm.hip} onChange={e=>setMForm(f=>({...f,hip:e.target.value}))} style={{display:"block",width:"100%",marginTop:4,padding:"10px 12px",borderRadius:12,border:"1px solid #E5E7EB",fontSize:14,fontFamily:"inherit",boxSizing:"border-box"}}/>
-          </label>
-          <label style={{fontSize:12,fontWeight:700,color:"#1A1A1A"}}>Masse musculaire (kg)
-            <input type="number" step="0.1" placeholder="35" value={mForm.muscle} onChange={e=>setMForm(f=>({...f,muscle:e.target.value}))} style={{display:"block",width:"100%",marginTop:4,padding:"10px 12px",borderRadius:12,border:"1px solid #E5E7EB",fontSize:14,fontFamily:"inherit",boxSizing:"border-box"}}/>
-          </label>
+        <div style={{fontSize:12,color:"#6B7280",marginBottom:16}}>Remplis uniquement ce que tu as mesuré.</div>
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          {[
+            {key:"weight",label:"Poids (kg)",step:"0.1",ph:latest?.weightKg||"75",required:true},
+            {key:"waist",label:"Tour de taille (cm)",step:"0.5",ph:latest?.waistCm||"85"},
+            {key:"bf",label:"% Masse grasse",step:"0.1",ph:latest?.bodyFatPct||"20"},
+            {key:"hip",label:"Tour de hanches (cm)",step:"0.5",ph:"95"},
+            {key:"muscle",label:"Masse musculaire (kg)",step:"0.1",ph:"35"},
+          ].map(f=><div key={f.key} style={{display:"flex",alignItems:"center",gap:10}}>
+            <span style={{fontSize:12,fontWeight:600,color:"#374151",minWidth:110,flexShrink:0}}>{f.label}{f.required&&<span style={{color:obj.accent}}> *</span>}</span>
+            <input type="number" inputMode="decimal" step={f.step} placeholder={String(f.ph)} value={mForm[f.key]} onChange={e=>setMForm(p=>({...p,[f.key]:e.target.value}))} style={{flex:1,padding:"9px 12px",borderRadius:10,border:"1px solid #E5E7EB",fontSize:14,fontFamily:"inherit",boxSizing:"border-box",minWidth:0}}/>
+          </div>)}
         </div>
         <button className="btn-primary" disabled={!mForm.weight||mSaving} style={{marginTop:16,opacity:(!mForm.weight||mSaving)?0.5:1}} onClick={async()=>{
           setMSaving(true);
@@ -1830,7 +2060,8 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
   if(subScreen==="why") return <div className="page">
     <button aria-label="Retour" className="hdr-back" onClick={()=>setSubScreen(null)} style={{marginBottom:12,padding:0}}>← Retour</button>
     <div className="page-title">Pourquoi ce plan est le tien</div>
-    <div style={{fontSize:14,color:"#1A1A1A",lineHeight:1.7,marginTop:12}}>{PROFILE_TEXT}</div>
+    {PROFILE_TEXT?<div style={{fontSize:14,color:"#1A1A1A",lineHeight:1.7,marginTop:12,whiteSpace:"pre-line"}}>{PROFILE_TEXT}</div>
+    :<div style={{textAlign:"center",padding:"40px 20px",color:"#9CA3AF"}}><div style={{fontSize:13}}>Ce texte sera bientôt rédigé par ton diététicien.</div></div>}
   </div>;
 
   if(subScreen==="progression"){
@@ -2109,37 +2340,83 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
       {guideList.map((v,i)=><div key={v.id||i} className="menu-item" role="button" tabIndex={0} onClick={()=>{if(v.url)window.open(v.url,'_blank')}}><span style={{width:28,height:28,borderRadius:8,background:`linear-gradient(135deg,${obj.accentSoft},rgba(198,160,91,.06))`,border:`1px solid ${obj.accentBorder}`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}><IcMonoE size={13} color={obj.accent} letter={letters[i%6]}/></span><div style={{flex:1}}><div style={{fontSize:14,fontWeight:600,color:"#1A1A1A"}}>{v.title}</div><div style={{fontSize:11,color:"#6B7280"}}>{v.duration}{v.description?` · ${v.description}`:""}</div></div><span style={{fontSize:14,color:"#6B7280"}}>{v.url?"▶":"›"}</span></div>)}
 
       <div className="section-label" style={{marginTop:8}}>Guides de situation</div>
-      <div style={{fontSize:13,color:"#6B7280",marginBottom:12}}>Conseils pratiques pour gérer les moments du quotidien.</div>
+      <div style={{fontSize:13,color:"#6B7280",marginBottom:12}}>Conseils pratiques adaptés à ton profil.</div>
       {capsList.map((c,i)=>{
         const isOpen=expandedCapsule===c.id;
+        const columns=c.body?.columns||[];
+        const isStructured=columns.length>0;
         return <div key={c.id||i} className="card" role="button" tabIndex={0} style={{marginBottom:10,padding:0,overflow:"hidden",cursor:"pointer"}} onClick={()=>setExpandedCapsule(isOpen?null:c.id)}>
           <div style={{display:"flex",alignItems:"center",gap:12,padding:"14px 16px"}}>
-            <span style={{width:32,height:32,borderRadius:10,background:`linear-gradient(135deg,${obj.accentSoft},rgba(198,160,91,.06))`,border:`1px solid ${obj.accentBorder}`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16}}>{icons[i%icons.length]}</span>
-            <span style={{flex:1,fontSize:14,fontWeight:600,color:"#1A1A1A"}}>{c.title}</span>
-            <span style={{fontSize:14,color:"#6B7280",transition:"transform .2s",transform:isOpen?"rotate(90deg)":"none"}}>›</span>
+            <span style={{width:32,height:32,borderRadius:10,background:`linear-gradient(135deg,${obj.accentSoft},rgba(198,160,91,.06))`,border:`1px solid ${obj.accentBorder}`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16}}>{c.icon||icons[i%icons.length]}</span>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:14,fontWeight:600,color:"#1A1A1A"}}>{c.title}</div>
+              {c.subtitle&&<div style={{fontSize:11,color:"#6B7280",marginTop:1}}>{c.subtitle}</div>}
+            </div>
+            <span style={{fontSize:14,color:"#6B7280",transition:"transform .2s",transform:isOpen?"rotate(90deg)":"none",flexShrink:0}}>›</span>
           </div>
-          {isOpen&&<div style={{padding:"0 16px 16px",fontSize:13,lineHeight:1.6,color:"#374151",borderTop:`1px solid ${obj.accentBorder}`,background:obj.accentSoft}}>{c.body}</div>}
+          {isOpen&&<div style={{borderTop:`1px solid ${obj.accentBorder}`}}>
+            {isStructured?<div style={{display:"flex",flexDirection:"column",gap:0}}>
+              {columns.map((col,ci)=><div key={ci} style={{padding:"14px 16px",...(ci<columns.length-1?{borderBottom:`1px solid ${obj.accentBorder}`}:{}),background:ci%2===0?obj.accentSoft:"rgba(255,255,255,.5)"}}>
+                <div style={{fontSize:10.5,fontWeight:800,color:obj.accent,textTransform:"uppercase",letterSpacing:".6px",marginBottom:10}}>{col.title}</div>
+                <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                  {(col.items||[]).map((item,ii)=><div key={ii} style={{display:"flex",gap:8,alignItems:"flex-start"}}>
+                    <span style={{width:18,height:18,borderRadius:9,background:obj.accentSoft,border:`1px solid ${obj.accentBorder}`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:700,color:obj.accent,marginTop:1}}>{ii+1}</span>
+                    <span style={{fontSize:13,lineHeight:1.5,color:"#374151"}}>{item}</span>
+                  </div>)}
+                </div>
+              </div>)}
+            </div>:<div style={{padding:"14px 16px",fontSize:13,lineHeight:1.6,color:"#374151",background:obj.accentSoft}}>{typeof c.body==='string'?c.body:JSON.stringify(c.body)}</div>}
+          </div>}
         </div>
       })}
     </div>
   }
 
-  if(subScreen==="settings") return <div className="page">
-    <button aria-label="Retour" className="hdr-back" onClick={()=>setSubScreen(null)} style={{marginBottom:12,padding:0}}>← Retour</button>
-    <div className="page-title">Paramètres</div>
-    <div className="section-label">Notifications</div>
-    {["Rappel matin (petit-déj)","Rappel soir (dîner)","Rappel bilan dimanche"].map((n,i)=><div key={i} className="menu-item"><span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>{n}</span><div style={{width:44,height:24,borderRadius:12,background:i<2?"#34C759":"#E5E7EB",position:"relative",cursor:"pointer"}}><div style={{width:20,height:20,borderRadius:10,background:"#fff",position:"absolute",top:2,left:i<2?22:2,boxShadow:"0 1px 3px rgba(0,0,0,.2)"}}/></div></div>)}
-    <div className="section-label">Données</div>
-    {["Exporter mes données","Réinitialiser la semaine","Supprimer toutes mes données"].map((n,i)=><div key={i} className="menu-item"><span style={{fontSize:14,fontWeight:600,color:i===2?"#FF3B30":"#1A1A1A",flex:1}}>{n}</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>)}
-    <div className="section-label">Abonnement</div>
-    {["Gérer mon abonnement","Restaurer mes achats"].map((n,i)=><div key={i} className="menu-item"><span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>{n}</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>)}
-    <div className="section-label">Support</div>
-    {["Contacter le support","Signaler un problème"].map((n,i)=><div key={i} className="menu-item"><span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>{n}</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>)}
-    <div className="section-label">À propos</div>
-    <div style={{fontSize:12,color:"#6B7280",padding:8}}>Version : 1.1.0 (build 42)</div>
-    {["Conditions d'utilisation","Politique de confidentialité","Licences open-source"].map((n,i)=><div key={i} className="menu-item"><span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>{n}</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>)}
-    {signOut&&<button onClick={signOut} style={{width:"100%",padding:14,borderRadius:14,background:"rgba(255,59,48,.08)",border:"1px solid rgba(255,59,48,.2)",color:"#FF3B30",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit",marginTop:20}}>Se déconnecter</button>}
-  </div>;
+  if(subScreen==="settings"){
+    const notifLabels=["Rappel petit-déjeuner","Rappel dîner","Rappel bilan hebdomadaire"];
+    const notifDescs=["Chaque matin à 8h","Chaque soir à 19h","Chaque dimanche à 10h"];
+    const toggleNotif=(i)=>{const next=[...notifs];next[i]=!next[i];setNotifs(next);try{localStorage.setItem(notifKeys[i],next[i]?"true":"false")}catch{}};
+
+    return <div className="page">
+      <button aria-label="Retour" className="hdr-back" onClick={()=>setSubScreen(null)} style={{marginBottom:12,padding:0}}>← Retour</button>
+      <div className="page-title">Paramètres</div>
+
+      <div className="section-label">Rappels</div>
+      {notifLabels.map((n,i)=><div key={i} className="menu-item" style={{padding:"12px 14px"}}>
+        <div style={{flex:1}}>
+          <div style={{fontSize:14,fontWeight:600,color:"#1A1A1A"}}>{n}</div>
+          <div style={{fontSize:11,color:"#9CA3AF",marginTop:2}}>{notifDescs[i]}</div>
+        </div>
+        <div role="switch" aria-checked={notifs[i]} tabIndex={0} onClick={()=>toggleNotif(i)} style={{width:46,height:26,borderRadius:13,background:notifs[i]?"#34C759":"#E5E7EB",position:"relative",cursor:"pointer",transition:"background .2s",flexShrink:0}}>
+          <div style={{width:22,height:22,borderRadius:11,background:"#fff",position:"absolute",top:2,left:notifs[i]?22:2,boxShadow:"0 1px 3px rgba(0,0,0,.2)",transition:"left .2s"}}/>
+        </div>
+      </div>)}
+
+      <div className="section-label">Support</div>
+      <a href="https://www.elevianutrition.com/contact" target="_blank" rel="noopener noreferrer" style={{textDecoration:"none"}}>
+        <div className="menu-item"><span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Contacter mon diététicien</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
+      </a>
+      <a href="https://www.elevianutrition.com/contact" target="_blank" rel="noopener noreferrer" style={{textDecoration:"none"}}>
+        <div className="menu-item"><span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Signaler un problème</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
+      </a>
+
+      <div className="section-label">Informations légales</div>
+      <a href="https://www.elevianutrition.com/mentions-legales" target="_blank" rel="noopener noreferrer" style={{textDecoration:"none"}}>
+        <div className="menu-item"><span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Mentions légales</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
+      </a>
+      <a href="https://www.elevianutrition.com/confidentialite" target="_blank" rel="noopener noreferrer" style={{textDecoration:"none"}}>
+        <div className="menu-item"><span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Politique de confidentialité</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
+      </a>
+
+      <div className="section-label">À propos</div>
+      <div style={{padding:"8px 14px",fontSize:12,color:"#9CA3AF",lineHeight:1.6}}>
+        <div>Élevia Nutrition · v1.0.0</div>
+        <div style={{marginTop:2}}>Conçu par Audric Didderen, diététicien diplômé</div>
+      </div>
+
+      {signOut&&<button onClick={signOut} style={{width:"100%",padding:14,borderRadius:14,background:"rgba(255,59,48,.06)",border:"1px solid rgba(255,59,48,.15)",color:"#FF3B30",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit",marginTop:24}}>Se déconnecter</button>}
+    </div>;
+  }
 
   if(subScreen==="equivalences"){
     const catalogue=d?.CATALOGUE||DEFAULT_CATALOGUE;
@@ -2151,8 +2428,8 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
       return eq;
     });
     const SLOT_QTY=d?.SLOT_QTY||{};
+    const PROFILE_RULES=d?.PROFILE_RULES||{};
     const slotLabel=(sid)=>({PDJ:'Petit-déjeuner',REPAS_FROID_PAIN:'Repas froid',REPAS_FROID_BOWL:'Repas froid bowl',REPAS_CHAUD:'Repas chaud',COLLATION:'Collation',PRE_WO:'Avant entraînement',POST_WO:'Après entraînement',EN_CAS_MAT:'En-cas matin'})[sid]||sid;
-    const eqIconFile=(eqId)=>({pain:'pain',cereales_ig_modere:'cereales',feculents_chauds:'feculents',fruits_natures:'fruits',legumes_cuits:'legumes_cuits',legumes_crus:'legumes_crus',viandes_faibles_kcal:'Viandes_maigres',poissons_maigres:'poissons_maigres',poissons_gras:'poissons-gras-a',oleagineux_nature:'oleagineux',pl_0_riche_p:'lait_riche_en_p',pl_50_100_kcal:'Laitages_classique',fromages_20_30_mg:'fromages',assaisonnement_repas_froid:'assaisonnement_chaud_froid',assaisonnement_repas_chaud:'assaisonnement_chaud_froid',mg_cuisson:'matière_grasse_cuisson',mg_tartinables:'beurre',garnitures_sucrees_pain:'garniture_sucree_bowl',chocolat_noir_mt70:'chocolat',charcuteries_maigres:'viande_elevee_kcal',alcool_leger_1u:'alcool_leger',extras_except_patisserie:'extra_pdj',patisserie:'patisserie',oeufs:'Oeuf',legumineuses:'legumineuses',laits_vegetaux:'laits_vegetaux',graines:'graines',fruits_secs:'fruits_secs',soupes:'soupes',avocat:'avocat',poudre_proteine:'poudre_protéine',poissons_conserve:'Poisson_conserve',cafe_the:'café',eau:'eau'})[eqId]||null;
     const EqImg=({eqId,size=18,fallback})=>{const f=eqIconFile(eqId);return f?<img src={`/icons/${f}.svg`} alt="" width={size} height={size} style={{opacity:.7,flexShrink:0}}/>:<span style={{fontSize:size,lineHeight:1,flexShrink:0}}>{fallback||"•"}</span>};
     const typeGroups={vvpo:{label:"Protéines (VVPO)",icon:"Viandes_maigres"},carbs:{label:"Féculents & céréales",icon:"pain"},veg:{label:"Légumes",icon:"legumes_cuits"},fruits:{label:"Fruits",icon:"fruits"},dairy:{label:"Produits laitiers",icon:"Laitages_classique"},fat:{label:"Matières grasses",icon:"oleagineux"},extras:{label:"Extras & plaisir",icon:"chocolat"},drinks:{label:"Boissons",icon:"alcool_leger"}};
     const q=eqSearch.toLowerCase().trim();
@@ -2222,40 +2499,29 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
           {hasItems&&<div style={{padding:"4px 14px 10px"}}>
             {eq.items.map((item,idx)=>{
               const s=item.stepper;
-              const eqG=eq.qtyPlanGrams||0;
+              const refG=item.qty1x>0?item.qty1x:(eq.qtyPlanGrams||0);
               let rightText=null;
-              if(isR&&s){
-                const uPerRef=(item.qty1x>0&&s.usualGPerUnit>0)?item.qty1x/s.usualGPerUnit:1;
-                const labelHasCount=/^[\d½¼⅓⅔¾]/.test(s.usualUnitSg);
+              if(isR){
                 if(isMultiQty&&sqEntries.length>1){
                   rightText=<div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:3}}>
-                    {sqEntries.map(([sid,v])=>{const tu=labelHasCount?1:Math.round(v.qtyMax*uPerRef)||1;const pg=Math.round(s.usualGPerUnit*tu);const ul=tu<=1?s.usualUnitSg:s.usualUnitPl;return <div key={sid} style={{display:"flex",alignItems:"center",gap:4}}>
+                    {sqEntries.map(([sid,v])=>{const g=v.qtyMax*refG;return <div key={sid} style={{display:"flex",alignItems:"center",gap:4}}>
                       <span style={{fontSize:9,color:"#9CA3AF"}}>{slotLabel(sid)}</span>
-                      <span style={{fontSize:11,fontWeight:700,color:"#374151",background:"rgba(15,30,46,.04)",padding:"2px 8px",borderRadius:99}}>{labelHasCount?ul:`${tu} ${ul}`}</span>
-                      {pg>0&&<span style={{fontSize:10,color:"#9CA3AF"}}>({pg}g)</span>}
+                      <span style={{fontSize:11,fontWeight:700,color:"#374151",background:"rgba(15,30,46,.04)",padding:"2px 8px",borderRadius:99}}>{fmtItemQty(s,g,PROFILE_RULES,eq.eqId)}</span>
                     </div>})}
                   </div>;
                 } else {
-                  const portionQty=singleQty||1;
-                  const tu=labelHasCount?1:Math.round(portionQty*uPerRef)||1;
-                  const pg=Math.round(s.usualGPerUnit*tu);
-                  const ul=tu<=1?s.usualUnitSg:s.usualUnitPl;
-                  rightText=<span style={{display:"inline-flex",alignItems:"center",gap:4}}><span style={{fontSize:11,fontWeight:700,color:"#374151",background:"rgba(15,30,46,.04)",padding:"2px 9px",borderRadius:99}}>{labelHasCount?ul:`${tu} ${ul}`}</span>{pg>0&&<span style={{fontSize:10,color:"#9CA3AF"}}>({pg}g)</span>}</span>;
+                  const g=(singleQty||1)*refG;
+                  rightText=<span style={{fontSize:11,fontWeight:700,color:"#374151",background:"rgba(15,30,46,.04)",padding:"2px 9px",borderRadius:99}}>{fmtItemQty(s,g,PROFILE_RULES,eq.eqId)}</span>;
                 }
-              } else if(!isR&&s&&s.usualGPerUnit>0&&eqG>0){
-                const rawUnits=eqG/s.usualGPerUnit;
-                const units=rawUnits>=1?Math.round(rawUnits):Math.round(rawUnits*2)/2;
-                if(units>0){
-                  const fmtU=units===0.5?'½':units%1===0.5?`${Math.floor(units)}½`:String(units);
-                  const ul=units<=1?s.usualUnitSg:s.usualUnitPl;
-                  const labelHasCount=/^[\d½¼⅓⅔¾]/.test(ul);
-                  const gLabel=isVeg?`(≥ ${eqG}g)`:`(${eqG}g)`;
-                  rightText=<span style={{display:"inline-flex",alignItems:"center",gap:4}}><span style={{fontSize:11,fontWeight:700,color:"#374151",background:"rgba(15,30,46,.04)",padding:"2px 9px",borderRadius:99}}>{labelHasCount?ul:`${fmtU} ${ul}`}</span><span style={{fontSize:10,color:"#9CA3AF"}}>{gLabel}</span></span>;
+              } else {
+                const g=refG||eq.qtyPlanGrams||0;
+                if(g>0){
+                  const label=fmtItemQty(s,g,PROFILE_RULES,eq.eqId);
+                  rightText=<span style={{fontSize:11,fontWeight:700,color:"#374151",background:"rgba(15,30,46,.04)",padding:"2px 9px",borderRadius:99}}>{isVeg?`≥ ${label}`:label}</span>;
                 }
-              } else if(!isR&&eqG>0){
-                rightText=<span style={{fontSize:11,color:"#6B7280",background:"rgba(15,30,46,.04)",padding:"2px 9px",borderRadius:99,fontWeight:600}}>{isVeg?`≥ ${eqG}g`:`${eqG}g`}</span>;
               }
-              const hasV=item.variants&&item.variants.length>0;
+              const isRecipe=eq.type==='recette'||item.foodLabel?.toLowerCase().includes('recette');
+              const hasV=item.variants&&item.variants.length>0&&!isRecipe;
               return <div key={item.itemId} style={{paddingTop:idx===0?4:0}}>
                 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"7px 0",borderBottom:(!hasV&&idx<eq.items.length-1)?"1px solid rgba(15,30,46,.04)":"none"}}>
                   <div style={{flex:1,display:"flex",alignItems:"center",gap:5,minWidth:0}}>
@@ -2328,18 +2594,19 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
         {CLIENT.glutenFree&&<span style={{fontSize:10,fontWeight:600,padding:"3px 10px",borderRadius:99,background:"rgba(234,179,8,.12)",border:"1px solid rgba(234,179,8,.25)",color:"#fde68a"}}>Sans gluten</span>}
         {CLIENT.lactoseFree&&<span style={{fontSize:10,fontWeight:600,padding:"3px 10px",borderRadius:99,background:"rgba(99,102,241,.12)",border:"1px solid rgba(99,102,241,.25)",color:"#c4b5fd"}}>Sans lactose</span>}
       </div>}
-      <div className="kpi-row">
+      {latest&&first&&<div className="kpi-row">
         {(()=>{
           const wDelta=latest.weightKg-first.weightKg;const wDir=obj.kpiDir==='up'?(wDelta>=0?obj.kpiColor:"#E8863A"):(wDelta<=0?"#34C759":"#E8863A");
-          const tDelta=latest.waistCm-first.waistCm;const tDir=tDelta<=0?"#34C759":"#E8863A";
-          const bDelta=latest.bodyFatPct-first.bodyFatPct;const bDir=bDelta<=0?"#34C759":"#E8863A";
+          const tDelta=latest.waistCm!=null&&first.waistCm!=null?latest.waistCm-first.waistCm:null;const tDir=tDelta!=null?(tDelta<=0?"#34C759":"#E8863A"):"#6B7280";
+          const bDelta=latest.bodyFatPct!=null&&first.bodyFatPct!=null?latest.bodyFatPct-first.bodyFatPct:null;const bDir=bDelta!=null?(bDelta<=0?"#34C759":"#E8863A"):"#6B7280";
           return <>
             <div className="kpi-box"><div className="kpi-label">Poids</div><div className="kpi-val">{latest.weightKg}</div><div className="kpi-delta" style={{color:wDir}}>{wDelta>0?"+":""}{wDelta.toFixed(1)} kg</div></div>
-            <div className="kpi-box"><div className="kpi-label">Tour taille</div><div className="kpi-val">{latest.waistCm}</div><div className="kpi-delta" style={{color:tDir}}>{tDelta>0?"+":""}{tDelta.toFixed(1)} cm</div></div>
-            <div className="kpi-box"><div className="kpi-label">% MG</div><div className="kpi-val">{latest.bodyFatPct}</div><div className="kpi-delta" style={{color:bDir}}>{bDelta>0?"+":""}{bDelta.toFixed(1)}%</div></div>
+            <div className="kpi-box"><div className="kpi-label">Tour taille</div><div className="kpi-val">{latest.waistCm??"\u2014"}</div><div className="kpi-delta" style={{color:tDir}}>{tDelta!=null?`${tDelta>0?"+":""}${tDelta.toFixed(1)} cm`:"\u2014"}</div></div>
+            <div className="kpi-box"><div className="kpi-label">% MG</div><div className="kpi-val">{latest.bodyFatPct??"\u2014"}</div><div className="kpi-delta" style={{color:bDir}}>{bDelta!=null?`${bDelta>0?"+":""}${bDelta.toFixed(1)}%`:"\u2014"}</div></div>
           </>
         })()}
-      </div>
+      </div>}
+      {!hasMeasures&&<div style={{padding:"16px 0",textAlign:"center",fontSize:13,color:"#9CA3AF"}}>Aucune mesure enregistrée</div>}
     </div>
     {milestoneDefs&&milestoneDefs.length>0&&<>
       <div className="section-label">Mes badges</div>
@@ -2352,7 +2619,7 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
     <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("why")}>{menuLetter("É")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Pourquoi ce plan est le tien</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
     <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("measures")}>{menuLetter("L")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Suivi mesures & graphiques</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
     <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("equivalences")}>{menuLetter("E")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Mes équivalences</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
-    <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("recipes")}>{menuLetter("V")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Recettes</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
+    <div className="menu-item" role="button" tabIndex={0} onClick={()=>window.open("https://recettes.elevianutrition.com","_blank")} style={{background:"linear-gradient(135deg,rgba(198,160,91,.08) 0%,rgba(198,160,91,.02) 100%)",border:`1px solid ${obj.accentBorder}`}}>{menuLetter("R")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Mes recettes personnalisées</span><span style={{fontSize:11,fontWeight:700,color:obj.accent,background:obj.accentSoft,borderRadius:99,padding:"2px 8px"}}>Nouveau</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
     <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("messages")}>{menuLetter("I")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Messages de ton diététicien</span>{dietUnread>0&&<span style={{fontSize:10,fontWeight:800,color:"#fff",background:obj.accent,borderRadius:99,padding:"2px 8px",minWidth:18,textAlign:"center"}}>{dietUnread}</span>}<span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
     <div className="section-label">Apprendre</div>
     <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("guides")}>{menuLetter("A")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Guides & ressources</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
@@ -2364,7 +2631,7 @@ function ProfileTab({ signOut, onAddMeasurement, milestones, milestoneDefs, diet
 }
 
 /* ═══ MAIN APP ═══ */
-export default function EleviaApp({ session, signOut, planData, logs: externalLogs, weekConsumed: externalWeekConsumed, weekNutrients: externalWeekNutrients, onAddLog: externalAddLog, onDeleteLog, onAddMeasurement, onCreateBilan, streak: externalStreak, onIncrementStreak, milestones, milestoneDefs, newlyUnlocked, onCheckMilestones, onDismissMilestone, dietMessages, dietUnread, onDietMarkRead, onDietMarkAllRead, quickLog }){
+export default function EleviaApp({ session, signOut, planData, logs: externalLogs, weekConsumed: externalWeekConsumed, weekNutrients: externalWeekNutrients, onAddLog: externalAddLog, onDeleteLog, onAddMeasurement, onDeleteMeasurement, onCreateBilan, streak: externalStreak, onIncrementStreak, milestones, milestoneDefs, newlyUnlocked, onCheckMilestones, onDismissMilestone, dietMessages, dietUnread, onDietMarkRead, onDietMarkAllRead, quickLog }){
   const [tab,setTab]=useState("plan");
   // Use external logs if provided (Supabase), fallback to local state
   const [localLogs,setLocalLogs]=useState(DEFAULT_INITIAL_LOGS);
@@ -2427,7 +2694,7 @@ export default function EleviaApp({ session, signOut, planData, logs: externalLo
         {tab==="plan"&&<PlanTab logs={logs} onAddLog={addLog} onDeleteLog={onDeleteLog} weekConsumed={weekConsumed} weekNutrients={weekNutrients} streak={externalStreak} onIncrementStreak={onIncrementStreak} onCheckMilestones={onCheckMilestones} bilanCount={planData?.BILANS?.length||0} dietMessages={dietMessages} onDietMarkRead={onDietMarkRead} onSwitchTab={setTab} quickLog={quickLog}/>}
         {tab==="advice"&&<AdviceTab onCreateBilan={onCreateBilan} isWarmup={appIsWarmup}/>}
         {tab==="history"&&<HistoryTab logs={logs} onDeleteLog={onDeleteLog}/>}
-        {tab==="profile"&&<ProfileTab signOut={signOut} onAddMeasurement={onAddMeasurement} milestones={milestones} milestoneDefs={milestoneDefs} dietMessages={dietMessages} dietUnread={dietUnread} onDietMarkRead={onDietMarkRead}/>}
+        {tab==="profile"&&<ProfileTab signOut={signOut} onAddMeasurement={onAddMeasurement} onDeleteMeasurement={onDeleteMeasurement} milestones={milestones} milestoneDefs={milestoneDefs} dietMessages={dietMessages} dietUnread={dietUnread} onDietMarkRead={onDietMarkRead}/>}
       </div>
       <div style={{position:"absolute",bottom:76,left:0,right:0,height:24,background:"linear-gradient(to bottom,transparent,#F5F4F1)",pointerEvents:"none",zIndex:10}}/>
       <div className="tbar" data-tour="tab-bar">{tabs.map(t=>{const Ic=tabIcons[t.id];const active=tab===t.id;return <button key={t.id} className={`tbar-item ${active?"active":""}`} onClick={()=>setTab(t.id)}><span className="tbar-ic" style={{position:"relative"}}><Ic size={20} color={active?obj.accent:"rgba(255,255,255,.45)"}/>{t.id==="profile"&&dietUnread>0&&<span style={{position:"absolute",top:-4,right:-6,width:8,height:8,borderRadius:4,background:"#FF3B30",border:"2px solid #121E2D"}}/>}</span><span className="tbar-lb">{t.label}</span></button>})}</div>

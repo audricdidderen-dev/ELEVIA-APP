@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 const STEPS = [
   {
@@ -36,19 +36,34 @@ const STEPS = [
 export default function GuidedTour({ onComplete, objectiveCode, accent }) {
   const [step, setStep] = useState(0)
   const [rect, setRect] = useState(null)
+  const skipCountRef = useRef(0)
   const isGain = objectiveCode?.startsWith('GAIN')
   const accentColor = accent || '#C6A05B'
   const s = STEPS[step]
   const isLast = step === STEPS.length - 1
 
+  // Reset skip counter when step changes via user interaction (button click)
+  // The counter only accumulates for consecutive auto-skips within a single render cycle
+
   useEffect(() => {
     const el = document.querySelector(`[data-tour="${s.target}"]`)
     if (!el) {
-      // Auto-skip to next step if target element is missing
-      if (isLast) onComplete()
-      else setStep(prev => prev + 1)
-      return
+      // Guard: stop the tour if we have auto-skipped too many consecutive steps
+      if (skipCountRef.current >= 2) {
+        skipCountRef.current = 0
+        onComplete()
+        return
+      }
+      // Wait briefly before skipping to avoid rapid infinite loop
+      skipCountRef.current += 1
+      const t = setTimeout(() => {
+        if (isLast) onComplete()
+        else setStep(prev => prev + 1)
+      }, 300)
+      return () => clearTimeout(t)
     }
+    // Target found — reset consecutive skip counter
+    skipCountRef.current = 0
 
     el.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
 

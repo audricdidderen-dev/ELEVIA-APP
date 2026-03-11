@@ -75,6 +75,25 @@ export function usePlanData(session) {
 
         if (cancelled) return
 
+        // 3. Fetch questionnaire responses (for capsule filtering)
+        let questionnaireResponses = null
+        if (profile.client_id) {
+          const { data: client } = await supabase
+            .from('clients')
+            .select('questionnaire_id')
+            .eq('id', profile.client_id)
+            .single()
+          if (client?.questionnaire_id) {
+            const { data: qr } = await supabase
+              .from('questionnaire_responses')
+              .select('responses')
+              .eq('id', client.questionnaire_id)
+              .single()
+            questionnaireResponses = qr?.responses || null
+          }
+        }
+        console.log('[usePlanData] questionnaire:', questionnaireResponses ? 'loaded' : 'none')
+
         const transformed = transformPlanData({
           profile,
           plan: extracted.client_plans,
@@ -96,6 +115,7 @@ export function usePlanData(session) {
           capsules: extracted.plan_capsules,
           usualRules: extracted.calc_usual_rules,
           itemVariants: extracted.ref_item_variants,
+          questionnaireResponses,
         })
 
         console.log('[usePlanData] Transformed:', {

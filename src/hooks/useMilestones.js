@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 
 /**
@@ -44,18 +44,26 @@ export function useMilestones(session) {
     return () => { cancelled = true }
   }, [userId])
 
+  // Local set of milestone types currently being inserted (prevents concurrent duplicates)
+  const pendingRef = useRef(new Set())
+
   // Check context and award new milestones
   const checkAndAward = useCallback(async (context) => {
     if (!userId) return
 
     const achievedTypes = milestones.map(m => m.milestone_type)
     const toAward = MILESTONE_DEFS.filter(
-      def => !achievedTypes.includes(def.type) && def.check(context)
+      def => !achievedTypes.includes(def.type)
+        && !pendingRef.current.has(def.type)
+        && def.check(context)
     )
 
     if (toAward.length === 0) return
 
-    // Award all new milestones
+    // Mark as pending to block concurrent calls
+    toAward.forEach(def => pendingRef.current.add(def.type))
+
+    // Award all new milestones (upsert to avoid duplicate insert errors)
     const rows = toAward.map(def => ({
       user_id: userId,
       milestone_type: def.type,
@@ -64,10 +72,13 @@ export function useMilestones(session) {
       notified: false,
     }))
 
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('user_milestones')
-      .insert(rows)
+      .upsert(rows, { onConflict: 'user_id,milestone_type' })
       .select()
+
+    // Clear pending flags
+    toAward.forEach(def => pendingRef.current.delete(def.type))
 
     if (data) {
       setMilestones(prev => [...prev, ...data])
@@ -75,6 +86,7 @@ export function useMilestones(session) {
       const firstNew = toAward[0]
       setNewlyUnlocked(firstNew)
     }
+    if (error) console.error('checkAndAward upsert error:', error)
   }, [userId, milestones])
 
   const dismissPopup = useCallback(() => setNewlyUnlocked(null), [])
