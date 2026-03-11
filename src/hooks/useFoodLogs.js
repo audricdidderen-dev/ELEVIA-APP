@@ -12,6 +12,7 @@ export function useFoodLogs(session, planData) {
   const [logs, setLogs] = useState([])
   const [weekConsumed, setWeekConsumed] = useState({})
   const [weekNutrients, setWeekNutrients] = useState({ kcal: 0, p: 0, l: 0, g: 0 })
+  const [daysLogged, setDaysLogged] = useState(0)
   const [loading, setLoading] = useState(true)
 
   const userId = session?.user?.id
@@ -61,6 +62,10 @@ export function useFoodLogs(session, planData) {
         wn.l += transformed.l
         wn.g += transformed.g
       }
+      // Count distinct days logged
+      const daySet = new Set()
+      for (const log of (weekRes.data || [])) { if (log.log_date) daySet.add(log.log_date) }
+      setDaysLogged(daySet.size)
       setWeekConsumed(wc)
       setWeekNutrients({ kcal: Math.round(wn.kcal), p: Math.round(wn.p), l: Math.round(wn.l), g: Math.round(wn.g) })
       setLoading(false)
@@ -195,13 +200,11 @@ export function useFoodLogs(session, planData) {
     }))
 
     // Soft-delete
-    console.log('[deleteLog] logId:', logId, 'type:', typeof logId)
-    const { error, status, statusText } = await supabase.from('food_logs')
+    const { error } = await supabase.from('food_logs')
       .update({ deleted_at: new Date().toISOString() })
       .eq('id', logId)
-    console.log('[deleteLog] result:', { error, status, statusText })
     if (error) console.error('Error deleting food log:', error)
   }, [])
 
-  return { logs, weekConsumed, weekNutrients, loading, addLog, deleteLog }
+  return { logs, weekConsumed, weekNutrients, daysLogged, loading, addLog, deleteLog }
 }

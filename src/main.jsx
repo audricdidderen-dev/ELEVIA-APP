@@ -10,12 +10,13 @@ import { useMilestones } from './hooks/useMilestones'
 import { useDietitianMessages } from './hooks/useDietitianMessages'
 import { useQuickLog } from './hooks/useQuickLog'
 import LoginScreen from './components/LoginScreen'
+import SetPasswordScreen from './components/SetPasswordScreen'
 import EleviaApp from '../elevia-prototype.jsx'
 
 function App() {
-  const { session, loading: authLoading, signIn, signOut } = useAuth()
+  const { session, loading: authLoading, needsPasswordSet, signIn, setPassword, signOut } = useAuth()
   const { data: planData, loading: dataLoading, error: dataError } = usePlanData(session)
-  const { logs, weekConsumed, weekNutrients, loading: logsLoading, addLog, deleteLog } = useFoodLogs(session, planData)
+  const { logs, weekConsumed, weekNutrients, daysLogged, loading: logsLoading, addLog, deleteLog } = useFoodLogs(session, planData)
   const { measurements, addMeasurement, deleteMeasurement } = useMeasurements(session, planData?.MEASUREMENTS)
   const { bilans, createBilan } = useWeeklyBilans(session, planData?._planId, planData?.BILANS)
   const { streak, incrementStreak } = useStreaks(session)
@@ -31,6 +32,11 @@ function App() {
   // Not logged in
   if (!session) {
     return <LoginScreen onSignIn={signIn} />
+  }
+
+  // First login via invite — set password
+  if (needsPasswordSet) {
+    return <SetPasswordScreen onSetPassword={setPassword} />
   }
 
   // Data error (check BEFORE !planData to avoid infinite splash)
@@ -73,6 +79,7 @@ function App() {
       logs={logs}
       weekConsumed={weekConsumed}
       weekNutrients={weekNutrients}
+      daysLogged={daysLogged}
       onAddLog={addLog}
       onDeleteLog={deleteLog}
       onAddMeasurement={addMeasurement}

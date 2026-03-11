@@ -242,7 +242,53 @@ const OBJECTIVE_CONFIG = {
     kpiSign: '',
   },
 
-  /* ── Prise guidée ── */
+  /* ── Confort alimentaire ── */
+  COMFORT: {
+    code: 'COMFORT',
+    accent: '#C6A05B',
+    accentSoft: 'rgba(198,160,91,.12)',
+    accentBorder: 'rgba(198,160,91,.22)',
+    accentBorderStrong: 'rgba(198,160,91,.34)',
+    accentLine: 'rgba(198,160,91,.55)',
+
+    kcalFraming: 'Cible',
+    kcalVerb: 'consommé',
+    progressDir: 'neutral',
+    ringOrangeThreshold: 1.15,
+    ringOrangeDir: 'above',
+    pbarOrangeAbove: 120,
+    pbarGreenAbove: 100,
+
+    dayHint: "Mange à ta faim et avec plaisir. L'équilibre se construit naturellement.",
+    hpEducation: "Logger ce qui est hors plan, c'est garder un suivi honnête. Le confort alimentaire est la priorité.",
+    welcomeSubtitle: 'Confort alimentaire',
+
+    scoreLabels: [
+      { min: 85, label: 'Très bien' },
+      { min: 70, label: 'Bien' },
+      { min: 55, label: 'Correct' },
+      { min: 0,  label: 'À ajuster' },
+    ],
+
+    bilanSummary: {
+      85: "Excellente semaine ! Ton alimentation est équilibrée et régulière.",
+      70: "Bonne semaine. Continue d'écouter tes sensations.",
+      55: "Semaine correcte. Quelques ajustements pour plus de confort.",
+      0:  "Semaine à recentrer. Reviens à des repas réguliers et complets.",
+    },
+
+    weekAlertTitle: 'Régularité — tes repas cette semaine',
+    weekAlertMsg: "La régularité des repas est la clé du confort alimentaire.",
+
+    eqFilterField: 'obj_pw',
+
+    kpiDir: 'neutral',
+    kpiColor: '#C6A05B',
+    kpiArrow: '→',
+    kpiSign: '',
+  },
+
+  /* ── Prise guidée (deprecated — legacy fallback) ── */
   GAIN_GUIDE: {
     code: 'GAIN_GUIDE',
     accent: '#3B7BF6',
@@ -294,7 +340,10 @@ const OBJECTIVE_CONFIG = {
  * Get the config for an objective code, defaulting to PW.
  */
 export function getObjectiveConfig(code) {
-  return OBJECTIVE_CONFIG[code] || OBJECTIVE_CONFIG.PW
+  if (OBJECTIVE_CONFIG[code]) return OBJECTIVE_CONFIG[code]
+  // Legacy mappings
+  if (code === 'LEAN') return OBJECTIVE_CONFIG.RECOMP
+  return OBJECTIVE_CONFIG.PW
 }
 
 /**

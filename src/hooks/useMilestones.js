@@ -2,31 +2,69 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 
 /**
- * Milestones / badges system.
- * - Fetches achieved milestones on mount
- * - Provides checkAndAward() to detect new milestones after actions
- * - Returns newlyUnlocked for the celebration popup
+ * Milestones / "Mon parcours" system.
+ * - 10 meaningful milestones tied to real nutritional progress
+ * - Queue-based popup (shows all newly unlocked one by one)
+ * - Concurrent-safe upserts
  */
 
 const MILESTONE_DEFS = [
-  { type: 'first_log', label: 'Premier pas', desc: 'Tu as loggé ton premier repas', icon: '🌱', check: (ctx) => ctx.totalLogs >= 1 },
-  { type: 'logs_10', label: '10 logs', desc: '10 ajouts, beau début !', icon: '📝', check: (ctx) => ctx.totalLogs >= 10 },
-  { type: 'logs_50', label: '50 logs', desc: '50 repas suivis, la routine s\'installe', icon: '📊', check: (ctx) => ctx.totalLogs >= 50 },
-  { type: 'logs_100', label: 'Centurion', desc: '100 ajouts — tu es régulier(e)', icon: '💯', check: (ctx) => ctx.totalLogs >= 100 },
-  { type: 'streak_3', label: '3 jours', desc: '3 jours de suite, bien joué !', icon: '⭐', check: (ctx) => ctx.streak >= 3 },
-  { type: 'streak_7', label: 'Semaine parfaite', desc: '7 jours consécutifs', icon: '🔥', check: (ctx) => ctx.streak >= 7 },
-  { type: 'streak_14', label: '2 semaines', desc: '14 jours de suite, impressionnant', icon: '💪', check: (ctx) => ctx.streak >= 14 },
-  { type: 'streak_30', label: 'Mois complet', desc: '30 jours consécutifs, exceptionnel !', icon: '🏆', check: (ctx) => ctx.streak >= 30 },
-  { type: 'first_bilan', label: 'Premier bilan', desc: 'Tu as évalué ta première semaine', icon: '📋', check: (ctx) => ctx.bilanCount >= 1 },
-  { type: 'bilans_4', label: '4 bilans', desc: '1 mois de bilans hebdomadaires', icon: '📈', check: (ctx) => ctx.bilanCount >= 4 },
+  // Suivi
+  { type: 'first_log', label: 'Premier pas', desc: 'Tu as suivi ton premier repas.', icon: '🌱', category: 'Suivi',
+    check: (ctx) => ctx.totalLogs >= 1 },
+  { type: 'week_complete', label: 'Semaine complète', desc: '7 jours loggés sur une semaine — la régularité paie.', icon: '📅', category: 'Suivi',
+    check: (ctx) => ctx.weekDaysLogged >= 7 },
+
+  // Régularité
+  { type: 'streak_7', label: 'Une semaine', desc: '7 jours consécutifs de suivi.', icon: '🔥', category: 'Régularité',
+    check: (ctx) => ctx.streak >= 7 },
+  { type: 'streak_30', label: 'Un mois', desc: '30 jours consécutifs — la constance est ton meilleur allié.', icon: '🏆', category: 'Régularité',
+    check: (ctx) => ctx.streak >= 30 },
+
+  // Bilan
+  { type: 'first_bilan', label: 'Premier bilan', desc: 'Tu as évalué ta première semaine.', icon: '📋', category: 'Bilan',
+    check: (ctx) => ctx.bilanCount >= 1 },
+  { type: 'bilans_4', label: 'Un mois de bilans', desc: '4 bilans hebdomadaires — tu construis une vraie vision de ta progression.', icon: '📈', category: 'Bilan',
+    check: (ctx) => ctx.bilanCount >= 4 },
+
+  // Performance
+  { type: 'score_85', label: 'Semaine remarquable', desc: 'Score de bilan ≥ 85 — tout est aligné.', icon: '⭐', category: 'Performance',
+    check: (ctx) => (ctx.lastBilanScore ?? 0) >= 85 },
+  { type: 'score_improve', label: 'Progression', desc: 'Score en hausse 3 semaines de suite.', icon: '📊', category: 'Performance',
+    check: (ctx) => {
+      const scores = (ctx.bilans || []).slice(0, 3).map(b => b.score)
+      if (scores.length < 3) return false
+      return scores[0] > scores[1] && scores[1] > scores[2]
+    }
+  },
+
+  // Corps
+  { type: 'first_measure', label: 'Première mesure', desc: 'Ta première pesée est enregistrée — le suivi corporel commence.', icon: '⚖️', category: 'Corps',
+    check: (ctx) => ctx.measureCount >= 1 },
+
+  // Nutrition
+  { type: 'protein_zone', label: 'Protéines maîtrisées', desc: 'Protéines dans la zone idéale 2 semaines de suite.', icon: '🥩', category: 'Nutrition',
+    check: (ctx) => {
+      const recent = (ctx.bilans || []).slice(0, 2)
+      if (recent.length < 2) return false
+      return recent.every(b => {
+        try {
+          const bd = JSON.parse(b.notes || '{}').bilanData
+          const ratio = bd?.breakdown?.protein?.ratio
+          return ratio >= 0.9 && ratio <= 1.1
+        } catch { return false }
+      })
+    }
+  },
 ]
 
 export function useMilestones(session) {
-  const [milestones, setMilestones] = useState([]) // achieved milestone types
-  const [newlyUnlocked, setNewlyUnlocked] = useState(null) // for popup
+  const [milestones, setMilestones] = useState([])
+  const [unlockQueue, setUnlockQueue] = useState([])
   const userId = session?.user?.id
 
-  // Fetch existing milestones on mount
+  const newlyUnlocked = unlockQueue[0] || null
+
   useEffect(() => {
     if (!userId) return
     let cancelled = false
@@ -44,10 +82,8 @@ export function useMilestones(session) {
     return () => { cancelled = true }
   }, [userId])
 
-  // Local set of milestone types currently being inserted (prevents concurrent duplicates)
   const pendingRef = useRef(new Set())
 
-  // Check context and award new milestones
   const checkAndAward = useCallback(async (context) => {
     if (!userId) return
 
@@ -60,10 +96,8 @@ export function useMilestones(session) {
 
     if (toAward.length === 0) return
 
-    // Mark as pending to block concurrent calls
     toAward.forEach(def => pendingRef.current.add(def.type))
 
-    // Award all new milestones (upsert to avoid duplicate insert errors)
     const rows = toAward.map(def => ({
       user_id: userId,
       milestone_type: def.type,
@@ -77,19 +111,18 @@ export function useMilestones(session) {
       .upsert(rows, { onConflict: 'user_id,milestone_type' })
       .select()
 
-    // Clear pending flags
     toAward.forEach(def => pendingRef.current.delete(def.type))
 
     if (data) {
       setMilestones(prev => [...prev, ...data])
-      // Show popup for the first newly unlocked
-      const firstNew = toAward[0]
-      setNewlyUnlocked(firstNew)
+      setUnlockQueue(prev => [...prev, ...toAward])
     }
     if (error) console.error('checkAndAward upsert error:', error)
   }, [userId, milestones])
 
-  const dismissPopup = useCallback(() => setNewlyUnlocked(null), [])
+  const dismissPopup = useCallback(() => {
+    setUnlockQueue(prev => prev.slice(1))
+  }, [])
 
   return {
     milestones,

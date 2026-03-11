@@ -17,7 +17,6 @@ export function usePlanData(session) {
 
       try {
         const userId = session.user.id
-        console.log('[usePlanData] Fetching for user:', userId)
 
         // 1. Get profile (includes active_plan_id)
         const { data: profile, error: profileErr } = await supabase
@@ -33,7 +32,6 @@ export function usePlanData(session) {
         if (!profile?.active_plan_id) throw new Error('Aucun plan alimentaire n\'est encore associé à ton compte. Contacte ton diététicien pour démarrer.')
 
         const planId = profile.active_plan_id
-        console.log('[usePlanData] Plan ID:', planId)
 
         // 2. Fetch all plan data + ref catalogue in parallel
         const results = await Promise.all([
@@ -68,8 +66,6 @@ export function usePlanData(session) {
             console.error(`[usePlanData] ${names[i]} error:`, e)
             throw new Error('Un problème est survenu lors du chargement de ton plan. Réessaie ou contacte ton diététicien.')
           }
-          const count = Array.isArray(d) ? d.length : (d ? 1 : 0)
-          console.log(`[usePlanData] ${names[i]}: ${count} rows`)
           extracted[names[i]] = d
         }
 
@@ -92,8 +88,6 @@ export function usePlanData(session) {
             questionnaireResponses = qr?.responses || null
           }
         }
-        console.log('[usePlanData] questionnaire:', questionnaireResponses ? 'loaded' : 'none')
-
         const transformed = transformPlanData({
           profile,
           plan: extracted.client_plans,
@@ -116,16 +110,6 @@ export function usePlanData(session) {
           usualRules: extracted.calc_usual_rules,
           itemVariants: extracted.ref_item_variants,
           questionnaireResponses,
-        })
-
-        console.log('[usePlanData] Transformed:', {
-          catalogue: transformed.CATALOGUE.length,
-          fullCatalogue: transformed.FULL_CATALOGUE.length,
-          slots: transformed.SLOTS.length,
-          targets: Object.keys(transformed.PLAN_TARGETS).length,
-          advices: transformed.ADVICES.length,
-          measurements: transformed.MEASUREMENTS.length,
-          bilans: transformed.BILANS.length,
         })
 
         setData(transformed)

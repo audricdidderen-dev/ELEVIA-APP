@@ -177,9 +177,6 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
         }
         if (pid && rulesByProfile[pid]) return resolveProfileStepper(it, Number(eq.qty_plan_grams) || 0)
         // Fallback for assaisonnement items missing usual values in DB
-        if (eq.eq_id?.startsWith('assaisonnement')) {
-          console.log('[STEPPER-DEBUG]', eq.eq_id, it.item_id, 'usual_g:', it.usual_g_per_unit, 'usual_mode:', it.usual_mode, 'pid:', it.usual_profile_id, 'qty1x:', it.qty_1x)
-        }
         // 1) Try specific item_id match
         const fb = ASSAISONNEMENT_STEPPER_FALLBACK[it.item_id]
         if (fb) {
@@ -222,7 +219,6 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
     for (const item of eq.items) {
       if (item.stepper && item.stepper.usualGPerUnit > 0) continue // already good
       const q = item.qty1x || eq.qtyPlanGrams || 10
-      console.log('[ASSAIS-POSTPROC]', eq.eqId, item.itemId, 'stepper:', item.stepper, 'qty1x:', item.qty1x)
       // Assign stepper based on item characteristics
       if (item.itemId?.includes('huile') && rulesByProfile['FAT_OIL_CAC_5ML']) {
         item.stepper = resolveProfileStepper({ item_id: item.itemId, usual_profile_id: 'FAT_OIL_CAC_5ML', qty_1x: q, app_unit_step: 1 }, eq.qtyPlanGrams || 0)
@@ -235,6 +231,13 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
       }
     }
   }
+
+  // --- SAFETY: Hide EQs with 0 items after allergen filtering (except COMPLETION_ONLY) ---
+  const CATALOGUE_FILTERED = CATALOGUE.filter(eq => {
+    if (eq.items.length > 0) return true
+    if (eq.qtyUi?.appInputMode === 'COMPLETION_ONLY') return true
+    return false
+  })
 
   // --- SLOT_QTY (cascade output: qty per eq × slot) ---
   const adjustedState = plan.auto_calculation_log?.adjusted_state || []
@@ -297,12 +300,20 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
   const objectiveGoalGroup = objectiveCode.startsWith('GAIN_') ? 'GAIN' : objectiveCode
   const hasOverrideTips = microTips && microTips.length > 0
 
+  // Goal cascade: ALL → group (GAIN) → exact (GAIN_LEAN/GAIN_COMFORT)
+  const matchesTipGoal = (tipGoal) => {
+    if (tipGoal === 'ALL') return true
+    if (tipGoal === objectiveCode) return true
+    if (tipGoal === objectiveGoalGroup) return true
+    return false
+  }
+
   const MICRO_TIPS = hasOverrideTips
     ? microTips.map(t => ({ tipId: t.tip_id, category: t.category, textFr: t.text_fr }))
     : (refMicroTips || [])
         .filter(t => {
           const goal = t.display_context || 'ALL'
-          if (goal !== 'ALL' && goal !== objectiveGoalGroup) return false
+          if (!matchesTipGoal(goal)) return false
           const diet = t.target_diet || 'ALL'
           if (diet === 'vegetarian' && !plan.diet_vegetarian) return false
           return true
@@ -450,9 +461,6 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
           } : (it.usual_mode === 'PROFILE' && it.usual_profile_id)
             ? resolveProfileStepper(it, 0)
             : (() => {
-              if (ref.eq_id?.startsWith('assaisonnement')) {
-                console.log('[FULL-CAT-STEPPER-DEBUG]', ref.eq_id, it.item_id, 'usual_g:', it.usual_g_per_unit, 'mode:', it.usual_mode, 'pid:', it.usual_profile_id, 'qty1x:', it.qty_1x)
-              }
               // 1) Specific item_id match
               const fb = ASSAISONNEMENT_STEPPER_FALLBACK[it.item_id]
               if (fb) {
@@ -589,7 +597,7 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
     CLIENT,
     WEEK_TARGETS,
     DAY_TARGETS,
-    CATALOGUE,
+    CATALOGUE: CATALOGUE_FILTERED,
     FULL_CATALOGUE,
     SLOTS,
     SLOT_ALLOWED,

@@ -1,6 +1,8 @@
 import { useState, useMemo, useCallback, useEffect, useRef, createContext, useContext } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, ReferenceLine } from "recharts";
 import { getObjectiveConfig, getScoreLabel, getBilanSummary } from "./src/lib/objectiveConfig.js";
+import { computeBilan } from "./src/lib/bilanEngine.js";
+import { computeAdviceStatuses, getEvalAdvices, getAdviceDisplayStatus } from "./src/lib/adviceStatus.js";
 import { computeIngredientDisplay, computeRecipeMacros } from "./src/lib/recipeHelpers.js";
 import OnboardingOverlay from "./src/components/OnboardingOverlay.jsx";
 import GuidedTour from "./src/components/GuidedTour.jsx";
@@ -98,13 +100,18 @@ const DEFAULT_CATALOGUE = [
     noteElevia:"Les crudités en début de repas ralentissent l'absorption du sucre.",items:[]},
   { eqId:"viandes_faibles_kcal",label:"Viandes maigres",eqMode:"F",type:"vvpo",eqGroupId:"protein_group",eqImportance:"key",icon:"🥩",
     nutrientsPerPortion:{kcal:110,p:21.5,l:2.5,g:0.1},qtyPlanGrams:150,
-    qtyUi:{appInputMode:"PORTION_TAP",showItemListDefault:false,defaultAction:"LOG_1_PORTION",showGramFallback:true,portionStep:0.25,portionMin:0.25,portionMax:4},
+    qtyUi:{appInputMode:"ITEM_FIRST_PICK",showItemListDefault:true,defaultAction:"PICK_ITEM",showGramFallback:true},
     noteElevia:"Les protéines maigres sont essentielles pour ta composition corporelle.",
-    items:[{itemId:"blanc_dinde",foodLabel:"Blanc de dinde",isRecommended:true,stepper:null,nutrientsPerUnit:null},{itemId:"blanc_poulet",foodLabel:"Blanc de poulet",isRecommended:true,stepper:null,nutrientsPerUnit:null}]},
+    items:[
+      {itemId:"blanc_dinde",foodLabel:"Blanc de dinde",isRecommended:true,stepper:{usualGPerUnit:1,usualUnitSg:"gramme",usualUnitPl:"grammes",unitStep:25,defaultUnits:150,minUnits:25,maxUnits:500},nutrientsPerUnit:{kcal:0.733,p:0.143,l:0.017,g:0.001}},
+      {itemId:"blanc_poulet",foodLabel:"Blanc de poulet",isRecommended:true,stepper:{usualGPerUnit:1,usualUnitSg:"gramme",usualUnitPl:"grammes",unitStep:25,defaultUnits:150,minUnits:25,maxUnits:500},nutrientsPerUnit:{kcal:0.733,p:0.143,l:0.017,g:0.001}},
+    ]},
   { eqId:"poissons_maigres",label:"Poissons maigres",eqMode:"F",type:"vvpo",eqGroupId:"protein_group",eqImportance:"key",icon:"🐟",
     nutrientsPerPortion:{kcal:95,p:20,l:1.5,g:0},qtyPlanGrams:150,
-    qtyUi:{appInputMode:"PORTION_TAP",showItemListDefault:false,defaultAction:"LOG_1_PORTION",showGramFallback:true,portionStep:0.25,portionMin:0.25,portionMax:4},
-    noteElevia:"Le poisson apporte des oméga-3.",items:[{itemId:"cabillaud",foodLabel:"Cabillaud",isRecommended:true,stepper:null,nutrientsPerUnit:null}]},
+    qtyUi:{appInputMode:"ITEM_FIRST_PICK",showItemListDefault:true,defaultAction:"PICK_ITEM",showGramFallback:true},
+    noteElevia:"Le poisson apporte des oméga-3.",items:[
+      {itemId:"cabillaud",foodLabel:"Cabillaud",isRecommended:true,stepper:{usualGPerUnit:1,usualUnitSg:"gramme",usualUnitPl:"grammes",unitStep:25,defaultUnits:150,minUnits:25,maxUnits:500},nutrientsPerUnit:{kcal:0.633,p:0.133,l:0.01,g:0}},
+    ]},
   { eqId:"oleagineux_nature",label:"Oléagineux",eqMode:"R",type:"fat",eqGroupId:"fat_group",eqImportance:"normal",icon:"🥜",
     nutrientsPerPortion:{kcal:90,p:3,l:7,g:2},qtyPlanGrams:15,
     qtyUi:{appInputMode:"ITEM_FIRST_PICK",showItemListDefault:true,defaultAction:"PICK_ITEM",showGramFallback:false},
@@ -800,13 +807,22 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
   function pickEq(eq,hp){
     setSelEq(eq);setShowStepper(false);setShowTable(false);setSelItem(null);
     if(eq.qtyUi.defaultAction==="LOG_COMPLETION"){doLog(eq,null,1,1,hp);return}
-    if(eq.qtyUi.appInputMode==="ITEM_FIRST_PICK"){
+    if(hp){
+      // Hors plan: toujours direct au stepper (pas de "Ajouter 1 portion")
+      if(eq.qtyUi.appInputMode==="PORTION_TAP"){setPortion(1)}
+      else{
+        setShowStepper(true);
+        const rec=eq.items.find(i=>i.isRecommended)||eq.items[0];
+        if(rec){setSelItem(rec);const g=slotTargetGrams(eq,rec);setUnits(rec.stepper?.usualGPerUnit>0?Math.round(g/rec.stepper.usualGPerUnit)||1:rec.stepper?.defaultUnits||(eq.qtyPlanGrams||100))}
+        else if(eq.items.length===0)setUnits(eq.qtyPlanGrams||100);
+      }
+      if(!everLoggedHp)setShowHpEdu(true);
+    } else if(eq.qtyUi.appInputMode==="ITEM_FIRST_PICK"){
       setShowStepper(true);
       const rec=eq.items.find(i=>i.isRecommended)||eq.items[0];
       if(rec){setSelItem(rec);const g=slotTargetGrams(eq,rec);setUnits(rec.stepper?.usualGPerUnit>0?Math.round(g/rec.stepper.usualGPerUnit)||1:1)}
     } else if(eq.qtyUi.appInputMode==="PORTION_TAP"){setPortion(1)}
     else{const rec=eq.items.find(i=>i.isRecommended)||eq.items[0];if(rec){const g=slotTargetGrams(eq,rec);setUnits(rec.stepper?.usualGPerUnit>0?Math.round(g/rec.stepper.usualGPerUnit)||1:1)}}
-    if(hp&&!everLoggedHp)setShowHpEdu(true);
   }
 
   function doLog(eq,item,qty,port,hp){
@@ -840,8 +856,8 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
     <div className="overlay" onClick={onClose}><div role="dialog" className="modal" onClick={e=>e.stopPropagation()}>
       <div className="modal-handle"/>
       <button aria-label="Retour" className="hdr-back" onClick={()=>setPeekEq(null)} style={{padding:0,marginBottom:8}}>← Retour</button>
-      <div className="modal-title" style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}><EqIcon eqId={peekEq.eqId} size={20}/> {peekEq.label}</div>
-      {isInPlan(peekEq.eqId)&&<div style={{display:"flex",gap:12,marginBottom:14}}>
+      <div className="modal-title" style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}><EqIcon eqId={peekEq.eqId} size={20}/> {peekEq.label}{!allowed.includes(peekEq.eqId)&&<span className="chip-hp" style={{marginLeft:8}}>Hors plan</span>}</div>
+      {isInPlan(peekEq.eqId)&&allowed.includes(peekEq.eqId)&&<div style={{display:"flex",gap:12,marginBottom:14}}>
         <div style={{flex:1,padding:"10px 12px",borderRadius:12,background:"rgba(15,30,46,.03)",textAlign:"center"}}>
           <div style={{fontSize:10,color:"#9CA3AF",fontWeight:600,textTransform:"uppercase",letterSpacing:".3px",marginBottom:2}}>Cible semaine</div>
           <div style={{fontSize:18,fontWeight:800,color:"#1A1A1A"}}>{PLAN_TARGETS[peekEq.eqId]}</div>
@@ -857,15 +873,19 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
       {peekEq.items.map(item=>{
         const isRecipe=peekEq.type==='recette'||item.foodLabel?.toLowerCase().includes('recette');
         const hasV=item.variants&&item.variants.length>0&&!isRecipe;
-        return <div key={item.itemId} style={{padding:"10px 12px",marginBottom:4,borderRadius:12,background:"rgba(15,30,46,.02)",border:"1px solid rgba(15,30,46,.06)"}}>
+        const isHP=!allowed.includes(peekEq.eqId);
+        return <div key={item.itemId} role={isHP?"button":undefined} tabIndex={isHP?0:undefined}
+          onClick={isHP?()=>{setPeekEq(null);pickEq(peekEq,true)}:undefined}
+          style={{padding:"10px 12px",marginBottom:4,borderRadius:12,background:"rgba(15,30,46,.02)",border:"1px solid rgba(15,30,46,.06)",cursor:isHP?"pointer":"default",transition:isHP?"background .15s":"none"}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
             <div style={{display:"flex",alignItems:"center",gap:6,minWidth:0,flex:1}}>
               {item.isRecommended&&<span style={{fontSize:8,color:obj.accent}}>★</span>}
               <span style={{fontSize:13,fontWeight:600,color:"#1A1A1A",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.foodLabel}</span>
             </div>
-            {isInPlan(peekEq.eqId)&&<span style={{fontSize:12,color:"#6B7280",whiteSpace:"nowrap",marginLeft:8}}>
+            {!isHP&&<span style={{fontSize:12,color:"#6B7280",whiteSpace:"nowrap",marginLeft:8}}>
               {fmtItemQty(item.stepper,slotTargetGrams(peekEq,item),PROFILE_RULES,peekEq.eqId)}
             </span>}
+            {isHP&&<span style={{fontSize:14,color:"#E8863A",flexShrink:0}}>+</span>}
           </div>
           {hasV&&<div style={{display:"flex",flexWrap:"wrap",gap:4,marginTop:5}}>
             {item.variants.map((v,vi)=><span key={vi} style={{fontSize:9.5,fontWeight:500,padding:"2px 7px",borderRadius:99,background:"rgba(15,30,46,.03)",border:"1px solid rgba(15,30,46,.05)",color:"#9CA3AF",lineHeight:"14px",whiteSpace:"nowrap"}}>{v.label}</span>)}
@@ -943,7 +963,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
       </div>
       {showNote&&selEq.noteElevia&&<div style={{marginBottom:12,padding:10,background:obj.accentSoft,border:`1px solid ${obj.accentBorder}`,borderRadius:14,fontSize:12,color:"#1A1A1A",lineHeight:1.6,animation:"fadeUp .2s ease-out"}}>{selEq.noteElevia}</div>}
       <div className="modal-title" style={{display:"flex",alignItems:"center",gap:8}}><EqIcon eqId={selEq.eqId} size={20}/> {selEq.label}{curHp&&<span className="chip-hp" style={{marginLeft:8}}>Hors plan</span>}</div>
-      {isInPlan(selEq.eqId)&&<div style={{display:"flex",gap:12,margin:"10px 0 6px"}}>
+      {!curHp&&isInPlan(selEq.eqId)&&<div style={{display:"flex",gap:12,margin:"10px 0 6px"}}>
         <div style={{flex:1,padding:"8px 10px",borderRadius:10,background:"rgba(15,30,46,.03)",textAlign:"center"}}>
           <div style={{fontSize:9,color:"#9CA3AF",fontWeight:600,textTransform:"uppercase",letterSpacing:".3px",marginBottom:1}}>Cible semaine</div>
           <div style={{fontSize:16,fontWeight:800,color:"#1A1A1A"}}>{PLAN_TARGETS[selEq.eqId]}</div>
@@ -966,9 +986,9 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
       </>}
 
       {mode!=="PORTION_TAP"&&<>
-        {!showStepper&&!showTable&&<>
+        {!showStepper&&!showTable&&!curHp&&<>
           <button className="btn-primary" style={{marginTop:12}} onClick={()=>{const pg=portionGrams(selEq,selItem);const u=selItem?.stepper?.usualGPerUnit>0?Math.round(pg/selItem.stepper.usualGPerUnit)||1:1;doLog(selEq,selItem,u,1,curHp)}}>Ajouter 1 portion</button>
-          <button className="btn-text" onClick={()=>setShowStepper(true)} style={{margin:"12px auto 0",display:"block",textAlign:"center"}}>Modifier la quantité →</button>
+          <button className="btn-text" onClick={()=>{setShowStepper(true);if(selEq.items.length===0)setUnits(selEq.qtyPlanGrams||100)}} style={{margin:"12px auto 0",display:"block",textAlign:"center"}}>Modifier la quantité →</button>
         </>}
         {showTable&&<>
           <div className="modal-section" style={{marginBottom:8}}>Mes équivalences</div>
@@ -980,7 +1000,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
                 <div style={{display:"flex",alignItems:"center",gap:6,minWidth:0}}>
                   <span style={{fontSize:13,fontWeight:600,color:"#1A1A1A",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.foodLabel}</span>
                 </div>
-                {isInPlan(selEq.eqId)&&<span style={{fontSize:12,color:"#6B7280",whiteSpace:"nowrap",marginLeft:8}}>
+                {!curHp&&isInPlan(selEq.eqId)&&<span style={{fontSize:12,color:"#6B7280",whiteSpace:"nowrap",marginLeft:8}}>
                   {fmtItemQty(item.stepper,slotTargetGrams(selEq,item),PROFILE_RULES,selEq.eqId)}
                 </span>}
               </div>
@@ -991,27 +1011,43 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
           )}
           <button className="btn-text" onClick={()=>setShowTable(false)} style={{marginTop:8}}>← Retour</button>
         </>}
-        {showStepper&&<>
+        {(showStepper||(curHp&&!showTable))&&(()=>{
+          const refG=selEq.qtyPlanGrams||100;const npp=selEq.nutrientsPerPortion||{kcal:0,p:0,l:0,g:0};
+          const fbCalc=(g)=>({kcal:Math.round(npp.kcal*g/refG),p:Math.round(npp.p*g/refG*10)/10,l:Math.round(npp.l*g/refG*10)/10,g:Math.round(npp.g*g/refG*10)/10});
+          return <>
           {selEq.items.length>0&&<>
             <div className="modal-section">{mode==="ITEM_FIRST_PICK"?"Choisis ton item":"Items"}</div>
             {selEq.items.map(item=>(
               <div key={item.itemId} className={`item-row ${selItem?.itemId===item.itemId?"selected":""}`}
-                onClick={()=>{setSelItem(item);const g=slotTargetGrams(selEq,item);setUnits(item.stepper?.usualGPerUnit>0?Math.round(g/item.stepper.usualGPerUnit)||1:1)}}>
+                onClick={()=>{setSelItem(item);if(item.stepper?.usualGPerUnit>0){const g=slotTargetGrams(selEq,item);setUnits(Math.round(g/item.stepper.usualGPerUnit)||1)}else{setUnits(item.stepper?.defaultUnits||refG)}}}>
                 <span className="item-label">{item.foodLabel}</span>
-                <span className="item-detail">{isInPlan(selEq.eqId)?fmtItemQty(item.stepper,slotTargetGrams(selEq,item),PROFILE_RULES,selEq.eqId):""}</span>
+                <span className="item-detail">{!curHp&&isInPlan(selEq.eqId)?fmtItemQty(item.stepper,slotTargetGrams(selEq,item),PROFILE_RULES,selEq.eqId):""}</span>
               </div>
             ))}
           </>}
+          {/* Item avec stepper normal (pain=tranches, fruits=unités, etc.) */}
           {selItem?.stepper&&<>
-            <div className="stepper">
+            <div key={selItem.itemId+"_stepper"} className="stepper" ref={el=>{if(el)setTimeout(()=>el.scrollIntoView({behavior:"smooth",block:"center"}),50)}}>
               <button aria-label="Réduire la quantité" className="stepper-btn" disabled={units<=(selItem.stepper.minUnits||0)} onClick={()=>setUnits(u=>Math.max(selItem.stepper.minUnits||0,u-(selItem.stepper.unitStep||1)))}>−</button>
               <div><div className="stepper-val">{units}</div><div className="stepper-unit">{units<=1?selItem.stepper.usualUnitSg:selItem.stepper.usualUnitPl}</div></div>
               <button aria-label="Augmenter la quantité" className="stepper-btn" disabled={units>=(selItem.stepper.maxUnits||20)} onClick={()=>setUnits(u=>Math.min(selItem.stepper.maxUnits||20,u+(selItem.stepper.unitStep||1)))}>+</button>
             </div>
             {liveCalc&&<div className="live-calc"><div className="live-main">≈ {liveCalc.grams}g · {liveCalc.kcal} kcal</div><div className="live-sub">P{liveCalc.p} · L{liveCalc.l} · G{liveCalc.g}</div></div>}
           </>}
-          <button className="btn-primary" onClick={()=>doLog(selEq,selItem,units,liveCalc?.portion||1,curHp)}>Valider</button>
-        </>}
+          {/* Fallback grammes: item sans stepper OU EQ sans items */}
+          {(selItem&&!selItem.stepper||selEq.items.length===0)&&<>
+            <div key={(selItem?.itemId||"eq")+"_fb_stepper"} className="stepper" ref={el=>{if(el)setTimeout(()=>el.scrollIntoView({behavior:"smooth",block:"center"}),50)}}>
+              <button aria-label="Réduire" className="stepper-btn" disabled={units<=25} onClick={()=>setUnits(u=>Math.max(25,u-25))}>−</button>
+              <div><div className="stepper-val">{units}</div><div className="stepper-unit">grammes</div></div>
+              <button aria-label="Augmenter" className="stepper-btn" disabled={units>=500} onClick={()=>setUnits(u=>Math.min(500,u+25))}>+</button>
+            </div>
+            {(()=>{const c=fbCalc(units);return <div className="live-calc"><div className="live-main">{c.kcal} kcal</div><div className="live-sub">P{c.p} · L{c.l} · G{c.g}</div></div>})()}
+          </>}
+          <button className="btn-primary" onClick={()=>{
+            if(selItem?.stepper)doLog(selEq,selItem,units,liveCalc?.portion||1,curHp);
+            else{const port=units/(refG||100);doLog(selEq,selItem,units,Math.round(port*100)/100,curHp)}
+          }}>Valider{!selItem?.stepper&&selEq.items.length===0?` ${units}g`:""}</button>
+        </>})()}
       </>}
     </div></div>);
   }
@@ -1120,7 +1156,7 @@ function MilestonePopup({milestone,accent,onDismiss}){
   return <div style={{position:"fixed",inset:0,zIndex:9998,background:"rgba(10,22,32,.85)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'DM Sans',sans-serif",animation:"fadeIn .3s ease-out"}} onClick={onDismiss}>
     <div style={{background:"#fff",borderRadius:24,padding:"32px 28px",maxWidth:300,textAlign:"center",animation:"milestoneIn .4s cubic-bezier(.34,1.56,.64,1)"}} onClick={e=>e.stopPropagation()}>
       <div style={{fontSize:48,marginBottom:12}}>{milestone.icon}</div>
-      <div style={{fontSize:10,fontWeight:700,color:accent,textTransform:"uppercase",letterSpacing:1,marginBottom:6}}>Badge débloqué !</div>
+      <div style={{fontSize:10,fontWeight:700,color:accent,textTransform:"uppercase",letterSpacing:1,marginBottom:6}}>Étape franchie !</div>
       <div style={{fontSize:18,fontWeight:800,color:"#1A1A1A",marginBottom:8}}>{milestone.label}</div>
       <div style={{fontSize:13,color:"#6B7280",lineHeight:1.5,marginBottom:20}}>{milestone.desc}</div>
       <button onClick={onDismiss} style={{padding:"10px 32px",borderRadius:14,background:accent,color:"#fff",fontSize:14,fontWeight:700,border:"none",cursor:"pointer",fontFamily:"inherit"}}>Super !</button>
@@ -1128,17 +1164,26 @@ function MilestonePopup({milestone,accent,onDismiss}){
   </div>
 }
 
-/* ═══ BADGES GRID (for ProfileTab) ═══ */
-function BadgesGrid({milestones,milestoneDefs,accent,accentSoft,accentBorder}){
+/* ═══ PARCOURS LIST (for ProfileTab) ═══ */
+function ParcoursList({milestones,milestoneDefs,accent,accentSoft,accentBorder}){
   const achieved=milestones?.map(m=>m.milestone_type)||[];
-  return <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginTop:12}}>
-    {(milestoneDefs||[]).map(def=>{
+  const achievedMap={};(milestones||[]).forEach(m=>{achievedMap[m.milestone_type]=m});
+  const doneCount=achieved.length;
+  return <div style={{marginTop:8}}>
+    {(milestoneDefs||[]).map((def,i)=>{
       const done=achieved.includes(def.type);
-      return <div key={def.type} style={{textAlign:"center",padding:"10px 4px",borderRadius:14,background:done?accentSoft:"rgba(15,30,46,.02)",border:`1px solid ${done?accentBorder:"rgba(15,30,46,.06)"}`,opacity:done?1:.4}}>
-        <div style={{fontSize:24,filter:done?"none":"grayscale(1)"}}>{def.icon}</div>
-        <div style={{fontSize:9,fontWeight:700,color:done?"#1A1A1A":"#999",marginTop:4,lineHeight:1.2}}>{def.label}</div>
+      const data=achievedMap[def.type];
+      const dateStr=data?.achieved_at?new Date(data.achieved_at).toLocaleDateString("fr-FR",{day:"numeric",month:"short"}):null;
+      return <div key={def.type} style={{display:"flex",alignItems:"center",gap:12,padding:"11px 0",borderBottom:i<(milestoneDefs||[]).length-1?"1px solid rgba(15,30,46,.06)":"none",opacity:done?1:.4}}>
+        <div style={{width:38,height:38,borderRadius:10,background:done?accentSoft:"rgba(15,30,46,.03)",border:`1px solid ${done?accentBorder:"rgba(15,30,46,.06)"}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:19,flexShrink:0,filter:done?"none":"grayscale(1)"}}>{def.icon}</div>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontSize:13,fontWeight:700,color:done?"#1A1A1A":"#999"}}>{def.label}</div>
+          <div style={{fontSize:11,color:done?"#6B7280":"#bbb",lineHeight:1.4}}>{def.desc}</div>
+        </div>
+        {done&&dateStr&&<div style={{fontSize:10,fontWeight:600,color:accent,background:accentSoft,padding:"3px 8px",borderRadius:99,flexShrink:0,whiteSpace:"nowrap"}}>{dateStr}</div>}
       </div>
     })}
+    <div style={{fontSize:11,color:"#6B7280",textAlign:"center",marginTop:10}}>{doneCount}/{(milestoneDefs||[]).length} étapes franchies</div>
   </div>
 }
 
@@ -1386,8 +1431,7 @@ function PlanTab({logs,onAddLog,onDeleteLog,weekConsumed,weekNutrients,streak,on
     setTimeout(()=>setSnack(null),2800);
     // Check milestones after log
     if(onCheckMilestones){
-      const totalLogs=logs.length+1;
-      onCheckMilestones({totalLogs,streak:streak?.current||0,bilanCount:bilanCount||0});
+      onCheckMilestones({totalLogs:logs.length+1,streak:streak?.current||0});
     }
   }
 
@@ -1433,7 +1477,7 @@ function PlanTab({logs,onAddLog,onDeleteLog,weekConsumed,weekNutrients,streak,on
     </div>}
     <DietMessageBanner messages={dietMessages} accent={obj.accent} accentSoft={obj.accentSoft} accentBorder={obj.accentBorder} onMarkRead={onDietMarkRead} onOpenInbox={()=>onSwitchTab?.("profile")}/>
     {!isWarmup&&streak&&<StreakBanner current={streak.current} longest={streak.longest} lastDate={streak.lastDate} firstName={d?.CLIENT?.firstName} accent={obj.accent} accentSoft={obj.accentSoft} accentBorder={obj.accentBorder}/>}
-    {!isWarmup&&<WeeklyChallenge objectiveCode={d?.CLIENT?.objectiveCode} accent={obj.accent} accentSoft={obj.accentSoft} accentBorder={obj.accentBorder}/>}
+    {/* WeeklyChallenge removed — conseils cycle handles this better */}
     {MICRO_TIPS.length>0&&(()=>{const dayOfYear=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/(1000*60*60*24));const tip=MICRO_TIPS[dayOfYear%MICRO_TIPS.length];return <div style={{display:"flex",alignItems:"flex-start",gap:8,padding:"8px 12px",borderRadius:12,background:"rgba(15,30,46,.02)",marginBottom:10}}>
       <span style={{flexShrink:0,marginTop:1}}><IcBulb size={14} color={obj.accent}/></span>
       <div style={{fontSize:11,color:"#6B7280",lineHeight:1.5,fontWeight:500}}>{tip.textFr}</div>
@@ -1550,7 +1594,8 @@ function WeekView({logs,weekConsumed,weekNutrients}){
     if(obj.progressDir==="neutral"&&kcalPct>1.1)return {title:"Attention aux calories",msg:"Tu dépasses ta cible hebdo. L'objectif est de rester stable."};
     if(obj.progressDir==="neutral"&&kcalPct<expectedPct/100*0.7)return {title:"Calories en retard",msg:"Tu es en dessous de ta cible — la régularité est la clé."};
     if(obj.progressDir==="up"&&kcalPct<expectedPct/100*0.7)return {title:"Calories en retard",msg:"Tu es en dessous de ta cible — n'oublie pas tes collations."};
-    return {title:obj.weekAlertTitle,msg:obj.weekAlertMsg}
+    // Everything on track — positive message
+    return {title:"Bonne dynamique",msg:"Tes équivalences et tes calories sont dans la cible. Continue comme ça !"}
   },[planEqs,WEEK_CONSUMED,PLAN_TARGETS,wk,WEEK_TARGETS,obj]);
 
   return <>
@@ -1609,10 +1654,11 @@ function AdviceDetail({adv,onClose,status}){const obj=useObjective();
 }
 
 /* ═══ TAB: CONSEILS ═══ */
-function AdviceTab({onCreateBilan,isWarmup}){
+function AdviceTab({onCreateBilan,isWarmup,weekConsumed,weekNutrients,daysLogged,onCheckMilestones}){
   const d=useData();
   const obj=useObjective();
   const ADVICES=d?.ADVICES||DEFAULT_ADVICES;
+  const BILANS=d?.BILANS||[];
   const MICRO_TIPS=d?.MICRO_TIPS||DEFAULT_MICRO_TIPS;
 
   const [view,setView]=useState("focus");
@@ -1621,11 +1667,26 @@ function AdviceTab({onCreateBilan,isWarmup}){
   const [evalWellbeing,setEvalWellbeing]=useState({energy:3,hunger:3,sleep:3,stress:3});
   const allPri=ADVICES.filter(a=>a.axis==="priority").sort((a,b)=>b.priorityScore-a.priorityScore);
   const allSec=ADVICES.filter(a=>a.axis==="secondary").sort((a,b)=>b.priorityScore-a.priorityScore);
-  const pri=allPri.slice(0,4);
-  const sec=allSec.slice(0,3);
-  const getStatus=(a)=>readSet.has(a.id)?"Solide":a.axis==="priority"?"En progrès":"Nouveau";
-  const byStatus={"En progrès":[],"Nouveau":[],"Solide":[]};
+
+  // Advice mastery status from bilan history
+  const advStatuses=useMemo(()=>computeAdviceStatuses(BILANS),[BILANS]);
+
+  // Focus: skip mastered/recheck → next in line slides in
+  const isFocusable=(a)=>{const s=advStatuses[a.id];return !s||s.status==='active'};
+  const pri=allPri.filter(isFocusable).slice(0,4);
+  const sec=allSec.filter(isFocusable).slice(0,3);
+
+  const getStatus=(a)=>{
+    const ds=getAdviceDisplayStatus(a.id,advStatuses);
+    if(ds==='Nouveau'&&readSet.has(a.id)) return 'Lu';
+    return ds;
+  };
+  const byStatus={"Acquis":[],"En progrès":[],"Nouveau":[],"Lu":[]};
   ADVICES.forEach(a=>{const s=getStatus(a);if(byStatus[s])byStatus[s].push(a)});
+
+  // Eval: active = current focus, recheck = any mastered advice due for re-check
+  const evalRecheck=useMemo(()=>ADVICES.filter(a=>advStatuses[a.id]?.status==='recheck'),[ADVICES,advStatuses]);
+  const evalSplit=useMemo(()=>({active:[...pri,...sec],recheck:evalRecheck}),[pri,sec,evalRecheck]);
 
   function AdvItem({a}){
     const isRead=readSet.has(a.id);
@@ -1664,10 +1725,22 @@ function AdviceTab({onCreateBilan,isWarmup}){
     {selAdv&&<AdviceDetail adv={selAdv} onClose={()=>setSelAdv(null)} status={getStatus(selAdv)}/>}
     {evalOpen&&<div className="overlay" onClick={()=>setEvalOpen(false)}><div role="dialog" className="modal" onClick={e=>e.stopPropagation()}>
       <div className="modal-handle"/><div className="modal-title">Évaluation {(()=>{const ps=d?._planStartDate?new Date(d._planStartDate):null;if(!ps)return"";const dow=ps.getDay();let start=ps;if(dow>=3||dow===0){start=new Date(ps);start.setDate(start.getDate()+(dow===0?1:8-dow));start.setHours(0,0,0,0)}const w=Math.floor(Math.max(0,(new Date()-start)/86400000)/7)+1;return `semaine ${w}`})()}</div><div className="modal-sub">Comment s'est passée ta semaine ?</div>
-      {[...pri,...sec].map(a=><div key={a.id} style={{marginBottom:12}}>
+      {/* Active advices — full evaluation */}
+      {evalSplit.active.map(a=><div key={a.id} style={{marginBottom:12}}>
         <div style={{fontSize:13,fontWeight:700,color:"#1A1A1A",marginBottom:6}}>{a.title}</div>
         <div style={{display:"flex",gap:6}}>{[{v:2,l:"Solide",c:"#34C759"},{v:1,l:"En progrès",c:obj.accent},{v:0,l:"Pas encore",c:"#E5342D"}].map(o=>{const sel=evalScores[a.id]===o.v;return <button key={o.v} onClick={()=>setEvalScores(s=>({...s,[a.id]:o.v}))} style={{flex:1,padding:"8px 4px",borderRadius:10,fontSize:11,fontWeight:700,background:sel?`${o.c}10`:"#F5F4F1",border:`1px solid ${sel?`${o.c}40`:"rgba(15,30,46,.10)"}`,color:sel?o.c:"#6B7280",cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:5}}><span style={{width:6,height:6,borderRadius:3,background:o.c,flexShrink:0}}/>{o.l}</button>})}</div>
       </div>)}
+
+      {/* Re-check advices — mastered, periodic verification */}
+      {evalSplit.recheck.length>0&&<>
+        <div style={{marginTop:8,marginBottom:10,paddingTop:10,borderTop:"1px solid rgba(15,30,46,.08)"}}>
+          <div style={{fontSize:11,fontWeight:700,color:obj.accent,textTransform:"uppercase",letterSpacing:".04em",marginBottom:8}}>Re-check — toujours acquis ?</div>
+        </div>
+        {evalSplit.recheck.map(a=><div key={a.id} style={{marginBottom:12}}>
+          <div style={{fontSize:13,fontWeight:700,color:"#1A1A1A",marginBottom:6,display:"flex",alignItems:"center",gap:8}}>{a.title}<span style={{fontSize:9,fontWeight:700,color:obj.accent,background:obj.accentSoft,padding:"2px 8px",borderRadius:99,border:`1px solid ${obj.accentBorder}`}}>Acquis</span></div>
+          <div style={{display:"flex",gap:6}}>{[{v:2,l:"Toujours solide",c:"#34C759"},{v:0,l:"À retravailler",c:"#E5342D"}].map(o=>{const sel=evalScores[a.id]===o.v;return <button key={o.v} onClick={()=>setEvalScores(s=>({...s,[a.id]:o.v}))} style={{flex:1,padding:"8px 4px",borderRadius:10,fontSize:11,fontWeight:700,background:sel?`${o.c}10`:"#F5F4F1",border:`1px solid ${sel?`${o.c}40`:"rgba(15,30,46,.10)"}`,color:sel?o.c:"#6B7280",cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:5}}><span style={{width:6,height:6,borderRadius:3,background:o.c,flexShrink:0}}/>{o.l}</button>})}</div>
+        </div>)}
+      </>}
       {/* Wellbeing sliders */}
       <div style={{marginTop:16,paddingTop:14,borderTop:"1px solid rgba(15,30,46,.08)"}}>
         <div style={{fontSize:13,fontWeight:800,color:"#1A1A1A",marginBottom:10}}>Comment tu te sens ?</div>
@@ -1686,26 +1759,48 @@ function AdviceTab({onCreateBilan,isWarmup}){
         </div>)}
       </div>
       <button className="btn-primary" style={{marginTop:12}} onClick={()=>{
-        const scores=Object.values(evalScores);
-        if(scores.length>0&&onCreateBilan){
-          const avg=scores.reduce((a,b)=>a+b,0)/scores.length;
-          const adherenceScore=Math.round(avg/2*100);
+        if(onCreateBilan){
           const now=new Date();const day=now.getDay();const diffToMon=day===0?-6:1-day;
           const mon=new Date(now);mon.setDate(now.getDate()+diffToMon-7);mon.setHours(0,0,0,0);
           const sun=new Date(mon);sun.setDate(mon.getDate()+6);
+          // Compute data-driven score via bilanEngine
+          const BILANS=d?.BILANS||[];
+          const bilanResult=computeBilan({
+            weekNutrients:weekNutrients||{kcal:0,p:0,l:0,g:0},
+            weekConsumed:weekConsumed||{},
+            planTargets:d?.PLAN_TARGETS||{},
+            weekTargets:d?.WEEK_TARGETS||{kcal:0,p:0,l:0,g:0},
+            daysLogged:daysLogged||0,
+            objective:d?.CLIENT?.objectiveCode||"PW",
+            wellbeing:evalWellbeing,
+            prevBilan:BILANS[0]||null,
+            firstName:d?.CLIENT?.firstName||"",
+            measurements:d?.MEASUREMENTS||[],
+            planCreatedAt:d?._planCreatedAt||null,
+            clientHeight:d?.CLIENT?.heightCm||null,
+          });
           onCreateBilan({
             weekStart:mon.toISOString().slice(0,10),
             weekEnd:sun.toISOString().slice(0,10),
-            adherenceScore,
+            adherenceScore:bilanResult.score,
             energyLevel:evalWellbeing.energy,
             hungerLevel:evalWellbeing.hunger,
             sleepQuality:evalWellbeing.sleep,
             stressLevel:evalWellbeing.stress,
-            notes:JSON.stringify(evalScores),
+            notes:JSON.stringify({evalScores,bilanData:bilanResult}),
           });
+          // Check milestones after bilan creation
+          if(onCheckMilestones){
+            const BILANS_ARR=d?.BILANS||[];
+            onCheckMilestones({
+              bilanCount:BILANS_ARR.length+1,
+              lastBilanScore:bilanResult.score,
+              bilans:[{score:bilanResult.score,notes:JSON.stringify({bilanData:bilanResult})},...BILANS_ARR],
+            });
+          }
         }
         setEvalOpen(false);setEvalScores({});setEvalWellbeing({energy:3,hunger:3,sleep:3,stress:3});
-      }}>Enregistrer</button>
+      }}>Enregistrer mon bilan</button>
     </div></div>}
   </div>
 }
@@ -1716,43 +1811,118 @@ function BilanDetail({bilan,allBilans,onBack}){
   const obj=useObjective();
   const label=getScoreLabel(obj,bilan.score);
   const col=bilan.score>=85?"#34C759":bilan.score>=70?obj.accent:bilan.score>=55?"#6B7280":"#E8863A";
-  // F11: Find previous bilan for delta
   const bilanIdx=(allBilans||[]).findIndex(b=>b.week===bilan.week);
   const prevBilan=bilanIdx>=0&&bilanIdx<(allBilans||[]).length-1?(allBilans||[])[bilanIdx+1]:null;
   const delta=prevBilan?bilan.score-prevBilan.score:null;
-  // F9: Score trend messaging
-  const recentScores=(allBilans||[]).slice(0,3).map(b=>b.score);
-  const isImproving=recentScores.length>=2&&recentScores[0]>recentScores[1];
-  const isDeclining=recentScores.length>=2&&recentScores[0]<recentScores[1];
-  const firstName=d?.CLIENT?.firstName||"";
-  const trendMsg=isImproving?`Belle progression${firstName?` ${firstName}`:""} ! Continue comme ça.`
-    :isDeclining?"Attention, ton score baisse — relis tes conseils prioritaires."
-    :"";
+
+  // Try to parse bilanData and evalScores from notes
+  let bd=null;let evalScores=null;
+  try{const parsed=JSON.parse(bilan.notes||"{}");bd=parsed.bilanData||null;evalScores=parsed.evalScores||null}catch{}
+
+  const BarScore=({label:lbl,score:sc,color:c})=><div style={{marginBottom:10}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+      <span style={{fontSize:12,fontWeight:600,color:"#1A1A1A"}}>{lbl}</span>
+      <span style={{fontSize:12,fontWeight:700,color:c||"#6B7280"}}>{sc}/100</span>
+    </div>
+    <div style={{height:6,borderRadius:3,background:"rgba(15,30,46,.06)",overflow:"hidden"}}>
+      <div style={{height:"100%",borderRadius:3,background:c||obj.accent,width:`${Math.min(100,sc)}%`,transition:"width .5s ease"}}/>
+    </div>
+  </div>;
+
+  const scoreColor=(s)=>s>=80?"#34C759":s>=60?obj.accent:s>=40?"#E8863A":"#E5342D";
+
   return <div className="page">
     <button aria-label="Retour" className="hdr-back" onClick={onBack} style={{marginBottom:12,padding:0}}>← Retour</button>
     <div className="page-title">Rapport {bilan.week}</div>
     <div className="page-meta">{bilan.dates}</div>
+
+    {/* Score circle */}
     <div style={{display:"flex",justifyContent:"center",margin:"20px 0",position:"relative"}}>
-      <div style={{width:80,height:80,borderRadius:99,background:`${col}18`,border:`3px solid ${col}`,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:28,color:"var(--navy)"}}>{bilan.score}</div>
-      {delta!=null&&delta!==0&&<div style={{position:"absolute",right:"calc(50% - 60px)",top:0,fontSize:12,fontWeight:700,color:delta>0?"#34C759":"#E8863A"}}>{delta>0?`+${delta}`:`${delta}`} vs {prevBilan.week}</div>}
+      <div style={{width:84,height:84,borderRadius:99,background:`${col}15`,border:`3px solid ${col}`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
+        <div style={{fontWeight:800,fontSize:28,color:"var(--navy)",lineHeight:1}}>{bilan.score}</div>
+        <div style={{fontSize:9,fontWeight:600,color:col,marginTop:2}}>/100</div>
+      </div>
+      {delta!=null&&delta!==0&&<div style={{position:"absolute",right:"calc(50% - 64px)",top:0,fontSize:11,fontWeight:700,color:delta>0?"#34C759":"#E8863A",background:delta>0?"rgba(52,199,89,.08)":"rgba(232,134,58,.08)",padding:"2px 8px",borderRadius:99}}>{delta>0?"+":""}{delta} pts</div>}
     </div>
-    <div style={{textAlign:"center",fontSize:16,fontWeight:700,color:col,marginBottom:4}}>{label}</div>
-    <div style={{textAlign:"center",fontSize:13,color:"#6B7280",marginBottom:4}}>Score d'adhérence au plan</div>
-    {trendMsg&&<div style={{textAlign:"center",fontSize:12,fontWeight:600,color:isImproving?"#34C759":"#E8863A",marginBottom:16}}>{trendMsg}</div>}
-    <div className="card">
-      <div className="card-title">Résumé de la semaine</div>
+    <div style={{textAlign:"center",fontSize:15,fontWeight:700,color:col,marginBottom:2}}>{label}</div>
+    <div style={{textAlign:"center",fontSize:11,color:"#9CA3AF",marginBottom:16}}>Score basé sur tes logs réels</div>
+
+    {/* Disclaimers */}
+    {bd&&bd.disclaimers&&bd.disclaimers.length>0&&<div style={{margin:"0 0 12px",padding:"10px 14px",borderRadius:12,background:"rgba(198,160,91,.08)",border:"1px solid rgba(198,160,91,.15)"}}>
+      {bd.disclaimers.map((disc,i)=><div key={i} style={{fontSize:12,color:"#6B7280",lineHeight:1.6,fontStyle:"italic"}}>{disc}</div>)}
+    </div>}
+
+    {/* Breakdown bars (if data-driven) */}
+    {bd&&bd.breakdown&&<div className="card" style={{marginBottom:12}}>
+      <div className="card-title" style={{marginBottom:12}}>Détail du score</div>
+      <BarScore label="Calories" score={bd.breakdown.kcal.score} color={scoreColor(bd.breakdown.kcal.score)}/>
+      <BarScore label="Protéines" score={bd.breakdown.protein.score} color={scoreColor(bd.breakdown.protein.score)}/>
+      <BarScore label="Équivalences" score={bd.breakdown.eq.score} color={scoreColor(bd.breakdown.eq.score)}/>
+      <BarScore label="Régularité" score={bd.breakdown.regularity.score} color={scoreColor(bd.breakdown.regularity.score)}/>
+    </div>}
+
+    {/* Advice evaluation results */}
+    {evalScores&&Object.keys(evalScores).length>0&&(()=>{
+      const ADVICES=d?.ADVICES||[];
+      const scoreLabels={2:{l:"Solide",c:"#34C759"},1:{l:"En progrès",c:obj.accent},0:{l:"Pas encore",c:"#E5342D"}};
+      const entries=Object.entries(evalScores).map(([id,v])=>{
+        const adv=ADVICES.find(a=>a.id===id);
+        return {id,title:adv?.title||id,score:v,...(scoreLabels[v]||scoreLabels[1])};
+      }).sort((a,b)=>b.score-a.score);
+      const solideCount=entries.filter(e=>e.score===2).length;
+      return <div className="card" style={{marginBottom:12}}>
+        <div className="card-title">Évaluation conseils</div>
+        <div style={{fontSize:11,color:"#9CA3AF",marginTop:2,marginBottom:10}}>{solideCount}/{entries.length} conseils tenus</div>
+        {entries.map(e=><div key={e.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"6px 0",borderBottom:"1px solid rgba(15,30,46,.05)"}}>
+          <span style={{fontSize:12,color:"#1A1A1A",fontWeight:500,flex:1,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.title}</span>
+          <span style={{fontSize:10,fontWeight:700,color:e.c,background:`${e.c}10`,padding:"2px 10px",borderRadius:99,flexShrink:0,marginLeft:8}}>{e.l}</span>
+        </div>)}
+      </div>
+    })()}
+
+    {/* Feedback */}
+    <div className="card" style={{marginBottom:12}}>
+      <div className="card-title">Résumé</div>
       <div style={{fontSize:13,color:"#1A1A1A",lineHeight:1.7,marginTop:8}}>
-        {getBilanSummary(obj,bilan.score)}
+        {bd?.feedback||getBilanSummary(obj,bilan.score)}
       </div>
     </div>
-    <div className="card" style={{marginTop:12}}>
-      <div className="card-title">Conseils pour la suite</div>
-      <div style={{fontSize:13,color:"#1A1A1A",lineHeight:1.7,marginTop:8,whiteSpace:"pre-line"}}>
-        {bilan.score>=70
-          ?`• Maintiens tes bonnes habitudes sur les repas principaux\n• Vérifie tes collations — c'est souvent là qu'on peut optimiser\n• Pense à varier tes sources de protéines`
-          :`• Essaie de préparer tes repas à l'avance cette semaine\n• Concentre-toi sur les 2-3 équivalences les plus en retard\n• N'hésite pas à utiliser les alternatives dans "Autres"`}
+
+    {/* Insights */}
+    {bd&&bd.insights&&bd.insights.length>0&&<div className="card" style={{marginBottom:12}}>
+      <div className="card-title">Observations</div>
+      <div style={{marginTop:8}}>
+        {bd.insights.map((ins,i)=><div key={i} style={{display:"flex",gap:8,alignItems:"flex-start",marginBottom:8,padding:"8px 10px",borderRadius:10,background:ins.type==="strength"?"rgba(52,199,89,.06)":ins.type==="weak"?"rgba(232,134,58,.06)":"rgba(15,30,46,.03)"}}>
+          <span style={{fontSize:14,flexShrink:0,marginTop:1}}>{ins.icon}</span>
+          <div style={{fontSize:12,color:ins.type==="strength"?"#1A6B35":ins.type==="weak"?"#9A4C1A":"#374151",lineHeight:1.6,fontWeight:500}}>{ins.text}</div>
+        </div>)}
       </div>
-    </div>
+    </div>}
+
+    {/* Tips */}
+    {bd&&bd.tips&&bd.tips.length>0&&<div className="card" style={{marginBottom:12}}>
+      <div className="card-title">Actions pour cette semaine</div>
+      <div style={{marginTop:8}}>
+        {bd.tips.map((tip,i)=><div key={i} style={{display:"flex",gap:8,alignItems:"flex-start",marginBottom:6}}>
+          <span style={{fontSize:11,fontWeight:800,color:obj.accent,marginTop:2,flexShrink:0}}>{i+1}.</span>
+          <div style={{fontSize:13,color:"#1A1A1A",lineHeight:1.6}}>{tip}</div>
+        </div>)}
+      </div>
+    </div>}
+
+    {/* Wellbeing (if available) */}
+    {bd&&bd.wellbeing&&<div className="card">
+      <div className="card-title">Bien-être</div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginTop:8}}>
+        {[{k:"energy",l:"Énergie",e:["😴","😑","😊","💪","⚡"]},{k:"hunger",l:"Faim",e:["😫","😕","😌","😊","🎯"]},{k:"sleep",l:"Sommeil",e:["😵","😴","😐","😊","😴"]},{k:"stress",l:"Stress",e:["🔴","🟠","🟡","🟢","💚"]}].map(s=>{
+          const v=bd.wellbeing[s.k]||3;
+          return <div key={s.k} style={{display:"flex",alignItems:"center",gap:6,padding:"6px 10px",borderRadius:8,background:"rgba(15,30,46,.03)"}}>
+            <span style={{fontSize:16}}>{s.e[v-1]}</span>
+            <div><div style={{fontSize:11,fontWeight:600,color:"#6B7280"}}>{s.l}</div><div style={{fontSize:11,color:"#9CA3AF"}}>{v}/5</div></div>
+          </div>
+        })}
+      </div>
+    </div>}
   </div>
 }
 
@@ -1813,7 +1983,7 @@ function HistoryTab({logs,onDeleteLog}){
 }
 
 /* ═══ TAB: PROFIL ═══ */
-function ProfileTab({ signOut, onAddMeasurement, onDeleteMeasurement, milestones, milestoneDefs, dietMessages, dietUnread, onDietMarkRead }){
+function ProfileTab({ signOut, onAddMeasurement, onDeleteMeasurement, milestones, milestoneDefs, dietMessages, dietUnread, onDietMarkRead, onCheckMilestones }){
   const d=useData();
   const obj=useObjective();
   const CLIENT=d?.CLIENT||DEFAULT_CLIENT;
@@ -1894,6 +2064,7 @@ function ProfileTab({ signOut, onAddMeasurement, onDeleteMeasurement, milestones
         <button className="btn-primary" disabled={!mForm.weight||mSaving} style={{marginTop:16,opacity:(!mForm.weight||mSaving)?0.5:1}} onClick={async()=>{
           setMSaving(true);
           if(onAddMeasurement)await onAddMeasurement({weightKg:Number(mForm.weight),waistCm:mForm.waist?Number(mForm.waist):null,bodyFatPct:mForm.bf?Number(mForm.bf):null,hipCm:mForm.hip?Number(mForm.hip):null,muscleMassKg:mForm.muscle?Number(mForm.muscle):null});
+          if(onCheckMilestones)onCheckMilestones({measureCount:1});
           setMSaving(false);setShowMeasureForm(false);setMForm({weight:"",waist:"",bf:"",hip:"",muscle:""});
         }}>{mSaving?"Enregistrement…":"Enregistrer"}</button>
       </div></div>}
@@ -2051,6 +2222,7 @@ function ProfileTab({ signOut, onAddMeasurement, onDeleteMeasurement, milestones
         <button className="btn-primary" disabled={!mForm.weight||mSaving} style={{marginTop:16,opacity:(!mForm.weight||mSaving)?0.5:1}} onClick={async()=>{
           setMSaving(true);
           if(onAddMeasurement)await onAddMeasurement({weightKg:Number(mForm.weight),waistCm:mForm.waist?Number(mForm.waist):null,bodyFatPct:mForm.bf?Number(mForm.bf):null,hipCm:mForm.hip?Number(mForm.hip):null,muscleMassKg:mForm.muscle?Number(mForm.muscle):null});
+          if(onCheckMilestones)onCheckMilestones({measureCount:(m?.length||0)+1});
           setMSaving(false);setShowMeasureForm(false);setMForm({weight:"",waist:"",bf:"",hip:"",muscle:""});
         }}>{mSaving?"Enregistrement…":"Enregistrer"}</button>
       </div></div>}
@@ -2410,7 +2582,7 @@ function ProfileTab({ signOut, onAddMeasurement, onDeleteMeasurement, milestones
 
       <div className="section-label">À propos</div>
       <div style={{padding:"8px 14px",fontSize:12,color:"#9CA3AF",lineHeight:1.6}}>
-        <div>Élevia Nutrition · v1.0.0</div>
+        <div>Élevia Nutrition · v1.1.0</div>
         <div style={{marginTop:2}}>Conçu par Audric Didderen, diététicien diplômé</div>
       </div>
 
@@ -2429,6 +2601,8 @@ function ProfileTab({ signOut, onAddMeasurement, onDeleteMeasurement, milestones
     });
     const SLOT_QTY=d?.SLOT_QTY||{};
     const PROFILE_RULES=d?.PROFILE_RULES||{};
+    const PLAN_TARGETS_EQ=d?.PLAN_TARGETS||{};
+    const eqInPlan=(eqId)=>eqId in PLAN_TARGETS_EQ;
     const slotLabel=(sid)=>({PDJ:'Petit-déjeuner',REPAS_FROID_PAIN:'Repas froid',REPAS_FROID_BOWL:'Repas froid bowl',REPAS_CHAUD:'Repas chaud',COLLATION:'Collation',PRE_WO:'Avant entraînement',POST_WO:'Après entraînement',EN_CAS_MAT:'En-cas matin'})[sid]||sid;
     const EqImg=({eqId,size=18,fallback})=>{const f=eqIconFile(eqId);return f?<img src={`/icons/${f}.svg`} alt="" width={size} height={size} style={{opacity:.7,flexShrink:0}}/>:<span style={{fontSize:size,lineHeight:1,flexShrink:0}}>{fallback||"•"}</span>};
     const typeGroups={vvpo:{label:"Protéines (VVPO)",icon:"Viandes_maigres"},carbs:{label:"Féculents & céréales",icon:"pain"},veg:{label:"Légumes",icon:"legumes_cuits"},fruits:{label:"Fruits",icon:"fruits"},dairy:{label:"Produits laitiers",icon:"Laitages_classique"},fat:{label:"Matières grasses",icon:"oleagineux"},extras:{label:"Extras & plaisir",icon:"chocolat"},drinks:{label:"Boissons",icon:"alcool_leger"}};
@@ -2439,20 +2613,21 @@ function ProfileTab({ signOut, onAddMeasurement, onDeleteMeasurement, milestones
 
     /* --- Render helpers --- */
     const renderEqCompact=(eq)=>{
-      const sqEntries=Object.entries(SLOT_QTY[eq.eqId]||{});
+      const inPlan=eqInPlan(eq.eqId);
+      const sqEntries=inPlan?Object.entries(SLOT_QTY[eq.eqId]||{}):[];
       const isR=eq.eqMode==="R";
       const isVeg=eq.type==="veg";
-      const fGrams=(!isR&&eq.qtyPlanGrams>0)?`${isVeg?"≥ ":""}${eq.qtyPlanGrams}g`:null;
+      const fGrams=(inPlan&&!isR&&eq.qtyPlanGrams>0)?`${isVeg?"≥ ":""}${eq.qtyPlanGrams}g`:null;
       return <div key={eq.eqId} role="button" tabIndex={0} onClick={()=>setEqDetail(eq.eqId)} className="card" style={{padding:0,overflow:"hidden",border:"1px solid rgba(15,30,46,.07)",boxShadow:"0 1px 4px rgba(0,0,0,.03)",cursor:"pointer",transition:"box-shadow .15s"}}>
         <div style={{padding:"14px 14px",display:"flex",alignItems:"center",gap:10}}>
           <EqImg eqId={eq.eqId} size={18} fallback={eq.icon}/>
           <div style={{flex:1,minWidth:0}}>
-            <div style={{fontSize:13,fontWeight:700,color:"#1A1A1A",lineHeight:1.3}}>{eq.label}</div>
+            <div style={{fontSize:13,fontWeight:700,color:"#1A1A1A",lineHeight:1.3,display:"flex",alignItems:"center",gap:6}}>{eq.label}{!inPlan&&<span style={{fontSize:9,fontWeight:600,color:"#9CA3AF",background:"rgba(15,30,46,.05)",padding:"1px 6px",borderRadius:99}}>Hors plan</span>}</div>
             {sqEntries.length>0&&<div style={{display:"flex",gap:4,flexWrap:"wrap",alignItems:"center",marginTop:5}}>
               {sqEntries.map(([sid])=><span key={sid} style={{fontSize:9,fontWeight:600,padding:"2px 8px",borderRadius:99,background:"rgba(15,30,46,.04)",color:"#9CA3AF",lineHeight:"13px"}}>{slotLabel(sid)}{!isR&&fGrams&&<span style={{marginLeft:3}}>· {fGrams}</span>}</span>)}
             </div>}
           </div>
-          {eq.nutrientsPerPortion&&eq.nutrientsPerPortion.kcal>0&&<div style={{textAlign:"right",flexShrink:0}}>
+          {inPlan&&eq.nutrientsPerPortion&&eq.nutrientsPerPortion.kcal>0&&<div style={{textAlign:"right",flexShrink:0}}>
             <div style={{fontSize:11,fontWeight:700,color:obj.accent}}>{Math.round(eq.nutrientsPerPortion.kcal)} kcal</div>
           </div>}
           <span style={{fontSize:14,color:"#C8CDD3",flexShrink:0}}>›</span>
@@ -2464,14 +2639,15 @@ function ProfileTab({ signOut, onAddMeasurement, onDeleteMeasurement, milestones
     if(eqDetail){
       const eq=planEqs.find(e=>e.eqId===eqDetail);
       if(!eq){setEqDetail(null);return null}
+      const inPlan=eqInPlan(eq.eqId);
       const isR=eq.eqMode==="R";
       const hasItems=eq.items&&eq.items.length>0;
-      const sqEntries=Object.entries(SLOT_QTY[eq.eqId]||{});
+      const sqEntries=inPlan?Object.entries(SLOT_QTY[eq.eqId]||{}):[];
       const uniqueQtys=[...new Set(sqEntries.map(([,v])=>v.qtyMax))];
       const isMultiQty=uniqueQtys.length>1;
       const singleQty=sqEntries.length>0?sqEntries[0][1].qtyMax:null;
       const isVeg=eq.type==="veg";
-      const fGrams=(!isR&&eq.qtyPlanGrams>0)?`${isVeg?"≥ ":""}${eq.qtyPlanGrams}g`:null;
+      const fGrams=(inPlan&&!isR&&eq.qtyPlanGrams>0)?`${isVeg?"≥ ":""}${eq.qtyPlanGrams}g`:null;
       const hasNote=eq.noteElevia&&eq.noteElevia.length>0;
       return <div className="page">
         <button aria-label="Retour" className="hdr-back" onClick={()=>setEqDetail(null)} style={{marginBottom:12,padding:0}}>← Retour</button>
@@ -2480,12 +2656,12 @@ function ProfileTab({ signOut, onAddMeasurement, onDeleteMeasurement, milestones
           <div style={{padding:"16px 14px 12px",display:"flex",alignItems:"flex-start",gap:10,borderBottom:(hasItems||hasNote)?"1px solid rgba(15,30,46,.06)":"none"}}>
             <EqImg eqId={eq.eqId} size={20} fallback={eq.icon}/>
             <div style={{flex:1,minWidth:0}}>
-              <div style={{fontSize:14,fontWeight:700,color:"#1A1A1A",lineHeight:1.3}}>{eq.label}</div>
+              <div style={{fontSize:14,fontWeight:700,color:"#1A1A1A",lineHeight:1.3,display:"flex",alignItems:"center",gap:6}}>{eq.label}{!inPlan&&<span style={{fontSize:9,fontWeight:600,color:"#9CA3AF",background:"rgba(15,30,46,.05)",padding:"2px 8px",borderRadius:99}}>Hors plan</span>}</div>
               {sqEntries.length>0&&<div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",marginTop:6}}>
                 {sqEntries.map(([sid])=><span key={sid} style={{fontSize:9,fontWeight:600,padding:"3px 10px",borderRadius:99,background:"rgba(15,30,46,.04)",color:"#6B7280",lineHeight:"13px",letterSpacing:".02em"}}>{slotLabel(sid)}{!isR&&fGrams&&<span style={{color:"#9CA3AF",marginLeft:3}}>· {fGrams}</span>}</span>)}
               </div>}
             </div>
-            {eq.nutrientsPerPortion&&eq.nutrientsPerPortion.kcal>0&&<div style={{textAlign:"right",flexShrink:0}}>
+            {inPlan&&eq.nutrientsPerPortion&&eq.nutrientsPerPortion.kcal>0&&<div style={{textAlign:"right",flexShrink:0}}>
               <div style={{fontSize:12,fontWeight:700,color:obj.accent}}>{Math.round(eq.nutrientsPerPortion.kcal)} kcal</div>
               <div style={{fontSize:10,color:"#9CA3AF",marginTop:1}}>P{Math.round(eq.nutrientsPerPortion.p)} · L{Math.round(eq.nutrientsPerPortion.l)} · G{Math.round(eq.nutrientsPerPortion.g)}</div>
             </div>}
@@ -2501,23 +2677,25 @@ function ProfileTab({ signOut, onAddMeasurement, onDeleteMeasurement, milestones
               const s=item.stepper;
               const refG=item.qty1x>0?item.qty1x:(eq.qtyPlanGrams||0);
               let rightText=null;
-              if(isR){
-                if(isMultiQty&&sqEntries.length>1){
-                  rightText=<div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:3}}>
-                    {sqEntries.map(([sid,v])=>{const g=v.qtyMax*refG;return <div key={sid} style={{display:"flex",alignItems:"center",gap:4}}>
-                      <span style={{fontSize:9,color:"#9CA3AF"}}>{slotLabel(sid)}</span>
-                      <span style={{fontSize:11,fontWeight:700,color:"#374151",background:"rgba(15,30,46,.04)",padding:"2px 8px",borderRadius:99}}>{fmtItemQty(s,g,PROFILE_RULES,eq.eqId)}</span>
-                    </div>})}
-                  </div>;
+              if(inPlan){
+                if(isR){
+                  if(isMultiQty&&sqEntries.length>1){
+                    rightText=<div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:3}}>
+                      {sqEntries.map(([sid,v])=>{const g=v.qtyMax*refG;return <div key={sid} style={{display:"flex",alignItems:"center",gap:4}}>
+                        <span style={{fontSize:9,color:"#9CA3AF"}}>{slotLabel(sid)}</span>
+                        <span style={{fontSize:11,fontWeight:700,color:"#374151",background:"rgba(15,30,46,.04)",padding:"2px 8px",borderRadius:99}}>{fmtItemQty(s,g,PROFILE_RULES,eq.eqId)}</span>
+                      </div>})}
+                    </div>;
+                  } else {
+                    const g=(singleQty||1)*refG;
+                    rightText=<span style={{fontSize:11,fontWeight:700,color:"#374151",background:"rgba(15,30,46,.04)",padding:"2px 9px",borderRadius:99}}>{fmtItemQty(s,g,PROFILE_RULES,eq.eqId)}</span>;
+                  }
                 } else {
-                  const g=(singleQty||1)*refG;
-                  rightText=<span style={{fontSize:11,fontWeight:700,color:"#374151",background:"rgba(15,30,46,.04)",padding:"2px 9px",borderRadius:99}}>{fmtItemQty(s,g,PROFILE_RULES,eq.eqId)}</span>;
-                }
-              } else {
-                const g=refG||eq.qtyPlanGrams||0;
-                if(g>0){
-                  const label=fmtItemQty(s,g,PROFILE_RULES,eq.eqId);
-                  rightText=<span style={{fontSize:11,fontWeight:700,color:"#374151",background:"rgba(15,30,46,.04)",padding:"2px 9px",borderRadius:99}}>{isVeg?`≥ ${label}`:label}</span>;
+                  const g=refG||eq.qtyPlanGrams||0;
+                  if(g>0){
+                    const label=fmtItemQty(s,g,PROFILE_RULES,eq.eqId);
+                    rightText=<span style={{fontSize:11,fontWeight:700,color:"#374151",background:"rgba(15,30,46,.04)",padding:"2px 9px",borderRadius:99}}>{isVeg?`≥ ${label}`:label}</span>;
+                  }
                 }
               }
               const isRecipe=eq.type==='recette'||item.foodLabel?.toLowerCase().includes('recette');
@@ -2609,17 +2787,16 @@ function ProfileTab({ signOut, onAddMeasurement, onDeleteMeasurement, milestones
       {!hasMeasures&&<div style={{padding:"16px 0",textAlign:"center",fontSize:13,color:"#9CA3AF"}}>Aucune mesure enregistrée</div>}
     </div>
     {milestoneDefs&&milestoneDefs.length>0&&<>
-      <div className="section-label">Mes badges</div>
+      <div className="section-label">Mon parcours</div>
       <div className="card" style={{padding:14}}>
-        <BadgesGrid milestones={milestones} milestoneDefs={milestoneDefs} accent={obj.accent} accentSoft={obj.accentSoft} accentBorder={obj.accentBorder}/>
-        <div style={{fontSize:11,color:"#6B7280",textAlign:"center",marginTop:8}}>{milestones?.length||0}/{milestoneDefs.length} débloqués</div>
+        <ParcoursList milestones={milestones} milestoneDefs={milestoneDefs} accent={obj.accent} accentSoft={obj.accentSoft} accentBorder={obj.accentBorder}/>
       </div>
     </>}
     <div className="section-label">Outils</div>
     <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("why")}>{menuLetter("É")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Pourquoi ce plan est le tien</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
     <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("measures")}>{menuLetter("L")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Suivi mesures & graphiques</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
     <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("equivalences")}>{menuLetter("E")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Mes équivalences</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
-    <div className="menu-item" role="button" tabIndex={0} onClick={()=>window.open("https://recettes.elevianutrition.com","_blank")} style={{background:"linear-gradient(135deg,rgba(198,160,91,.08) 0%,rgba(198,160,91,.02) 100%)",border:`1px solid ${obj.accentBorder}`}}>{menuLetter("R")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Mes recettes personnalisées</span><span style={{fontSize:11,fontWeight:700,color:obj.accent,background:obj.accentSoft,borderRadius:99,padding:"2px 8px"}}>Nouveau</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
+    <div className="menu-item" role="button" tabIndex={0} onClick={()=>window.open("https://www.elevianutrition.com/espace-client","_blank")} style={{background:"linear-gradient(135deg,rgba(198,160,91,.08) 0%,rgba(198,160,91,.02) 100%)",border:`1px solid ${obj.accentBorder}`}}>{menuLetter("R")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Mes recettes personnalisées</span><span style={{fontSize:11,fontWeight:700,color:obj.accent,background:obj.accentSoft,borderRadius:99,padding:"2px 8px"}}>Nouveau</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
     <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("messages")}>{menuLetter("I")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Messages de ton diététicien</span>{dietUnread>0&&<span style={{fontSize:10,fontWeight:800,color:"#fff",background:obj.accent,borderRadius:99,padding:"2px 8px",minWidth:18,textAlign:"center"}}>{dietUnread}</span>}<span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
     <div className="section-label">Apprendre</div>
     <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("guides")}>{menuLetter("A")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Guides & ressources</span><span style={{fontSize:14,color:"#6B7280"}}>›</span></div>
@@ -2631,7 +2808,7 @@ function ProfileTab({ signOut, onAddMeasurement, onDeleteMeasurement, milestones
 }
 
 /* ═══ MAIN APP ═══ */
-export default function EleviaApp({ session, signOut, planData, logs: externalLogs, weekConsumed: externalWeekConsumed, weekNutrients: externalWeekNutrients, onAddLog: externalAddLog, onDeleteLog, onAddMeasurement, onDeleteMeasurement, onCreateBilan, streak: externalStreak, onIncrementStreak, milestones, milestoneDefs, newlyUnlocked, onCheckMilestones, onDismissMilestone, dietMessages, dietUnread, onDietMarkRead, onDietMarkAllRead, quickLog }){
+export default function EleviaApp({ session, signOut, planData, logs: externalLogs, weekConsumed: externalWeekConsumed, weekNutrients: externalWeekNutrients, daysLogged: externalDaysLogged, onAddLog: externalAddLog, onDeleteLog, onAddMeasurement, onDeleteMeasurement, onCreateBilan, streak: externalStreak, onIncrementStreak, milestones, milestoneDefs, newlyUnlocked, onCheckMilestones, onDismissMilestone, dietMessages, dietUnread, onDietMarkRead, onDietMarkAllRead, quickLog }){
   const [tab,setTab]=useState("plan");
   // Use external logs if provided (Supabase), fallback to local state
   const [localLogs,setLocalLogs]=useState(DEFAULT_INITIAL_LOGS);
@@ -2653,6 +2830,21 @@ export default function EleviaApp({ session, signOut, planData, logs: externalLo
     }
     return false;
   },[planData?._planStartDate]);
+
+  // Milestone context wrapper — builds full context, accepts overrides from call site
+  const handleCheckMilestones=useCallback((overrides={})=>{
+    if(!onCheckMilestones)return;
+    onCheckMilestones({
+      totalLogs:1,
+      streak:externalStreak?.current||0,
+      bilanCount:(planData?.BILANS||[]).length,
+      lastBilanScore:(planData?.BILANS||[])[0]?.score??null,
+      bilans:planData?.BILANS||[],
+      weekDaysLogged:externalDaysLogged||0,
+      measureCount:(planData?.MEASUREMENTS||[]).length,
+      ...overrides,
+    });
+  },[onCheckMilestones,externalStreak,planData,externalDaysLogged]);
 
   const [splash,setSplash]=useState(true);
   const [showOnboarding,setShowOnboarding]=useState(()=>!localStorage.getItem('elevia_onboarding_done'));
@@ -2691,10 +2883,10 @@ export default function EleviaApp({ session, signOut, planData, logs: externalLo
         <div style={{width:24}}/>
       </div>
       <div className="content">
-        {tab==="plan"&&<PlanTab logs={logs} onAddLog={addLog} onDeleteLog={onDeleteLog} weekConsumed={weekConsumed} weekNutrients={weekNutrients} streak={externalStreak} onIncrementStreak={onIncrementStreak} onCheckMilestones={onCheckMilestones} bilanCount={planData?.BILANS?.length||0} dietMessages={dietMessages} onDietMarkRead={onDietMarkRead} onSwitchTab={setTab} quickLog={quickLog}/>}
-        {tab==="advice"&&<AdviceTab onCreateBilan={onCreateBilan} isWarmup={appIsWarmup}/>}
+        {tab==="plan"&&<PlanTab logs={logs} onAddLog={addLog} onDeleteLog={onDeleteLog} weekConsumed={weekConsumed} weekNutrients={weekNutrients} streak={externalStreak} onIncrementStreak={onIncrementStreak} onCheckMilestones={handleCheckMilestones} bilanCount={planData?.BILANS?.length||0} dietMessages={dietMessages} onDietMarkRead={onDietMarkRead} onSwitchTab={setTab} quickLog={quickLog}/>}
+        {tab==="advice"&&<AdviceTab onCreateBilan={onCreateBilan} isWarmup={appIsWarmup} weekConsumed={weekConsumed} weekNutrients={weekNutrients} daysLogged={externalDaysLogged} onCheckMilestones={handleCheckMilestones}/>}
         {tab==="history"&&<HistoryTab logs={logs} onDeleteLog={onDeleteLog}/>}
-        {tab==="profile"&&<ProfileTab signOut={signOut} onAddMeasurement={onAddMeasurement} onDeleteMeasurement={onDeleteMeasurement} milestones={milestones} milestoneDefs={milestoneDefs} dietMessages={dietMessages} dietUnread={dietUnread} onDietMarkRead={onDietMarkRead}/>}
+        {tab==="profile"&&<ProfileTab signOut={signOut} onAddMeasurement={onAddMeasurement} onDeleteMeasurement={onDeleteMeasurement} milestones={milestones} milestoneDefs={milestoneDefs} dietMessages={dietMessages} dietUnread={dietUnread} onDietMarkRead={onDietMarkRead} onCheckMilestones={handleCheckMilestones}/>}
       </div>
       <div style={{position:"absolute",bottom:76,left:0,right:0,height:24,background:"linear-gradient(to bottom,transparent,#F5F4F1)",pointerEvents:"none",zIndex:10}}/>
       <div className="tbar" data-tour="tab-bar">{tabs.map(t=>{const Ic=tabIcons[t.id];const active=tab===t.id;return <button key={t.id} className={`tbar-item ${active?"active":""}`} onClick={()=>setTab(t.id)}><span className="tbar-ic" style={{position:"relative"}}><Ic size={20} color={active?obj.accent:"rgba(255,255,255,.45)"}/>{t.id==="profile"&&dietUnread>0&&<span style={{position:"absolute",top:-4,right:-6,width:8,height:8,borderRadius:4,background:"#FF3B30",border:"2px solid #121E2D"}}/>}</span><span className="tbar-lb">{t.label}</span></button>})}</div>

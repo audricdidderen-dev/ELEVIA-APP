@@ -56,6 +56,7 @@ export function useWeeklyBilans(session, planId, initialBilans) {
       score: adherenceScore,
       label: scoreLabelMap(adherenceScore),
       weekStart, weekEnd,
+      notes,
     }
     setBilans(prev => [newBilan, ...prev])
     return { data }
