@@ -350,8 +350,8 @@ function generateNutritionInsights(bd, obj, firstName, wb, daysLogged, phase) {
   } else if (pr >= 0.75) {
     const gap = protTargetDay - protDay
     const tipMap = {
-      PW: `Ajoute une source à un repas — un œuf, 100g de fromage blanc ou 30g de protéine en poudre comblent facilement ce gap.`,
-      GAIN: `En prise de masse, chaque gramme compte — ajoute une collation protéinée.`,
+      PW: `Consulte les sources protéiques de ton plan pour identifier où ajouter une portion — un ajustement par repas suffit.`,
+      GAIN: `En prise de masse, chaque gramme compte. Vérifie tes portions protéiques dans ton plan et assure-toi de les atteindre à chaque repas.`,
       RECOMP: `Sans protéines suffisantes, ton corps ne peut pas remplacer la graisse par du muscle.`,
       MAINT: `Même en maintien, les protéines restent essentielles pour préserver ta composition corporelle.`,
       COMFORT: `Un apport suffisant contribue à la satiété et à l'énergie sur la durée de la journée.`,
@@ -912,7 +912,7 @@ function getWeaknessLines(axis, obj, bd) {
       ],
       GAIN: [
         `Tu n'atteins pas ton objectif calorique (${kcalDay}/${kcalTargetDay}/jour). Sans surplus, la progression stagne.`,
-        `Il manque ~${kcalTargetDay - kcalDay} kcal/jour — une collation dense (oléagineux, beurre de cacahuètes, fromage) peut suffire.`,
+        `Il manque ~${kcalTargetDay - kcalDay} kcal/jour. Revois les portions prévues dans ton plan et assure-toi de compléter chaque repas et collation.`,
       ],
       RECOMP: [
         `Tes calories s'éloignent de la zone de recomposition — la précision est clé pour cet objectif.`,
@@ -927,12 +927,12 @@ function getWeaknessLines(axis, obj, bd) {
     protein: {
       PW: [
         `Les protéines sont en retard : ${protDay}g/${protTargetDay}g/jour. En déficit calorique, c'est l'axe n°1 à protéger.`,
-        `Il manque ~${gap}g/jour de protéines. Un yaourt grec (10g), un œuf (7g) ou 30g de protéine en poudre (25g) comblent ce gap.`,
+        `Il manque ~${gap}g/jour de protéines. Vérifie dans ton plan les équivalences protéiques prévues et assure-toi de les consommer à chaque repas.`,
         `Tes protéines méritent ton attention — même un ajout modeste par repas suffit à atteindre la cible.`,
       ],
       GAIN: [
         `Protéines insuffisantes : ${protDay}g/${protTargetDay}g/jour. Pas de construction musculaire sans matériau.`,
-        `Il manque ~${gap}g/jour — priorise les sources denses : poulet, œufs, fromage blanc, whey.`,
+        `Il manque ~${gap}g/jour. Revois les portions protéiques de ton plan — chaque repas devrait atteindre la quantité prévue.`,
       ],
       RECOMP: [
         `En recomposition, les protéines sont non négociables — et elles manquent cette semaine (${protDay}g/${protTargetDay}g/jour).`,
@@ -1169,9 +1169,9 @@ function generateTips(bd, obj, measurements, phase, daysLogged, wb) {
     } else if (bd.kcal.ratio > 1.1 && isPW) {
       tips.push('Pèse tes féculents (riz, pâtes, pain) 3 jours cette semaine — l\'œil sous-estime souvent les portions après quelques semaines.')
     } else if (bd.kcal.ratio < 0.85 && isGain) {
-      tips.push('Ajoute une collation dense entre les repas : poignée d\'oléagineux, tartine de beurre de cacahuètes, ou un shaker avec du lait et de la banane.')
+      tips.push('Revois les collations prévues dans ton plan et assure-toi de ne pas en sauter. Chaque repas et collation comptent pour atteindre ta cible.')
     } else if (bd.kcal.ratio < 0.85 && isPW) {
-      tips.push('Tes calories sont trop basses — ajoute une collation protéinée ou augmente tes portions de féculents au repas. Ton métabolisme a besoin d\'énergie pour fonctionner.')
+      tips.push('Tes calories sont trop basses. Vérifie que tu consommes bien toutes les portions prévues dans ton plan, collations comprises. Ton métabolisme a besoin d\'énergie pour fonctionner.')
     } else if (isComfort) {
       tips.push('Essaie de manger à heures régulières — la structure des repas favorise le confort digestif et la satiété.')
     } else if (isRecomp) {
@@ -1183,13 +1183,13 @@ function generateTips(bd, obj, measurements, phase, daysLogged, wb) {
 
   if (weakest.key === 'protein') {
     if (isPW) {
-      tips.push('Place une source de protéines à chaque repas : œufs au petit-déjeuner, viande ou poisson au déjeuner, fromage blanc ou yaourt grec en collation.')
+      tips.push('Vérifie que chaque repas contient bien la portion protéique prévue dans ton plan. C\'est l\'axe prioritaire en perte de poids.')
     } else if (isGain) {
-      tips.push('Chaque repas doit contenir une source de protéines. En collation : 30g de whey, 200g de fromage blanc, ou 3 œufs durs.')
+      tips.push('Chaque repas doit contenir la source de protéines prévue dans ton plan. En collation aussi — vérifie que tu consommes bien ce qui est prévu.')
     } else if (isRecomp) {
       tips.push('Les protéines sont prioritaires en recomposition. Vise au moins 30g par repas principal.')
     } else {
-      tips.push('Un yaourt grec (10g de protéines), un œuf (7g) ou 30g de fromage blanc (3g) ajoutés à un repas suffisent à remonter ton score.')
+      tips.push('Consulte les équivalences protéiques de ton plan — même une portion supplémentaire par jour peut suffire à remonter ton score.')
     }
   }
 
@@ -1214,19 +1214,19 @@ function generateTips(bd, obj, measurements, phase, daysLogged, wb) {
   if (secondWeakest.score < 70 && tips.length < 3) {
     if (secondWeakest.key === 'protein' && !tips.some(t => t.includes('protéine'))) {
       if (isPW || isRecomp) {
-        tips.push('Un shaker protéiné après le sport ou un yaourt grec en collation peut combler le gap protéines sans effort.')
+        tips.push('Revois les collations protéiques de ton plan — les consommer systématiquement peut suffire à combler le gap.')
       } else {
-        tips.push('Ajoute une source de protéines à ta collation : fromage blanc, œuf dur, ou une poignée de noix.')
+        tips.push('Vérifie que tes collations incluent bien la part protéique prévue dans ton plan.')
       }
     }
     if (secondWeakest.key === 'regularity' && !tips.some(t => t.includes('rappel') || t.includes('logger'))) {
       tips.push('Logger même imparfaitement vaut mieux que ne pas logger. Commence par tes repas principaux (PDJ, midi, soir).')
     }
     if (secondWeakest.key === 'eq') {
-      const fish = bd.eq.details.find(e => (e.eqId === 'poissons_gras' || e.eqId === 'poissons_maigres') && e.ratio < 0.6)
-      const legum = bd.eq.details.find(e => e.eqId === 'legumineuses_seches' && e.ratio < 0.6)
-      if (fish) tips.push('Intègre du poisson 1-2 fois cette semaine — les oméga-3 du poisson gras (saumon, maquereau, sardines) sont irremplaçables.')
-      else if (legum) tips.push('Les légumineuses (lentilles, pois chiches) sont sous-utilisées — elles apportent fibres, protéines végétales et fer.')
+      const eqMisses = bd.eq.details.filter(e => e.ratio < 0.6).slice(0, 2)
+      if (eqMisses.length > 0) {
+        tips.push(`Les groupes ${eqMisses.map(e => eqLabel(e.eqId)).join(' et ')} sont en retard. Consulte les alternatives proposées dans ton plan pour chacun.`)
+      }
     }
   }
 
