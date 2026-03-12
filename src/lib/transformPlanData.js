@@ -346,6 +346,7 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
       label: getScoreLabel(objConfig, score),
       weekStart: b.week_start,
       weekEnd: b.week_end,
+      notes: b.notes || null,
     }
   })
 
