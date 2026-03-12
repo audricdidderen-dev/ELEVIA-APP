@@ -1,23 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" id="Barley--Streamline-Ultimate">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 25 25" id="Breakfast-Cereal--Streamline-Ultimate">
   <desc>
-    Barley Streamline Icon: https://streamlinehq.com
+    Breakfast Cereal Streamline Icon: https://streamlinehq.com
   </desc>
-  <path stroke="#0f1e2e" stroke-linecap="round" d="m16.3629 23.0519 0 -2.8402" stroke-width="1"></path>
-  <path stroke="#0f1e2e" stroke-linecap="round" d="M22.3946 16.8463c0.1327 -0.5439 0.2732 -1.3605 0.37 -1.912" stroke-width="1"></path>
-  <path stroke="#0f1e2e" stroke-linecap="round" d="M22.3946 11.225c0.1327 -0.544 0.2732 -1.36054 0.37 -1.91203" stroke-width="1"></path>
-  <path stroke="#0f1e2e" stroke-linecap="round" d="M22.3946 5.57135c0.1327 -0.54394 0.2732 -1.36052 0.37 -1.912" stroke-width="1"></path>
-  <path stroke="#0f1e2e" stroke-linejoin="round" d="M16.3615 0.98938s-1.8729 0.82313 -1.8729 2.98386 1.8729 2.98387 1.8729 2.98387 1.8729 -0.82314 1.8729 -2.98387S16.3615 0.98938 16.3615 0.98938Z" stroke-width="1"></path>
-  <path stroke="#0f1e2e" stroke-linejoin="round" d="M22.4466 16.6218s-1.0296 -0.263 -2.9548 -0.027c-1.9252 0.236 -2.1826 0.9458 -2.368 1.2544 -0.1874 0.3119 -0.5299 1.5955 -0.3178 2.0597 0.2176 0.4764 2.5041 0.3634 3.7889 -0.0388 1.2847 -0.4021 1.8517 -3.2483 1.8517 -3.2483Z" stroke-width="1"></path>
-  <path stroke="#0f1e2e" stroke-linejoin="round" d="M22.4466 11.0004s-1.0296 -0.2629 -2.9548 -0.0269c-1.9252 0.2359 -2.1826 0.9458 -2.368 1.2543 -0.1874 0.3119 -0.5299 1.5956 -0.3178 2.0598 0.2176 0.4763 2.5041 0.3633 3.7889 -0.0388 1.2847 -0.4021 1.8517 -3.2484 1.8517 -3.2484Z" stroke-width="1"></path>
-  <path stroke="#0f1e2e" stroke-linejoin="round" d="M22.4466 5.34681s-1.0296 -0.26294 -2.9548 -0.02698 -2.1826 0.94584 -2.368 1.25436c-0.1874 0.31191 -0.5299 1.59556 -0.3178 2.05979 0.2176 0.47634 2.5041 0.36331 3.7889 -0.03881 1.2847 -0.40213 1.8517 -3.24836 1.8517 -3.24836Z" stroke-width="1"></path>
-  <path stroke="#0f1e2e" stroke-linecap="round" d="M10.3284 16.8463c-0.1327 -0.5439 -0.2732 -1.3605 -0.36997 -1.912" stroke-width="1"></path>
-  <path stroke="#0f1e2e" stroke-linecap="round" d="M2.22094 20.6271c-0.23742 -0.4092 -0.54607 -1.0375 -0.75612 -1.4614" stroke-width="1"></path>
-  <path stroke="#0f1e2e" stroke-linecap="round" d="M2.9011 14.1771c-0.05272 -0.4701 -0.08248 -1.1696 -0.10424 -1.6421" stroke-width="1"></path>
-  <path stroke="#0f1e2e" stroke-linecap="round" d="M10.3284 11.225c-0.1327 -0.544 -0.2732 -1.36054 -0.36997 -1.91203" stroke-width="1"></path>
-  <path stroke="#0f1e2e" stroke-linecap="round" d="M10.3284 5.57135c-0.1327 -0.54394 -0.2732 -1.36052 -0.36997 -1.912" stroke-width="1"></path>
-  <path stroke="#0f1e2e" stroke-linejoin="round" d="M10.2764 16.6218s1.0296 -0.263 2.9548 -0.027c1.9252 0.236 2.1826 0.9458 2.368 1.2544 0.1874 0.3119 0.5299 1.5955 0.3178 2.0597 -0.2176 0.4764 -2.5041 0.3634 -3.7889 -0.0388 -1.2847 -0.4021 -1.8517 -3.2483 -1.8517 -3.2483Z" stroke-width="1"></path>
-  <path stroke="#0f1e2e" stroke-linejoin="round" d="M2.12517 20.4576s0.77179 -0.4588 2.3885 -0.7269c1.61671 -0.2682 1.99475 0.2458 2.21861 0.4516 0.22634 0.2081 0.81017 1.1668 0.74907 1.5937 -0.0627 0.438 -1.94295 0.8919 -3.08022 0.8726 -1.13727 -0.0194 -2.27596 -2.191 -2.27596 -2.191Z" stroke-width="1"></path>
-  <path stroke="#0f1e2e" stroke-linejoin="round" d="M2.88162 13.9833s0.89116 -0.1095 2.47912 0.2955c1.58795 0.405 1.72726 1.0277 1.8494 1.3062 0.12348 0.2815 0.27225 1.3941 0.04457 1.7603 -0.23362 0.3758 -2.13763 0.0349 -3.17099 -0.4404 -1.03337 -0.4753 -1.2021 -2.9216 -1.2021 -2.9216Z" stroke-width="1"></path>
-  <path stroke="#0f1e2e" stroke-linejoin="round" d="M10.2764 11.0004s1.0296 -0.2629 2.9548 -0.0269c1.9252 0.2359 2.1826 0.9458 2.368 1.2543 0.1874 0.3119 0.5299 1.5956 0.3178 2.0598 -0.2176 0.4763 -2.5041 0.3633 -3.7889 -0.0388 -1.2847 -0.4021 -1.8517 -3.2484 -1.8517 -3.2484Z" stroke-width="1"></path>
-  <path stroke="#0f1e2e" stroke-linejoin="round" d="M10.2764 5.34681s1.0296 -0.26294 2.9548 -0.02698 2.1826 0.94584 2.368 1.25436c0.1874 0.31191 0.5299 1.59556 0.3178 2.05979 -0.2176 0.47634 -2.5041 0.36331 -3.7889 -0.03881 -1.2847 -0.40213 -1.8517 -3.24836 -1.8517 -3.24836Z" stroke-width="1"></path>
+  <path fill="#ffbfc5" d="M0.5 11.521v2.5c0 5.247 4.5 9.5 11.5 9.5s11.5 -4.253 11.5 -9.5v-2.5" stroke-width="1"></path>
+  <path fill="#ff808c" d="M12 19.2c-6.169 0 -10.392 -3.3 -11.308 -7.68H0.5v2.5c0 5.247 4.5 9.5 11.5 9.5s11.5 -4.253 11.5 -9.5v-2.5h-0.192C22.392 15.9 18.169 19.2 12 19.2Z" stroke-width="1"></path>
+  <path stroke="#191919" stroke-linecap="round" stroke-linejoin="round" d="M0.5 11.521v2.5c0 5.247 4.5 9.5 11.5 9.5s11.5 -4.253 11.5 -9.5v-2.5" stroke-width="1"></path>
+  <path fill="#ffffff" d="M16.5 6.921a24.876 24.876 0 0 0 -4.5 -0.4c-6.351 0 -11.5 2.239 -11.5 5s5.149 5 11.5 5 11.5 -2.239 11.5 -5a2.367 2.367 0 0 0 -0.261 -1.059" stroke-width="1"></path>
+  <path stroke="#191919" stroke-linecap="round" stroke-linejoin="round" d="M16.5 6.921a24.876 24.876 0 0 0 -4.5 -0.4c-6.351 0 -11.5 2.239 -11.5 5s5.149 5 11.5 5 11.5 -2.239 11.5 -5a2.367 2.367 0 0 0 -0.261 -1.059" stroke-width="1"></path>
+  <path fill="#ffdda1" d="M21 13.271a2.091 2.091 0 0 1 -0.61 1.41 20.49 20.49 0 0 1 -8.39 1.59 20.49 20.49 0 0 1 -8.39 -1.59 2.137 2.137 0 0 1 -0.61 -1.41c0 -2.21 4.31 -4 9 -4s9 1.79 9 4Z" stroke-width="1"></path>
+  <path fill="#ffbc44" d="M12 16.519a22.11 22.11 0 0 0 7.2 -1.114c-0.905 -1.667 -3.782 -2.886 -7.2 -2.886s-6.294 1.219 -7.2 2.886a22.11 22.11 0 0 0 7.2 1.114Z" stroke-width="1"></path>
+  <path fill="#e3e3e3" d="M16.583 11.632 21.29 1.26a1.142 1.142 0 1 1 2.137 0.805L20.781 11.3" stroke-width="1"></path>
+  <path stroke="#191919" stroke-linecap="round" stroke-linejoin="round" d="M16.583 11.632 21.29 1.26a1.142 1.142 0 1 1 2.137 0.805L20.781 11.3" stroke-width="1"></path>
+  <path stroke="#191919" stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.521a2 2 0 0 1 4 0" stroke-width="1"></path>
+  <path stroke="#191919" stroke-linecap="round" stroke-linejoin="round" d="M13 14.271a1.5 1.5 0 1 1 3 0" stroke-width="1"></path>
+  <path stroke="#191919" stroke-linecap="round" stroke-linejoin="round" d="M10.5 10.521a1 1 0 0 1 2 0" stroke-width="1"></path>
+  <path stroke="#191919" stroke-linecap="round" stroke-linejoin="round" d="M16.5 6.921a24.876 24.876 0 0 0 -4.5 -0.4c-6.351 0 -11.5 2.239 -11.5 5s5.149 5 11.5 5 11.5 -2.239 11.5 -5a2.367 2.367 0 0 0 -0.261 -1.059" stroke-width="1"></path>
 </svg>

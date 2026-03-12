@@ -1,4 +1,4 @@
-const CACHE_NAME = 'elevia-v1.1.0'
+const CACHE_NAME = 'elevia-v2.5.0'
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -6,7 +6,7 @@ const STATIC_ASSETS = [
   '/icons/icon.svg',
 ]
 
-// Install: cache shell
+// Install: cache shell + skip waiting immediately
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
@@ -14,7 +14,7 @@ self.addEventListener('install', (e) => {
   self.skipWaiting()
 })
 
-// Activate: clean old caches
+// Activate: clean ALL old caches + claim clients immediately
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) =>
@@ -24,27 +24,25 @@ self.addEventListener('activate', (e) => {
   self.clients.claim()
 })
 
-// Fetch: network-first for API, cache-first for static
+// Fetch: NETWORK-FIRST for HTML/JS, cache as fallback for offline
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url)
 
-  // Skip non-GET and Supabase API calls (always network)
+  // Skip non-GET and external APIs
   if (e.request.method !== 'GET') return
   if (url.hostname.includes('supabase.co')) return
   if (url.hostname.includes('googleapis.com') || url.hostname.includes('gstatic.com')) return
 
-  // Static assets: cache-first
+  // Network-first: try network, cache the response, fallback to cache if offline
   e.respondWith(
-    caches.match(e.request).then((cached) => {
-      const fetchPromise = fetch(e.request).then((response) => {
+    fetch(e.request)
+      .then((response) => {
         if (response && response.status === 200 && response.type === 'basic') {
           const clone = response.clone()
           caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone))
         }
         return response
-      }).catch(() => cached)
-
-      return cached || fetchPromise
-    })
+      })
+      .catch(() => caches.match(e.request))
   )
 })

@@ -292,7 +292,7 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
     summaryObjective: a.summary_objective,
     summaryBullets: [a.summary_bullet_1, a.summary_bullet_2, a.summary_bullet_3].filter(Boolean),
     summaryTip: a.summary_tip || '',
-    linkedAlertTypes: a.linked_alert_types ? a.linked_alert_types.split(',').map(s => s.trim()).filter(Boolean) : [],
+    linkedAlertTypes: Array.isArray(a.linked_alert_types) ? a.linked_alert_types : (a.linked_alert_types ? a.linked_alert_types.split(',').map(s => s.trim()).filter(Boolean) : []),
   }))
 
   // --- MICRO_TIPS (plan overrides > filtered ref) ---

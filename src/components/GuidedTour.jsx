@@ -10,26 +10,38 @@ const STEPS = [
   {
     target: 'slot-add',
     title: 'Le bouton +',
-    bodyPW: "C'est ici que tu ajoutes ce que tu manges. Appuie sur + à chaque repas.",
-    bodyGAIN: "C'est ici que tu ajoutes ce que tu manges. Appuie sur + à chaque repas.",
+    bodyPW: "C'est ici que tu ajoutes ce que tu manges. Choisis ton aliment, ajuste la quantité, valide. C'est tout.",
+    bodyGAIN: "C'est ici que tu ajoutes ce que tu manges. Choisis ton aliment, ajuste la quantité, valide. C'est tout.",
   },
   {
     target: 'macros',
     title: 'Tes macros',
     bodyPW: "Protéines, lipides, glucides : ces compteurs s'actualisent à chaque ajout. Pas besoin de calculer.",
-    bodyGAIN: "Protéines, lipides, glucides : ces compteurs s'actualisent à chaque ajout. Pas besoin de calculer.",
+    bodyGAIN: "Protéines, lipides, glucides : ces compteurs s'actualisent à chaque ajout. Assure-toi d'atteindre tes protéines chaque jour.",
   },
   {
     target: 'seg-toggle',
     title: 'Jour / Semaine',
-    bodyPW: "Passe en vue Semaine pour voir ta progression globale. C'est là que l'équilibre se construit.",
-    bodyGAIN: "Passe en vue Semaine pour voir ta progression globale. C'est là que l'équilibre se construit.",
+    bodyPW: "Passe en vue Semaine pour voir ta progression globale. C'est là que l'équilibre se construit — pas sur un seul jour.",
+    bodyGAIN: "Passe en vue Semaine pour voir ta progression globale. C'est la vue Semaine qui compte — un jour en dessous, un jour au-dessus, c'est normal.",
   },
   {
     target: 'tab-bar',
     title: 'Tes onglets',
-    bodyPW: "Plan, Conseils, Historique, Profil : tout est là. Explore à ton rythme.",
-    bodyGAIN: "Plan, Conseils, Historique, Profil : tout est là. Explore à ton rythme.",
+    bodyPW: "Plan : ton suivi quotidien. Conseils : tes axes de travail personnalisés. Historique : ta progression semaine après semaine.",
+    bodyGAIN: "Plan : ton suivi quotidien. Conseils : tes axes de travail personnalisés. Historique : ta progression semaine après semaine.",
+  },
+  {
+    target: 'tab-advice',
+    title: 'Tes conseils personnalisés',
+    bodyPW: "Chaque semaine, concentre-toi sur les axes prioritaires. Ce sont les leviers qui feront la plus grande différence pour toi.",
+    bodyGAIN: "Chaque semaine, concentre-toi sur les axes prioritaires. Ce sont les leviers qui feront la plus grande différence pour ta prise de masse.",
+  },
+  {
+    target: 'tab-history',
+    title: 'Évaluation hebdomadaire',
+    bodyPW: "Chaque dimanche, évalue ta semaine depuis l'onglet Conseils. Ton score de progression se construit ici — c'est ton rendez-vous avec toi-même.",
+    bodyGAIN: "Chaque dimanche, évalue ta semaine depuis l'onglet Conseils. C'est comme ça que tu suis ta progression et que tes conseils évoluent.",
   },
 ]
 
@@ -42,19 +54,14 @@ export default function GuidedTour({ onComplete, objectiveCode, accent }) {
   const s = STEPS[step]
   const isLast = step === STEPS.length - 1
 
-  // Reset skip counter when step changes via user interaction (button click)
-  // The counter only accumulates for consecutive auto-skips within a single render cycle
-
   useEffect(() => {
     const el = document.querySelector(`[data-tour="${s.target}"]`)
     if (!el) {
-      // Guard: stop the tour if we have auto-skipped too many consecutive steps
       if (skipCountRef.current >= 2) {
         skipCountRef.current = 0
         onComplete()
         return
       }
-      // Wait briefly before skipping to avoid rapid infinite loop
       skipCountRef.current += 1
       const t = setTimeout(() => {
         if (isLast) onComplete()
@@ -62,7 +69,6 @@ export default function GuidedTour({ onComplete, objectiveCode, accent }) {
       }, 300)
       return () => clearTimeout(t)
     }
-    // Target found — reset consecutive skip counter
     skipCountRef.current = 0
 
     el.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
@@ -157,7 +163,7 @@ export default function GuidedTour({ onComplete, objectiveCode, accent }) {
             background: 'transparent', color: '#6B7280',
             fontSize: 13, fontWeight: 700, cursor: 'pointer',
             fontFamily: 'inherit',
-          }}>Précédent</button>
+          }}>Retour</button>
         )}
         <button onClick={() => {
           if (isLast) onComplete()

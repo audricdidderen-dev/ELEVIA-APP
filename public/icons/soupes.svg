@@ -1,12 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="Pasta-Bowl-Warm--Streamline-Ultimate">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" id="Pasta-Bowl-Warm--Streamline-Ultimate">
   <desc>
     Pasta Bowl Warm Streamline Icon: https://streamlinehq.com
   </desc>
-  <g>
-    <path d="M23.5 13c0 6 -5.5 10.5 -11.5 10.5S0.5 19 0.5 13" fill="none" stroke="#0f1e2e" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
-    <path d="M0.5 13a11.5 2 0 1 0 23 0 11.5 2 0 1 0 -23 0" fill="none" stroke="#0f1e2e" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
-    <path d="M11.64 0.5c-3 3 3 4 0 7" fill="none" stroke="#0f1e2e" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
-    <path d="M7.14 2c-3 3 3 4 0 7" fill="none" stroke="#0f1e2e" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
-    <path d="M16.64 2c-3 3 3 4 0 7" fill="none" stroke="#0f1e2e" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
-  </g>
+  <path stroke="#191919" stroke-linecap="round" stroke-linejoin="round" d="M12 0.5a1.887 1.887 0 0 0 0 2.667 1.886 1.886 0 0 1 0 2.666A1.887 1.887 0 0 0 12 8.5" stroke-width="1"></path>
+  <path stroke="#191919" stroke-linecap="round" stroke-linejoin="round" d="M7.5 0.5a1.887 1.887 0 0 0 0 2.667 1.886 1.886 0 0 1 0 2.666 1.887 1.887 0 0 0 0 2.667" stroke-width="1"></path>
+  <path stroke="#191919" stroke-linecap="round" stroke-linejoin="round" d="M16.5 0.5a1.887 1.887 0 0 0 0 2.667 1.886 1.886 0 0 1 0 2.666 1.887 1.887 0 0 0 0 2.667" stroke-width="1"></path>
+  <path fill="#c9f7ca" d="M23.5 13c0 6 -5.5 10.5 -11.5 10.5S0.5 19 0.5 13" stroke-width="1"></path>
+  <path fill="#78eb7b" d="M12 18.613A11.852 11.852 0 0 1 1.845 13H0.5C0.5 19 6 23.5 12 23.5S23.5 19 23.5 13h-1.345A11.853 11.853 0 0 1 12 18.613Z" stroke-width="1"></path>
+  <path stroke="#191919" stroke-linecap="round" stroke-linejoin="round" d="M23.5 13c0 6 -5.5 10.5 -11.5 10.5S0.5 19 0.5 13" stroke-width="1"></path>
+  <path fill="#ffbc44" stroke="#191919" stroke-linecap="round" stroke-linejoin="round" d="M12 15c6.351 0 11.5 -0.9 11.5 -2s-5.149 -2 -11.5 -2S0.5 11.9 0.5 13s5.149 2 11.5 2Z" stroke-width="1"></path>
 </svg>

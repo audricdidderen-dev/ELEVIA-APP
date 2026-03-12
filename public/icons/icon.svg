@@ -9,10 +9,10 @@
       <stop offset="100%" stop-color="#B8903F"/>
     </linearGradient>
   </defs>
-  <!-- Background circle -->
-  <circle cx="256" cy="256" r="256" fill="url(#bg)"/>
+  <!-- Full navy background (maskable safe zone) -->
+  <rect width="512" height="512" fill="url(#bg)"/>
   <!-- Subtle ring -->
-  <circle cx="256" cy="256" r="230" fill="none" stroke="#C6A05B" stroke-width="1.5" opacity="0.25"/>
+  <circle cx="256" cy="256" r="200" fill="none" stroke="#C6A05B" stroke-width="1.5" opacity="0.25"/>
   <!-- Letter É — Cormorant Garamond inspired serif style -->
   <text
     x="256"
