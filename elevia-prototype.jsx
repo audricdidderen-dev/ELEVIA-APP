@@ -637,9 +637,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','DM Sans',system
 .fsm-card{position:fixed;inset:0;z-index:201;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;animation:fsmIn .25s ease-out}
 @keyframes fsmIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 .fsm-card.modal-closing{animation:fsmOut .22s ease-in forwards!important}@keyframes fsmOut{to{opacity:0;transform:translateY(40px)}}
-.fsm-handle{flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:calc(env(safe-area-inset-top,0px) + 8px) 0 2px;position:relative}
-.fsm-nav{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:6px 18px 10px;min-height:36px}
-.fsm-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding:0 18px;-webkit-transform:translateZ(0);transform:translateZ(0)}.fsm-body::-webkit-scrollbar{display:none}
+.fsm-nav{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top,0px) + 12px) 18px 10px;border-bottom:1px solid rgba(15,30,46,.06);background:var(--bg);min-height:44px}
+.fsm-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding:0 18px 18px}.fsm-body::-webkit-scrollbar{display:none}
 .fsm-footer{flex-shrink:0;padding:8px 18px calc(6px + env(safe-area-inset-bottom,8px));border-top:1px solid rgba(15,30,46,.06);background:var(--bg)}
 .advice-page{position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;background:#fff;animation:pageSlideIn .3s cubic-bezier(.25,.46,.45,.94) both}@keyframes pageSlideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
 .advice-page-out{animation:pageSlideOut .28s ease-in forwards!important}@keyframes pageSlideOut{to{transform:translateX(100%)}}
@@ -1020,7 +1019,7 @@ function fmtItemQty(stepper, totalGrams, profileRulesMap, eqId){
 
 /* ═══ FULL-SCREEN MODAL ═══ */
 function FullScreenModal({children}){
-  return <div className="fsm-card">{children}</div>;
+  return createPortal(<div className="fsm-card">{children}</div>, document.body);
 }
 
 /* ═══ ADD MODAL (Plan + Hors Plan + Quick-Log) ═══ */
@@ -1077,6 +1076,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
   const [qlSubmitting,setQlSubmitting]=useState(false);
   const [showApero,setShowApero]=useState(false);
   const qlDebounceRef=useRef(null);
+  const bodyRef=useRef(null);
 
   const allowed=SLOT_ALLOWED[slotId]||[];
   const planEqs=CATALOGUE.filter(eq=>allowed.includes(eq.eqId)&&isInPlan(eq.eqId));
@@ -1218,12 +1218,15 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
   const screen=showHpEdu?'hpEdu':qlSelected?'qlPortion':peekEq?'peek':selEq?'eqDetail':view==='catalogue'?'catalogue':'main';
   const slotName=SLOTS.find(s=>s.id===slotId)?.label?.replace(/\s*\(.*\)\s*$/,"");
   const goBack=()=>{
+    if(bodyRef.current)bodyRef.current.scrollTop=0;
     if(screen==='hpEdu')setShowHpEdu(false);
     else if(screen==='qlPortion'){setQlSelected(null);setQlPortion(null)}
     else if(screen==='peek')setPeekEq(null);
     else if(screen==='eqDetail'){setSelEq(null);setShowStepper(false);setShowNote(false)}
     else if(screen==='catalogue')setView('main');
   };
+  const prevScreenRef=useRef(screen);
+  useEffect(()=>{if(prevScreenRef.current!==screen){if(bodyRef.current)bodyRef.current.scrollTop=0;prevScreenRef.current=screen}})
 
   // Footer content (fixed at bottom of card)
   let footerCTA=null;
@@ -1285,41 +1288,35 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
 
   return(
   <FullScreenModal onClose={onClose}>
-    {/* Handle + close */}
-    <div className="fsm-handle">
-      <div className="modal-handle"/>
-      <button onClick={onClose} aria-label="Fermer" style={{position:"absolute",top:"calc(env(safe-area-inset-top,0px) + 8px)",right:14,width:30,height:30,borderRadius:99,background:"rgba(15,30,46,.06)",border:"none",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:14,color:"#9CA3AF"}}>✕</button>
-    </div>
-
-    {/* Navigation bar */}
+    {/* Header — like advice-page */}
     <div className="fsm-nav">
-      {screen!=='main'&&<button className="hdr-back" onClick={goBack} style={{padding:0}}>← Retour</button>}
-      {screen==='main'&&<div style={{display:"flex",alignItems:"center",gap:8}}>
-        <SlotIcon slotId={slotId} active={true} size={18}/>
-        <span className="modal-title" style={{margin:0}}>Ajouter à</span>
-        <span style={{fontSize:14,color:"rgba(15,30,46,.25)",fontWeight:300}}> — </span>
-        <span style={{fontSize:17,fontWeight:700,color:"var(--accent)",fontFamily:"'Cormorant Garamond',serif"}}>{slotName}</span>
+      <button className="hdr-back" onClick={screen==='main'?onClose:goBack} style={{padding:0,flexShrink:0}}>← {screen==='main'?'Fermer':'Retour'}</button>
+      {screen==='main'&&<div style={{display:"flex",alignItems:"center",gap:6,flex:1,minWidth:0}}>
+        <SlotIcon slotId={slotId} active={true} size={16}/>
+        <span style={{fontSize:15,fontWeight:700,color:"var(--text)"}}>Ajouter à</span>
+        <span style={{fontSize:15,fontWeight:700,color:"var(--accent)",fontFamily:"'Cormorant Garamond',serif"}}>{slotName}</span>
       </div>}
-      {screen==='peek'&&<div className="modal-title" style={{margin:0,display:"flex",alignItems:"center",gap:8,fontSize:18}}>
-        <EqIcon eqId={peekEq.eqId} size={20}/> {peekEq.label}
+      {screen==='peek'&&<div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:0}}>
+        <EqIcon eqId={peekEq.eqId} size={18}/> <span style={{fontSize:15,fontWeight:700,color:"var(--text)"}}>{peekEq.label}</span>
         {!allowed.includes(peekEq.eqId)&&<span className="chip-hp">Hors plan</span>}
       </div>}
-      {screen==='qlPortion'&&<div className="modal-title" style={{margin:0,display:"flex",alignItems:"center",gap:8,fontSize:18}}>
-        {qlSelected.label}
+      {screen==='qlPortion'&&<div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:0}}>
+        <span style={{fontSize:15,fontWeight:700,color:"var(--text)"}}>{qlSelected.label}</span>
         <span className="chip-hp" style={{background:"rgba(232,134,58,.1)",color:"#E8863A",border:"1px solid rgba(232,134,58,.2)"}}>Repas ext.</span>
       </div>}
       {screen==='eqDetail'&&<>
-        <div className="modal-title" style={{margin:0,flex:1,display:"flex",alignItems:"center",gap:8,fontSize:18}}>
-          <EqIcon eqId={selEq.eqId} size={20}/> {selEq.label}
+        <div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:0}}>
+          <EqIcon eqId={selEq.eqId} size={18}/> <span style={{fontSize:15,fontWeight:700,color:"var(--text)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{selEq.label}</span>
           {curHp&&<span className="chip-hp">Hors plan</span>}
         </div>
-        {selEq.noteElevia&&<button onClick={()=>setShowNote(n=>!n)} style={{background:showNote?obj.accentSoft:"none",border:showNote?`1px solid ${obj.accentBorderStrong}`:"1px solid transparent",borderRadius:99,padding:"4px 8px",cursor:"pointer",display:"flex",alignItems:"center",gap:4,transition:"all .2s"}}><IcInfoEq size={14} color={showNote?obj.accent:obj.accentLine}/></button>}
+        {selEq.noteElevia&&<button onClick={()=>setShowNote(n=>!n)} style={{background:showNote?obj.accentSoft:"none",border:showNote?`1px solid ${obj.accentBorderStrong}`:"1px solid transparent",borderRadius:99,padding:"4px 8px",cursor:"pointer",display:"flex",alignItems:"center",gap:4,transition:"all .2s",flexShrink:0}}><IcInfoEq size={14} color={showNote?obj.accent:obj.accentLine}/></button>}
       </>}
-      {screen==='catalogue'&&<span className="modal-title" style={{margin:0,fontSize:18}}>Catalogue complet</span>}
+      {screen==='catalogue'&&<span style={{fontSize:15,fontWeight:700,color:"var(--text)"}}>Catalogue complet</span>}
+      {screen==='hpEdu'&&<span style={{fontSize:15,fontWeight:700,color:"var(--text)"}}>Hors plan</span>}
     </div>
 
     {/* Scrollable body */}
-    <div className="fsm-body" key={screen}>
+    <div className="fsm-body" ref={bodyRef}>
       <div className="tab-content">
 
       {/* ═══ MAIN ═══ */}
@@ -3423,7 +3420,7 @@ export default function EleviaApp({ session, signOut, planData, logs: externalLo
     const root=document.getElementById('root');
     if(!root)return;
     const check=()=>{
-      const overlay=root.querySelector('.overlay')||root.querySelector('.fsm-card')||root.querySelector('.advice-page');
+      const overlay=root.querySelector('.overlay')||document.body.querySelector('.fsm-card')||root.querySelector('.advice-page');
       const tbar=root.querySelector('.tbar');
       const mask=root.querySelector('[data-bottom-mask]');
       if(tbar) tbar.style.display=overlay?'none':'';
@@ -3431,8 +3428,10 @@ export default function EleviaApp({ session, signOut, planData, logs: externalLo
     };
     const obs=new MutationObserver(check);
     obs.observe(root,{childList:true,subtree:true});
+    const bodyObs=new MutationObserver(check);
+    bodyObs.observe(document.body,{childList:true});
     check();
-    return()=>obs.disconnect();
+    return()=>{obs.disconnect();bodyObs.disconnect()};
   },[]);
 
   // Warmup: plan started Wed-Sun → official week 1 = next Monday
