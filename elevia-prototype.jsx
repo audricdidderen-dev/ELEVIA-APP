@@ -2076,7 +2076,7 @@ function AdviceDetail({adv,onClose,status,advices,onSelectAdv}){
   const prev=idx>0?advices[idx-1]:null;
   const next=idx>=0&&idx<(advices||[]).length-1?advices[idx+1]:null;
 
-  useEffect(()=>{setOpenSec(new Set())},[adv.id]);
+  useEffect(()=>{const c=document.querySelector('.content');if(c)c.scrollTop=0;setOpenSec(new Set())},[adv.id]);
 
   return <>
     <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:16}}>
