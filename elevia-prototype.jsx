@@ -1827,19 +1827,29 @@ function PlanTab({logs,onAddLog,onDeleteLog,weekConsumed,weekNutrients,streak,on
       <div style={{fontSize:11,color:"#6B7280",lineHeight:1.5,fontWeight:500}}>{tip.textFr}</div>
     </div>})()}
     {view==="day"?<div key="day-view" className="view-switch">
-      <div className="card" data-tour="kcal-ring" style={{padding:16}} aria-live="polite" aria-label="Progression calorique du jour">
-        <div style={{display:"flex",alignItems:"center",gap:14}}>
-          <div className={ringPulse?"success-pop":""} style={{position:"relative",width:64,height:64,flexShrink:0,transition:"filter .4s ease-out",filter:ringPulse?`drop-shadow(0 0 10px ${obj.accent})`:"none"}}>
-            <svg width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="none" stroke="rgba(15,30,46,.06)" strokeWidth="5"/><circle cx="32" cy="32" r="28" fill="none" stroke={obj.ringOrangeDir==='above'?(dayNut.kcal/DAY_TARGETS.kcal>obj.ringOrangeThreshold?"#E8863A":dayNut.kcal/DAY_TARGETS.kcal>=0.95?"#34C759":obj.accent):(dayNut.kcal/DAY_TARGETS.kcal<obj.ringOrangeThreshold?"#E8863A":dayNut.kcal/DAY_TARGETS.kcal>=0.95?"#34C759":obj.accent)} strokeWidth="5" strokeLinecap="round" strokeDasharray={`${Math.min(dayNut.kcal/DAY_TARGETS.kcal,1)*176} 176`} transform="rotate(-90 32 32)" style={{transition:"stroke-dasharray .6s cubic-bezier(.4,0,.2,1)"}}/></svg>
-            <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:700,color:"#1A1A1A"}}><AnimNum value={Math.round(dayNut.kcal/DAY_TARGETS.kcal*100)} duration={600} suffix="%"/></div>
-          </div>
-          <div style={{flex:1}}>
-            <div style={{fontSize:11,fontWeight:700,color:"#6B7280",textTransform:"uppercase",letterSpacing:".3px"}}>{obj.kcalFraming} du jour</div>
-            <div style={{fontSize:22,fontWeight:700,color:"#1A1A1A",marginTop:2}}><AnimNum value={Math.round(dayNut.kcal)} duration={500}/> <span style={{fontSize:13,fontWeight:600,color:"#6B7280"}}>/ {DAY_TARGETS.kcal} kcal</span></div>
+      <div data-tour="kcal-ring" style={{borderRadius:20,background:'linear-gradient(160deg,#0A1620 0%,#121E2D 40%,#142538 100%)',padding:'22px 20px 18px',marginBottom:12,position:'relative',overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.15),0 1px 4px rgba(0,0,0,.1)'}} aria-live="polite" aria-label="Progression calorique du jour">
+        <div style={{position:'absolute',top:'-30%',right:'-15%',width:180,height:180,borderRadius:'50%',background:'radial-gradient(circle,rgba(198,160,91,.08) 0%,transparent 70%)',pointerEvents:'none'}}/>
+        <div style={{position:'absolute',bottom:'-20%',left:'-10%',width:120,height:120,borderRadius:'50%',background:'radial-gradient(circle,rgba(198,160,91,.04) 0%,transparent 70%)',pointerEvents:'none'}}/>
+        <div style={{fontSize:11,fontWeight:700,color:'rgba(198,160,91,.55)',textTransform:'uppercase',letterSpacing:'.08em',textAlign:'center',marginBottom:16,position:'relative'}}>{obj.kcalFraming} du jour</div>
+        <div style={{display:'flex',justifyContent:'center',marginBottom:20,position:'relative'}}>
+          <div className={ringPulse?"success-pop":""} style={{position:'relative',width:92,height:92,flexShrink:0,transition:'filter .4s ease-out',filter:ringPulse?'drop-shadow(0 0 16px rgba(198,160,91,.45))':'drop-shadow(0 0 8px rgba(198,160,91,.1))'}}>
+            <svg width="92" height="92" viewBox="0 0 92 92"><circle cx="46" cy="46" r="39" fill="none" stroke="rgba(255,255,255,.06)" strokeWidth="5.5"/><circle cx="46" cy="46" r="39" fill="none" stroke={obj.ringOrangeDir==='above'?(dayNut.kcal/DAY_TARGETS.kcal>obj.ringOrangeThreshold?"#E8863A":dayNut.kcal/DAY_TARGETS.kcal>=0.95?"#34C759":obj.accent):(dayNut.kcal/DAY_TARGETS.kcal<obj.ringOrangeThreshold?"#E8863A":dayNut.kcal/DAY_TARGETS.kcal>=0.95?"#34C759":obj.accent)} strokeWidth="5.5" strokeLinecap="round" strokeDasharray={`${Math.min(dayNut.kcal/DAY_TARGETS.kcal,1)*245} 245`} transform="rotate(-90 46 46)" style={{transition:'stroke-dasharray .6s cubic-bezier(.4,0,.2,1)'}}/></svg>
+            <div style={{position:'absolute',inset:0,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center'}}>
+              <div style={{fontSize:22,fontWeight:700,color:'#fff',lineHeight:1}}><AnimNum value={Math.round(dayNut.kcal)} duration={500}/></div>
+              <div style={{fontSize:9,fontWeight:600,color:'rgba(255,255,255,.3)',marginTop:3}}>/ {DAY_TARGETS.kcal} kcal</div>
+            </div>
           </div>
         </div>
-        <div className="macros" data-tour="macros"><MPill letter="P" value={dayNut.p} target={DAY_TARGETS.p}/><MPill letter="L" value={dayNut.l} target={DAY_TARGETS.l}/><MPill letter="G" value={dayNut.g} target={DAY_TARGETS.g}/></div>
-        <div className="day-hint">{obj.dayHint}</div>
+        <div data-tour="macros" style={{display:'flex',gap:14,position:'relative'}}>
+          {[{l:'Prot',v:dayNut.p,t:DAY_TARGETS.p,c:'#C6A05B'},{l:'Lip',v:dayNut.l,t:DAY_TARGETS.l,c:'rgba(255,255,255,.25)'},{l:'Gluc',v:dayNut.g,t:DAY_TARGETS.g,c:'rgba(255,255,255,.25)'}].map((m,i)=>{const pct=m.t>0?Math.min(m.v/m.t,1):0;const ok=pct>=0.9&&pct<=1.1;const bc=ok?'#34C759':m.c;return <div key={i} style={{flex:1}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:5}}>
+              <span style={{fontSize:10,fontWeight:700,color:'rgba(255,255,255,.35)',letterSpacing:'.04em'}}>{m.l}</span>
+              <span style={{fontSize:12,fontWeight:700,color:ok?'#34C759':'rgba(255,255,255,.85)'}}><AnimNum value={Math.round(m.v)} duration={400}/><span style={{fontSize:9,fontWeight:500,color:'rgba(255,255,255,.25)'}}> /{Math.round(m.t)}</span></span>
+            </div>
+            <div style={{height:4,borderRadius:2,background:'rgba(255,255,255,.08)',overflow:'hidden'}}><div style={{height:'100%',borderRadius:2,background:bc,width:`${pct*100}%`,transition:'width .6s cubic-bezier(.4,0,.2,1)'}}/></div>
+          </div>})}
+        </div>
+        <div style={{fontSize:11,color:'rgba(255,255,255,.22)',textAlign:'center',fontStyle:'italic',marginTop:14}}>{obj.dayHint}</div>
       </div>
       {(()=>{
         const planKcal=logs.filter(l=>!l.eqId?.startsWith?.('ql_')).reduce((s,l)=>s+l.kcal,0);
