@@ -637,9 +637,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','DM Sans',system
 .fsm-card{position:fixed;inset:0;z-index:201;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;animation:fsmIn .25s ease-out}
 @keyframes fsmIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 .fsm-card.modal-closing{animation:fsmOut .22s ease-in forwards!important}@keyframes fsmOut{to{opacity:0;transform:translateY(40px)}}
-.fsm-nav{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top,0px) + 12px) 18px 10px;border-bottom:1px solid rgba(15,30,46,.06);background:var(--bg);min-height:44px}
+.fsm-nav{flex-shrink:0;display:flex;align-items:center;gap:12px;padding:calc(env(safe-area-inset-top,0px) + 14px) 20px 14px;border-bottom:1px solid rgba(15,30,46,.06);background:var(--bg)}
 .fsm-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding:0 18px 6px}.fsm-body::-webkit-scrollbar{display:none}
-.fsm-footer{flex-shrink:0;padding:12px 18px calc(10px + env(safe-area-inset-bottom,8px));border-top:1px solid rgba(15,30,46,.06);background:var(--bg)}
+.fsm-footer{flex-shrink:0;padding:14px 18px calc(14px + env(safe-area-inset-bottom,8px));border-top:1px solid rgba(15,30,46,.06);background:var(--bg)}
 .advice-page{position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;background:#fff;animation:pageSlideIn .3s cubic-bezier(.25,.46,.45,.94) both}@keyframes pageSlideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
 .advice-page-out{animation:pageSlideOut .28s ease-in forwards!important}@keyframes pageSlideOut{to{transform:translateX(100%)}}
 .advice-page-inner{width:100%;max-width:430px;margin:0 auto;height:100%;display:flex;flex-direction:column}
@@ -1231,7 +1231,9 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
   // Footer content (fixed at bottom of card)
   let footerCTA=null;
   if(screen==='main'){
-    footerCTA=<div style={{display:"flex",gap:10}}>
+    footerCTA=<>
+      <input className="search" placeholder="Autre chose ? Pizza, sushi, kebab..." value={qlSearch} onChange={e=>handleQlSearch(e.target.value)} style={{marginBottom:10}}/>
+      <div style={{display:"flex",gap:10}}>
       <button onClick={()=>setView("catalogue")} style={{flex:1,padding:"14px 16px",borderRadius:16,background:"rgba(15,30,46,.02)",border:"1px solid rgba(15,30,46,.08)",display:"flex",alignItems:"center",gap:10,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
         <span style={{display:"flex"}}><IcMenuWhy size={20} color="rgba(15,30,46,.4)"/></span>
         <div style={{flex:1,textAlign:"left"}}>
@@ -1244,7 +1246,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
         <span style={{display:"flex"}}><IcSitChampagne size={22} color="#E8863A"/></span>
         <div style={{fontSize:13,fontWeight:700,color:"#E8863A"}}>Apéro</div>
       </button>
-    </div>;
+    </div></>;
   } else if(screen==='peek'){
     footerCTA=<button className="btn-primary" onClick={()=>{setPeekEq(null);pickEq(peekEq,!allowed.includes(peekEq.eqId))}}>Logger cette équivalence</button>;
   } else if(screen==='qlPortion'){
@@ -1290,11 +1292,11 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
   <FullScreenModal onClose={onClose}>
     {/* Header — like advice-page */}
     <div className="fsm-nav">
-      <button className="hdr-back" onClick={screen==='main'?onClose:goBack} style={{padding:0,flexShrink:0}}>← {screen==='main'?'Fermer':'Retour'}</button>
+      <button className="hdr-back" onClick={screen==='main'?onClose:goBack} style={{padding:0,flexShrink:0,fontSize:15}}>← {screen==='main'?'Fermer':'Retour'}</button>
       {screen==='main'&&<div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:0}}>
-        <SlotIcon slotId={slotId} active={true} size={18}/>
-        <span style={{fontSize:17,fontWeight:700,color:"var(--text)",fontFamily:"'Cormorant Garamond',serif"}}>Ajouter à</span>
-        <span style={{fontSize:17,fontWeight:700,color:"var(--accent)",fontFamily:"'Cormorant Garamond',serif"}}>{slotName}</span>
+        <SlotIcon slotId={slotId} active={true} size={22}/>
+        <span style={{fontSize:20,fontWeight:700,color:"var(--text)",fontFamily:"'Cormorant Garamond',serif"}}>Ajouter à</span>
+        <span style={{fontSize:20,fontWeight:700,color:"var(--accent)",fontFamily:"'Cormorant Garamond',serif"}}>{slotName}</span>
       </div>}
       {screen==='peek'&&<div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:0}}>
         <EqIcon eqId={peekEq.eqId} size={18}/> <span style={{fontSize:15,fontWeight:700,color:"var(--text)"}}>{peekEq.label}</span>
@@ -1333,9 +1335,6 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
             <span style={{width:30,display:"flex",alignItems:"center",justifyContent:"center"}}><EqIcon eqId={eq.eqId} size={20}/></span><div className="eq-body"><div className="eq-name">{eq.label}</div><div className="eq-progress">{isDaily?`${tc}/${dt} jour`:`${wc}/${wt} sem.`}</div></div><span onClick={e=>{e.stopPropagation();setPeekEq(eq)}} style={{padding:"4px 6px",cursor:"pointer",display:"flex",alignItems:"center"}} title="Voir le tableau"><svg width="18" height="18" viewBox="-0.25 -0.25 24 24" fill="none" stroke="rgba(15,30,46,.3)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M11.75 22.521c5.949 0 10.771-4.822 10.771-10.771 0-5.949-4.822-10.771-10.771-10.771C5.801.979.979 5.801.979 11.75c0 5.949 4.822 10.771 10.771 10.771Z"/><path d="M11.692 16.5v-6.012a.858.858 0 0 0-.252-.607.858.858 0 0 0-.607-.252h-.859"/><path d="M11.263 7.782a.429.429 0 0 1-.43-.43.429.429 0 0 1 .43-.429"/><path d="M11.263 7.782a.429.429 0 0 0 .43-.43.429.429 0 0 0-.43-.429"/><path d="M9.975 16.5h3.55"/></svg></span><span style={{width:32,height:32,borderRadius:99,background:obj.accentSoft,border:`1px solid ${obj.accentBorder}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={obj.accent} strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
           </div>
         })}
-
-        <div style={{borderTop:"1px solid rgba(15,30,46,.06)",margin:"10px 0 8px"}}/>
-        <input className="search" placeholder="Autre chose ? Pizza, sushi, kebab..." value={qlSearch} onChange={e=>handleQlSearch(e.target.value)}/>
 
         {(quickLog?.categories||[]).length>0&&(qlSearch.length>=2||qlCatFilter)&&<div style={{display:"flex",gap:5,marginBottom:8,overflowX:"auto",paddingBottom:4}}>
           {(quickLog?.categories||[]).map(cat=>{
