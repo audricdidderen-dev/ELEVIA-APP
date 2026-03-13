@@ -634,6 +634,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','DM Sans',system
 @keyframes sheetUp{0%{transform:translateY(100%)}60%{transform:translateY(-2%)}100%{transform:translateY(0)}}
 .overlay-closing{animation:overlayOut .28s ease-in forwards!important}@keyframes overlayOut{to{opacity:0;backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0)}}
 .modal-closing{animation:sheetDown .28s ease-in forwards!important}@keyframes sheetDown{to{transform:translateY(100%)}}
+.fsm-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.5);animation:overlayIn .25s ease-out;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);-webkit-transform:translateZ(0);transform:translateZ(0)}
+.fsm-card{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);left:0;right:0;bottom:0;z-index:201;background:var(--bg);border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden;animation:sheetUp .35s cubic-bezier(.32,1.2,.54,1);box-shadow:0 -8px 40px rgba(0,0,0,.15),0 -2px 10px rgba(0,0,0,.06)}
+.fsm-handle{flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:10px 0 2px;position:relative}
+.fsm-nav{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:6px 18px 10px;min-height:36px}
+.fsm-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:0 18px 20px}.fsm-body::-webkit-scrollbar{display:none}
+.fsm-footer{flex-shrink:0;padding:12px 18px calc(12px + env(safe-area-inset-bottom,16px));border-top:1px solid rgba(15,30,46,.06);background:var(--bg)}
 .advice-page{position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;background:#fff;animation:pageSlideIn .3s cubic-bezier(.25,.46,.45,.94) both}@keyframes pageSlideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
 .advice-page-out{animation:pageSlideOut .28s ease-in forwards!important}@keyframes pageSlideOut{to{transform:translateX(100%)}}
 .advice-page-inner{width:100%;max-width:430px;margin:0 auto;height:100%;display:flex;flex-direction:column}
@@ -1011,6 +1017,67 @@ function fmtItemQty(stepper, totalGrams, profileRulesMap, eqId){
   return`${Math.round(totalGrams)}g`;
 }
 
+/* ═══ FULL-SCREEN MODAL (replaces bottom-sheet for AddModal) ═══ */
+function FullScreenModal({onClose,children}){
+  const cardRef=useRef(null);
+  const overlayRef=useRef(null);
+  const startY=useRef(0);
+  const currentY=useRef(0);
+  const dragging=useRef(false);
+  const dismissed=useRef(false);
+  const [closing,setClosing]=useState(false);
+
+  const handleClose=useCallback(()=>{if(closing||dismissed.current)return;setClosing(true);setTimeout(onClose,280)},[onClose,closing]);
+
+  const onTouchStart=useCallback(e=>{
+    if(dismissed.current)return;
+    const card=cardRef.current;if(!card)return;
+    const rect=card.getBoundingClientRect();
+    if(e.touches[0].clientY-rect.top>50){startY.current=0;return;}
+    startY.current=e.touches[0].clientY;
+    currentY.current=0;dragging.current=false;
+    card.style.willChange='transform';
+  },[]);
+
+  const onTouchMove=useCallback(e=>{
+    if(dismissed.current||!startY.current)return;
+    const dy=e.touches[0].clientY-startY.current;
+    if(!dragging.current){
+      if(dy<0){startY.current=0;return;}
+      if(dy>8)dragging.current=true;else return;
+    }
+    const damped=dy*0.55;
+    currentY.current=dy;
+    if(cardRef.current)cardRef.current.style.transform=`translateY(${damped}px)`;
+    if(overlayRef.current){const p=Math.min(damped/250,1);overlayRef.current.style.background=`rgba(0,0,0,${(0.5*(1-p*.6)).toFixed(3)})`;}
+    e.preventDefault();
+  },[]);
+
+  const onTouchEnd=useCallback(()=>{
+    if(cardRef.current)cardRef.current.style.willChange='';
+    if(!startY.current||!dragging.current){startY.current=0;return;}
+    startY.current=0;dragging.current=false;
+    if(currentY.current>80){
+      dismissed.current=true;
+      if(cardRef.current){cardRef.current.style.transition='transform .28s ease-in';cardRef.current.style.transform='translateY(100%)';}
+      if(overlayRef.current){overlayRef.current.style.transition='opacity .28s ease-in';overlayRef.current.style.opacity='0';}
+      setTimeout(onClose,280);
+    } else if(cardRef.current){
+      cardRef.current.style.transition='transform .3s cubic-bezier(.25,.46,.45,.94)';
+      cardRef.current.style.transform='';
+      if(overlayRef.current){overlayRef.current.style.transition='background .3s ease';overlayRef.current.style.background='';}
+      setTimeout(()=>{if(cardRef.current)cardRef.current.style.transition='';if(overlayRef.current)overlayRef.current.style.transition='';},300);
+    }
+  },[onClose]);
+
+  return <div ref={overlayRef} className={`fsm-overlay${closing?' overlay-closing':''}`} onClick={handleClose}>
+    <div ref={cardRef} className={`fsm-card${closing?' modal-closing':''}`} onClick={e=>e.stopPropagation()}
+      onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
+      {children}
+    </div>
+  </div>;
+}
+
 /* ═══ ADD MODAL (Plan + Hors Plan + Quick-Log) ═══ */
 function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quickLog}){
   const d=useData();
@@ -1199,302 +1266,339 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
 
   const curHp=selEq&&!allowed.includes(selEq.eqId);
 
-  // Apero session overlay
+  // Apero session — separate full-screen component
   if(showApero)return <AperoSession slotId={slotId} onClose={onClose} onBack={()=>setShowApero(false)} onLog={onLog} quickLog={quickLog}/>;
 
-  // Peek at eq table (consultation only, no logging)
-  if(peekEq)return(
-    <SwipeModal onClose={onClose}>
-      <button aria-label="Retour" className="hdr-back" onClick={()=>setPeekEq(null)} style={{padding:0,marginBottom:8}}>← Retour</button>
-      <div className="modal-title" style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}><EqIcon eqId={peekEq.eqId} size={20}/> {peekEq.label}{!allowed.includes(peekEq.eqId)&&<span className="chip-hp" style={{marginLeft:8}}>Hors plan</span>}</div>
-      {isInPlan(peekEq.eqId)&&allowed.includes(peekEq.eqId)&&<div style={{display:"flex",gap:12,marginBottom:14}}>
-        <div style={{flex:1,padding:"10px 12px",borderRadius:12,background:"rgba(15,30,46,.03)",textAlign:"center"}}>
-          <div style={{fontSize:10,color:"#9CA3AF",fontWeight:600,textTransform:"uppercase",letterSpacing:".3px",marginBottom:2}}>Cible semaine</div>
-          <div style={{fontSize:18,fontWeight:700,color:"#1A1A1A"}}>{PLAN_TARGETS[peekEq.eqId]}</div>
-        </div>
-        <div style={{flex:1,padding:"10px 12px",borderRadius:12,background:"rgba(15,30,46,.03)",textAlign:"center"}}>
-          <div style={{fontSize:10,color:"#9CA3AF",fontWeight:600,textTransform:"uppercase",letterSpacing:".3px",marginBottom:2}}>Consommé</div>
-          <div style={{fontSize:18,fontWeight:700,color:obj.accent}}>{WEEK_CONSUMED[peekEq.eqId]||0}</div>
-        </div>
-      </div>}
-      {peekEq.noteElevia&&<div style={{marginBottom:14,padding:10,background:obj.accentSoft,border:`1px solid ${obj.accentBorder}`,borderRadius:14,fontSize:12,color:"#1A1A1A",lineHeight:1.6}}>{peekEq.noteElevia}</div>}
-      <div style={{fontSize:12,fontWeight:700,color:obj.accent,textTransform:"uppercase",letterSpacing:".3px",marginBottom:8}}>Tes équivalences</div>
-      {peekEq.items.length===0&&<div style={{textAlign:"center",padding:"24px 0"}}><div className="empty-icon" style={{display:"flex",justifyContent:"center",marginBottom:8}}><IcListEmpty size={28} color="rgba(15,30,46,0.2)"/></div><div style={{fontSize:12,color:"#6B7280"}}>Aucune équivalence détaillée</div></div>}
-      {peekEq.items.map(item=>{
-        const isRecipe=peekEq.type==='recette'||item.foodLabel?.toLowerCase().includes('recette');
-        const hasV=item.variants&&item.variants.length>0&&!isRecipe;
-        const isHP=!allowed.includes(peekEq.eqId);
-        return <div key={item.itemId} role={isHP?"button":undefined} tabIndex={isHP?0:undefined}
-          onClick={isHP?()=>{setPeekEq(null);pickEq(peekEq,true)}:undefined}
-          style={{padding:"10px 12px",marginBottom:4,borderRadius:12,background:"rgba(15,30,46,.02)",border:"1px solid rgba(15,30,46,.06)",cursor:isHP?"pointer":"default",transition:isHP?"background .15s":"none"}}>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-            <div style={{display:"flex",alignItems:"center",gap:6,minWidth:0,flex:1}}>
-              {item.isRecommended&&<span style={{fontSize:8,color:obj.accent}}>★</span>}
-              <span style={{fontSize:13,fontWeight:600,color:"#1A1A1A",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.foodLabel}</span>
-            </div>
-            {!isHP&&<span style={{fontSize:12,color:"#6B7280",whiteSpace:"nowrap",marginLeft:8}}>
-              {fmtItemQty(item.stepper,slotTargetGrams(peekEq,item),PROFILE_RULES,peekEq.eqId)}
-            </span>}
-            {isHP&&<span style={{fontSize:14,color:"#E8863A",flexShrink:0}}>+</span>}
-          </div>
-          {hasV&&<div style={{display:"flex",flexWrap:"wrap",gap:4,marginTop:5}}>
-            {item.variants.map((v,vi)=><span key={vi} style={{fontSize:9.5,fontWeight:500,padding:"2px 7px",borderRadius:99,background:"rgba(15,30,46,.03)",border:"1px solid rgba(15,30,46,.05)",color:"#9CA3AF",lineHeight:"14px",whiteSpace:"nowrap"}}>{v.label}</span>)}
-          </div>}
-        </div>}
-      )}
-      <button className="btn-primary" style={{marginTop:14}} onClick={()=>{setPeekEq(null);pickEq(peekEq,!allowed.includes(peekEq.eqId))}}>Logger cette équivalence</button>
-    </SwipeModal>
-  );
+  // Determine current screen
+  const screen=showHpEdu?'hpEdu':qlSelected?'qlPortion':peekEq?'peek':selEq?'eqDetail':view==='catalogue'?'catalogue':'main';
+  const slotName=SLOTS.find(s=>s.id===slotId)?.label?.replace(/\s*\(.*\)\s*$/,"");
+  const goBack=()=>{
+    if(screen==='hpEdu')setShowHpEdu(false);
+    else if(screen==='qlPortion'){setQlSelected(null);setQlPortion(null)}
+    else if(screen==='peek')setPeekEq(null);
+    else if(screen==='eqDetail'){setSelEq(null);setShowStepper(false);setShowNote(false)}
+    else if(screen==='catalogue')setView('main');
+  };
 
-  if(showHpEdu)return(
-    <SwipeModal onClose={onClose} style={{maxHeight:"50%"}}>
-      <div style={{textAlign:"center",padding:"10px 0 20px"}}>
-        <div style={{display:"flex",justifyContent:"center",marginBottom:12}}><IcMsgStar size={40} color="rgba(15,30,46,.25)"/></div>
-        <div className="modal-title">Tu peux le faire</div>
-        <div className="modal-sub" style={{marginTop:8}}>{obj.hpEducation}</div>
-        <button className="btn-primary" onClick={()=>setShowHpEdu(false)}>Compris</button>
-      </div>
-    </SwipeModal>
-  );
-
-  // QL portion picker sub-view
-  if(qlSelected){
-    const portions=qlSelected.portions||[];
-    const flags=qlSelected.flags||[];
-    return(
-    <SwipeModal onClose={onClose}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-        <button aria-label="Retour" className="hdr-back" onClick={()=>{setQlSelected(null);setQlPortion(null)}} style={{padding:0}}>← Retour</button>
-      </div>
-      <div className="modal-title" style={{display:"flex",alignItems:"center",gap:8}}>
-        {qlSelected.label}
-        <span className="chip-hp" style={{marginLeft:4,background:"rgba(232,134,58,.1)",color:"#E8863A",border:"1px solid rgba(232,134,58,.2)"}}>Repas ext.</span>
-      </div>
-      {qlSelected.description&&<div className="modal-sub" style={{marginTop:2}}>{qlSelected.description}</div>}
-      {flags.length>0&&<div style={{display:"flex",gap:4,flexWrap:"wrap",marginTop:6,marginBottom:8}}>
-        {flags.map(f=><span key={f} style={{padding:"2px 8px",borderRadius:99,fontSize:9,fontWeight:700,background:"rgba(15,30,46,.04)",border:"1px solid rgba(15,30,46,.08)",color:"#6B7280",textTransform:"uppercase"}}>{f.replace(/_/g,' ')}</span>)}
-      </div>}
-      <div className="modal-section" style={{marginTop:8}}>Choisis ta taille</div>
-      {portions.map(p=>{
-        const sel=qlPortion?.option_key===p.option_key;
-        return <div key={p.option_key} onClick={()=>setQlPortion(p)} style={{
-          display:"flex",alignItems:"center",justifyContent:"space-between",
-          padding:"10px 12px",marginBottom:6,borderRadius:14,cursor:"pointer",
-          background:sel?obj.accentSoft:"rgba(15,30,46,.02)",
-          border:`1px solid ${sel?obj.accentBorderStrong:"rgba(15,30,46,.06)"}`,
-          transition:"all .15s",
-        }}>
-          <div>
-            <div style={{fontSize:13,fontWeight:700,color:"#1A1A1A"}}>{p.label_short||p.label_long||p.option_key}</div>
-            <div style={{fontSize:11,color:"#6B7280",marginTop:1}}>{p.grams_or_ml}g</div>
-          </div>
-          <div style={{textAlign:"right"}}>
-            <div style={{fontSize:13,fontWeight:700,color:sel?obj.accent:"#1A1A1A"}}>{Math.round(Number(p.kcal))} kcal</div>
-            <div style={{fontSize:10,color:"#6B7280"}}>P{Math.round(Number(p.p))} L{Math.round(Number(p.l))} G{Math.round(Number(p.g))}</div>
-          </div>
-        </div>
-      })}
-      <button className="btn-primary" disabled={!qlPortion||qlSubmitting} onClick={submitQl} style={{marginTop:8,opacity:qlSubmitting?.6:1}}>
-        {qlSubmitting?"...":`Valider ${qlPortion?Math.round(Number(qlPortion.kcal))+" kcal":""}`}
-      </button>
-    </SwipeModal>);
-  }
-
-  if(selEq&&selEq.qtyUi.defaultAction!=="LOG_COMPLETION"){
+  // Footer CTA button (sticky at bottom, always visible)
+  let footerCTA=null;
+  if(screen==='peek'){
+    footerCTA=<button className="btn-primary" onClick={()=>{setPeekEq(null);pickEq(peekEq,!allowed.includes(peekEq.eqId))}}>Logger cette équivalence</button>;
+  } else if(screen==='qlPortion'){
+    footerCTA=<button className="btn-primary" disabled={!qlPortion||qlSubmitting} onClick={submitQl} style={{opacity:qlSubmitting?.6:1}}>
+      {qlSubmitting?"...":`Valider ${qlPortion?Math.round(Number(qlPortion.kcal))+" kcal":""}`}
+    </button>;
+  } else if(screen==='hpEdu'){
+    footerCTA=<button className="btn-primary" onClick={()=>setShowHpEdu(false)}>Compris</button>;
+  } else if(screen==='eqDetail'){
     const mode=selEq.qtyUi.appInputMode;
-    return(
-    <SwipeModal onClose={onClose}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-        <button aria-label="Retour" className="hdr-back" onClick={()=>{setSelEq(null);setShowStepper(false);setShowNote(false)}} style={{padding:0}}>← Retour</button>
-        {selEq.noteElevia&&<button onClick={()=>setShowNote(n=>!n)} style={{background:showNote?obj.accentSoft:"none",border:showNote?`1px solid ${obj.accentBorderStrong}`:"1px solid transparent",borderRadius:99,padding:"4px 8px",cursor:"pointer",display:"flex",alignItems:"center",gap:4,transition:"all .2s"}}><IcInfoEq size={14} color={showNote?obj.accent:obj.accentLine}/></button>}
-      </div>
-      {showNote&&selEq.noteElevia&&<div style={{marginBottom:12,padding:10,background:obj.accentSoft,border:`1px solid ${obj.accentBorder}`,borderRadius:14,fontSize:12,color:"#1A1A1A",lineHeight:1.6,animation:"fadeUp .2s ease-out"}}>{selEq.noteElevia}</div>}
-      <div className="modal-title" style={{display:"flex",alignItems:"center",gap:8}}><EqIcon eqId={selEq.eqId} size={20}/> {selEq.label}{curHp&&<span className="chip-hp" style={{marginLeft:8}}>Hors plan</span>}</div>
-      {!curHp&&isInPlan(selEq.eqId)&&<div style={{display:"flex",gap:12,margin:"10px 0 6px"}}>
-        <div style={{flex:1,padding:"8px 10px",borderRadius:10,background:"rgba(15,30,46,.03)",textAlign:"center"}}>
-          <div style={{fontSize:9,color:"#9CA3AF",fontWeight:600,textTransform:"uppercase",letterSpacing:".3px",marginBottom:1}}>Cible semaine</div>
-          <div style={{fontSize:16,fontWeight:700,color:"#1A1A1A"}}>{PLAN_TARGETS[selEq.eqId]}</div>
-        </div>
-        <div style={{flex:1,padding:"8px 10px",borderRadius:10,background:"rgba(15,30,46,.03)",textAlign:"center"}}>
-          <div style={{fontSize:9,color:"#9CA3AF",fontWeight:600,textTransform:"uppercase",letterSpacing:".3px",marginBottom:1}}>Consommé</div>
-          <div style={{fontSize:16,fontWeight:700,color:obj.accent}}>{WEEK_CONSUMED[selEq.eqId]||0}</div>
-        </div>
-      </div>}
-
-      {mode==="PORTION_TAP"&&<>
-        <div style={{fontSize:12,color:"#6B7280",marginBottom:8}}>1 portion = {selEq.qtyPlanGrams}{qtyUnit(selEq)}</div>
-        <div className="stepper">
-          <button aria-label="Réduire la quantité" className="stepper-btn" disabled={portion<=(selEq.qtyUi.portionMin||0.25)} onClick={()=>setPortion(p=>Math.max(selEq.qtyUi.portionMin||0.25,p-(selEq.qtyUi.portionStep||0.25)))}>−</button>
-          <div><div className="stepper-val">{portion}</div><div className="stepper-unit">portion{portion!==1?"s":""}</div></div>
-          <button aria-label="Augmenter la quantité" className="stepper-btn" disabled={portion>=(selEq.qtyUi.portionMax||4)} onClick={()=>setPortion(p=>Math.min(selEq.qtyUi.portionMax||4,p+(selEq.qtyUi.portionStep||0.25)))}>+</button>
-        </div>
-        {liveCalc&&<div className="live-calc"><div className="live-main">≈ {liveCalc.grams}{qtyUnit(selEq)} · {liveCalc.kcal} kcal</div><div className="live-sub">P{liveCalc.p} · L{liveCalc.l} · G{liveCalc.g}</div></div>}
-        <button className="btn-primary" onClick={()=>doLog(selEq,null,portion,portion,curHp)}>Valider {portion} portion{portion!==1?"s":""}</button>
-      </>}
-
-      {mode!=="PORTION_TAP"&&<>
-        {!showStepper&&!showTable&&!curHp&&<>
-          <button className="btn-primary" style={{marginTop:12}} onClick={()=>{const pg=portionGrams(selEq,selItem);const u=selItem?.stepper?.usualGPerUnit>0?Math.round(pg/selItem.stepper.usualGPerUnit)||1:1;doLog(selEq,selItem,u,1,curHp)}}>Ajouter 1 portion</button>
-          <button className="btn-text" onClick={()=>{setShowStepper(true);if(selEq.items.length===0)setUnits(selEq.qtyPlanGrams||100)}} style={{margin:"12px auto 0",display:"block",textAlign:"center"}}>Modifier la quantité →</button>
-        </>}
-        {showTable&&<>
-          <div className="modal-section" style={{marginBottom:8}}>Mes équivalences</div>
-          {selEq.items.map(item=>{
-            const isRecipe=selEq.type==='recette'||item.foodLabel?.toLowerCase().includes('recette');
-            const hasV=item.variants&&item.variants.length>0&&!isRecipe;
-            return <div key={item.itemId} style={{padding:"9px 12px",marginBottom:4,borderRadius:12,background:"rgba(15,30,46,.02)",border:"1px solid rgba(15,30,46,.06)"}}>
-              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                <div style={{display:"flex",alignItems:"center",gap:6,minWidth:0}}>
-                  <span style={{fontSize:13,fontWeight:600,color:"#1A1A1A",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.foodLabel}</span>
-                </div>
-                {!curHp&&isInPlan(selEq.eqId)&&<span style={{fontSize:12,color:"#6B7280",whiteSpace:"nowrap",marginLeft:8}}>
-                  {fmtItemQty(item.stepper,slotTargetGrams(selEq,item),PROFILE_RULES,selEq.eqId)}
-                </span>}
-              </div>
-              {hasV&&<div style={{display:"flex",flexWrap:"wrap",gap:4,marginTop:5}}>
-                {item.variants.map((v,vi)=><span key={vi} style={{fontSize:9.5,fontWeight:500,padding:"2px 7px",borderRadius:99,background:"rgba(15,30,46,.03)",border:"1px solid rgba(15,30,46,.05)",color:"#9CA3AF",lineHeight:"14px",whiteSpace:"nowrap"}}>{v.label}</span>)}
-              </div>}
-            </div>}
-          )}
-          <button className="btn-text" onClick={()=>setShowTable(false)} style={{marginTop:8}}>← Retour</button>
-        </>}
-        {(showStepper||(curHp&&!showTable))&&(()=>{
-          const refG=selEq.qtyPlanGrams||100;const npp=selEq.nutrientsPerPortion||{kcal:0,p:0,l:0,g:0};
-          const fbCalc=(g)=>({kcal:Math.round(npp.kcal*g/refG),p:Math.round(npp.p*g/refG*10)/10,l:Math.round(npp.l*g/refG*10)/10,g:Math.round(npp.g*g/refG*10)/10});
-          return <>
-          {selEq.items.length>0&&<>
-            <div className="modal-section">{mode==="ITEM_FIRST_PICK"?"Choisis ton item":"Items"}</div>
-            {selEq.items.map(item=>(
-              <div key={item.itemId} className={`item-row ${selItem?.itemId===item.itemId?"selected":""}`}
-                onClick={()=>{setSelItem(item);if(item.stepper?.usualGPerUnit>0){const g=slotTargetGrams(selEq,item);setUnits(Math.round(g/item.stepper.usualGPerUnit)||1)}else{setUnits(item.stepper?.defaultUnits||refG)}}}>
-                <span className="item-label">{item.foodLabel}</span>
-                <span className="item-detail">{!curHp&&isInPlan(selEq.eqId)?fmtItemQty(item.stepper,slotTargetGrams(selEq,item),PROFILE_RULES,selEq.eqId):""}</span>
-              </div>
-            ))}
-          </>}
-          {/* Item avec stepper normal (pain=tranches, fruits=unités, etc.) */}
-          {selItem?.stepper&&<>
-            <div key={selItem.itemId+"_stepper"} className="stepper" ref={el=>{if(el)setTimeout(()=>el.scrollIntoView({behavior:"smooth",block:"center"}),50)}}>
-              <button aria-label="Réduire la quantité" className="stepper-btn" disabled={units<=(selItem.stepper.minUnits||0)} onClick={()=>{haptic(6);setUnits(u=>Math.max(selItem.stepper.minUnits||0,u-(selItem.stepper.unitStep||1)))}}>−</button>
-              <div><div className="stepper-val"><AnimNum value={units} duration={200}/></div><div className="stepper-unit">{units<=1?selItem.stepper.usualUnitSg:selItem.stepper.usualUnitPl}</div></div>
-              <button aria-label="Augmenter la quantité" className="stepper-btn" disabled={units>=(selItem.stepper.maxUnits||20)} onClick={()=>{haptic(6);setUnits(u=>Math.min(selItem.stepper.maxUnits||20,u+(selItem.stepper.unitStep||1)))}}>+</button>
-            </div>
-            {liveCalc&&<div className="live-calc"><div className="live-main">≈ {liveCalc.grams}{qtyUnit(selEq)} · {liveCalc.kcal} kcal</div><div className="live-sub">P{liveCalc.p} · L{liveCalc.l} · G{liveCalc.g}</div></div>}
-          </>}
-          {/* Fallback grammes: item sans stepper OU EQ sans items */}
-          {(selItem&&!selItem.stepper||selEq.items.length===0)&&<>
-            <div key={(selItem?.itemId||"eq")+"_fb_stepper"} className="stepper" ref={el=>{if(el)setTimeout(()=>el.scrollIntoView({behavior:"smooth",block:"center"}),50)}}>
-              <button aria-label="Réduire" className="stepper-btn" disabled={units<=25} onClick={()=>{haptic(6);setUnits(u=>Math.max(25,u-25))}}>−</button>
-              <div><div className="stepper-val"><AnimNum value={units} duration={200}/></div><div className="stepper-unit">{qtyUnit(selEq)==="ml"?"ml":"grammes"}</div></div>
-              <button aria-label="Augmenter" className="stepper-btn" disabled={units>=500} onClick={()=>{haptic(6);setUnits(u=>Math.min(500,u+25))}}>+</button>
-            </div>
-            {(()=>{const c=fbCalc(units);return <div className="live-calc"><div className="live-main">{c.kcal} kcal</div><div className="live-sub">P{c.p} · L{c.l} · G{c.g}</div></div>})()}
-          </>}
-          <button className="btn-primary" onClick={()=>{
-            if(selItem?.stepper)doLog(selEq,selItem,units,liveCalc?.portion||1,curHp);
-            else{const port=units/(refG||100);doLog(selEq,selItem,units,Math.round(port*100)/100,curHp)}
-          }}>Valider{!selItem?.stepper&&selEq.items.length===0?` ${units}g`:""}</button>
-        </>})()}
-      </>}
-    </SwipeModal>);
+    if(mode==='PORTION_TAP'){
+      footerCTA=<button className="btn-primary" onClick={()=>doLog(selEq,null,portion,portion,curHp)}>Valider {portion} portion{portion!==1?"s":""}</button>;
+    } else if(!showStepper&&!showTable&&!curHp){
+      footerCTA=<>
+        <button className="btn-primary" onClick={()=>{const pg=portionGrams(selEq,selItem);const u=selItem?.stepper?.usualGPerUnit>0?Math.round(pg/selItem.stepper.usualGPerUnit)||1:1;doLog(selEq,selItem,u,1,curHp)}}>Ajouter 1 portion</button>
+        <button className="btn-text" onClick={()=>{setShowStepper(true);if(selEq.items.length===0)setUnits(selEq.qtyPlanGrams||100)}}>Modifier la quantité →</button>
+      </>;
+    } else if(!showTable&&(showStepper||curHp)){
+      const refG=selEq.qtyPlanGrams||100;
+      footerCTA=<button className="btn-primary" onClick={()=>{
+        if(selItem?.stepper)doLog(selEq,selItem,units,liveCalc?.portion||1,curHp);
+        else{const port=units/(refG||100);doLog(selEq,selItem,units,Math.round(port*100)/100,curHp)}
+      }}>Valider{!selItem?.stepper&&selEq.items.length===0?` ${units}g`:""}</button>;
+    }
   }
 
   return(
-  <SwipeModal onClose={onClose}>
-    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}><SlotIcon slotId={slotId} active={true} size={18}/><span className="modal-title" style={{margin:0}}>Ajouter à</span><span style={{fontSize:14,color:"rgba(15,30,46,.25)",fontWeight:300}}> — </span><span style={{fontSize:17,fontWeight:700,color:"var(--accent)",fontFamily:"'Cormorant Garamond',serif"}}>{SLOTS.find(s=>s.id===slotId)?.label?.replace(/\s*\(.*\)\s*$/,"")}</span></div>
+  <FullScreenModal onClose={onClose}>
+    {/* Handle + close */}
+    <div className="fsm-handle">
+      <div className="modal-handle"/>
+      <button onClick={onClose} aria-label="Fermer" style={{position:"absolute",top:8,right:14,width:30,height:30,borderRadius:99,background:"rgba(15,30,46,.06)",border:"none",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:14,color:"#9CA3AF"}}>✕</button>
+    </div>
 
-    {view==="main"&&<>
-      {/* Plan equivalences */}
-      <div style={{fontSize:11,fontWeight:700,color:"rgba(15,30,46,.35)",textTransform:"uppercase",letterSpacing:".5px",marginBottom:6}}>Tes équivalences pour ce repas</div>
-      {planEqs.map(eq=>{
-        const wc=WEEK_CONSUMED[eq.eqId]||0,wt=PLAN_TARGETS[eq.eqId]||0;
-        const sqSlots=SLOT_QTY[eq.eqId]||{};
-        const totalFreq=Object.values(sqSlots).reduce((s,v)=>s+(v.freqWeek||0),0);
-        const isDaily=totalFreq>=7;
-        const tc=isDaily?(todayLogs||[]).filter(l=>l.eqId===eq.eqId).reduce((s,l)=>s+(l.qtyPortion||1),0):0;
-        const dt=isDaily?Math.round(wt/7):0;
-        return <div key={eq.eqId} className="eq-card" role="button" tabIndex={0} onClick={()=>pickEq(eq,false)}>
-          <span style={{width:30,display:"flex",alignItems:"center",justifyContent:"center"}}><EqIcon eqId={eq.eqId} size={20}/></span><div className="eq-body"><div className="eq-name">{eq.label}</div><div className="eq-progress">{isDaily?`${tc}/${dt} jour`:`${wc}/${wt} sem.`}</div></div><span onClick={e=>{e.stopPropagation();setPeekEq(eq)}} style={{padding:"4px 6px",cursor:"pointer",display:"flex",alignItems:"center"}} title="Voir le tableau"><svg width="18" height="18" viewBox="-0.25 -0.25 24 24" fill="none" stroke="rgba(15,30,46,.3)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M11.75 22.521c5.949 0 10.771-4.822 10.771-10.771 0-5.949-4.822-10.771-10.771-10.771C5.801.979.979 5.801.979 11.75c0 5.949 4.822 10.771 10.771 10.771Z"/><path d="M11.692 16.5v-6.012a.858.858 0 0 0-.252-.607.858.858 0 0 0-.607-.252h-.859"/><path d="M11.263 7.782a.429.429 0 0 1-.43-.43.429.429 0 0 1 .43-.429"/><path d="M11.263 7.782a.429.429 0 0 0 .43-.43.429.429 0 0 0-.43-.429"/><path d="M9.975 16.5h3.55"/></svg></span><span style={{width:32,height:32,borderRadius:99,background:obj.accentSoft,border:`1px solid ${obj.accentBorder}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={obj.accent} strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
-        </div>
-      })}
-
-      {/* Divider + QL search */}
-      <div style={{borderTop:"1px solid rgba(15,30,46,.06)",margin:"14px 0 10px"}}/>
-      <input className="search" placeholder="Autre chose ? Pizza, sushi, kebab..." value={qlSearch} onChange={e=>handleQlSearch(e.target.value)} style={{marginBottom:8}}/>
-
-      {/* QL category chips — shown when user is searching or has a filter */}
-      {(quickLog?.categories||[]).length>0&&(qlSearch.length>=2||qlCatFilter)&&<div style={{display:"flex",gap:5,marginBottom:8,overflowX:"auto",paddingBottom:4}}>
-        {(quickLog?.categories||[]).map(cat=>{
-          const sel=qlCatFilter===cat.id;
-          return <button key={cat.id} onClick={()=>handleQlCatFilter(cat.id)} style={{
-            padding:"4px 10px",borderRadius:99,fontSize:10,fontWeight:700,whiteSpace:"nowrap",flexShrink:0,
-            background:sel?"rgba(232,134,58,.1)":"#F5F4F1",
-            border:`1px solid ${sel?"rgba(232,134,58,.3)":"rgba(15,30,46,.08)"}`,
-            color:sel?"#E8863A":"#6B7280",cursor:"pointer",fontFamily:"inherit",
-          }}>{cat.icon?cat.icon+" ":""}{cat.label}</button>
-        })}
+    {/* Navigation bar */}
+    <div className="fsm-nav">
+      {screen!=='main'&&<button className="hdr-back" onClick={goBack} style={{padding:0}}>← Retour</button>}
+      {screen==='main'&&<div style={{display:"flex",alignItems:"center",gap:8}}>
+        <SlotIcon slotId={slotId} active={true} size={18}/>
+        <span className="modal-title" style={{margin:0}}>Ajouter à</span>
+        <span style={{fontSize:14,color:"rgba(15,30,46,.25)",fontWeight:300}}> — </span>
+        <span style={{fontSize:17,fontWeight:700,color:"var(--accent)",fontFamily:"'Cormorant Garamond',serif"}}>{slotName}</span>
       </div>}
-
-      {/* QL loading */}
-      {(quickLog?.searching||quickLog?.browseLoading)&&<SkeletonRows rows={3} h={38}/>}
-
-      {/* QL results */}
-      {!quickLog?.searching&&!quickLog?.browseLoading&&qlBrowseItems.length>0&&qlBrowseItems.map(item=>(
-        <div key={item.item_id} className="eq-card" role="button" tabIndex={0} onClick={()=>pickQlItem(item)}>
-          <div className="eq-body" style={{flex:1}}>
-            <div className="eq-name" style={{display:"flex",alignItems:"center",gap:6}}>
-              {item.label}
-              {item.is_featured&&<span style={{fontSize:9,fontWeight:700,color:obj.accent,background:obj.accentSoft,padding:"1px 5px",borderRadius:99}}>TOP</span>}
-            </div>
-            <div className="eq-progress" style={{fontSize:11,display:"flex",alignItems:"center",gap:6}}>
-              {item.portions?.length>0&&<span>{Math.round(Number(item.portions[Math.floor(item.portions.length/2)]?.kcal||item.portions[0]?.kcal||0))} kcal</span>}
-              {item.category_label&&<span style={{color:"rgba(15,30,46,.3)"}}>· {item.category_label}</span>}
-            </div>
-          </div>
-          <span style={{fontSize:18,color:"#E8863A",flexShrink:0}}>+</span>
+      {screen==='peek'&&<div className="modal-title" style={{margin:0,display:"flex",alignItems:"center",gap:8,fontSize:18}}>
+        <EqIcon eqId={peekEq.eqId} size={20}/> {peekEq.label}
+        {!allowed.includes(peekEq.eqId)&&<span className="chip-hp">Hors plan</span>}
+      </div>}
+      {screen==='qlPortion'&&<div className="modal-title" style={{margin:0,display:"flex",alignItems:"center",gap:8,fontSize:18}}>
+        {qlSelected.label}
+        <span className="chip-hp" style={{background:"rgba(232,134,58,.1)",color:"#E8863A",border:"1px solid rgba(232,134,58,.2)"}}>Repas ext.</span>
+      </div>}
+      {screen==='eqDetail'&&<>
+        <div className="modal-title" style={{margin:0,flex:1,display:"flex",alignItems:"center",gap:8,fontSize:18}}>
+          <EqIcon eqId={selEq.eqId} size={20}/> {selEq.label}
+          {curHp&&<span className="chip-hp">Hors plan</span>}
         </div>
-      ))}
+        {selEq.noteElevia&&<button onClick={()=>setShowNote(n=>!n)} style={{background:showNote?obj.accentSoft:"none",border:showNote?`1px solid ${obj.accentBorderStrong}`:"1px solid transparent",borderRadius:99,padding:"4px 8px",cursor:"pointer",display:"flex",alignItems:"center",gap:4,transition:"all .2s"}}><IcInfoEq size={14} color={showNote?obj.accent:obj.accentLine}/></button>}
+      </>}
+      {screen==='catalogue'&&<span className="modal-title" style={{margin:0,fontSize:18}}>Catalogue complet</span>}
+    </div>
 
-      {/* QL no results */}
-      {!quickLog?.searching&&!quickLog?.browseLoading&&qlBrowseItems.length===0&&(qlSearch.length>=2||qlCatFilter)&&(
-        <div style={{textAlign:"center",padding:"20px 0"}}><div className="empty-icon" style={{display:"flex",justifyContent:"center",marginBottom:6}}><IcSearch size={24} color="rgba(15,30,46,0.2)"/></div><div style={{fontSize:13,color:"#6B7280"}}>Aucun résultat</div></div>
+    {/* Scrollable body */}
+    <div className="fsm-body" key={screen}>
+      <div className="tab-content">
+
+      {/* ═══ MAIN ═══ */}
+      {screen==='main'&&<>
+        <div style={{fontSize:11,fontWeight:700,color:"rgba(15,30,46,.35)",textTransform:"uppercase",letterSpacing:".5px",marginBottom:6}}>Tes équivalences pour ce repas</div>
+        {planEqs.map(eq=>{
+          const wc=WEEK_CONSUMED[eq.eqId]||0,wt=PLAN_TARGETS[eq.eqId]||0;
+          const sqSlots=SLOT_QTY[eq.eqId]||{};
+          const totalFreq=Object.values(sqSlots).reduce((s,v)=>s+(v.freqWeek||0),0);
+          const isDaily=totalFreq>=7;
+          const tc=isDaily?(todayLogs||[]).filter(l=>l.eqId===eq.eqId).reduce((s,l)=>s+(l.qtyPortion||1),0):0;
+          const dt=isDaily?Math.round(wt/7):0;
+          return <div key={eq.eqId} className="eq-card" role="button" tabIndex={0} onClick={()=>pickEq(eq,false)}>
+            <span style={{width:30,display:"flex",alignItems:"center",justifyContent:"center"}}><EqIcon eqId={eq.eqId} size={20}/></span><div className="eq-body"><div className="eq-name">{eq.label}</div><div className="eq-progress">{isDaily?`${tc}/${dt} jour`:`${wc}/${wt} sem.`}</div></div><span onClick={e=>{e.stopPropagation();setPeekEq(eq)}} style={{padding:"4px 6px",cursor:"pointer",display:"flex",alignItems:"center"}} title="Voir le tableau"><svg width="18" height="18" viewBox="-0.25 -0.25 24 24" fill="none" stroke="rgba(15,30,46,.3)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M11.75 22.521c5.949 0 10.771-4.822 10.771-10.771 0-5.949-4.822-10.771-10.771-10.771C5.801.979.979 5.801.979 11.75c0 5.949 4.822 10.771 10.771 10.771Z"/><path d="M11.692 16.5v-6.012a.858.858 0 0 0-.252-.607.858.858 0 0 0-.607-.252h-.859"/><path d="M11.263 7.782a.429.429 0 0 1-.43-.43.429.429 0 0 1 .43-.429"/><path d="M11.263 7.782a.429.429 0 0 0 .43-.43.429.429 0 0 0-.43-.429"/><path d="M9.975 16.5h3.55"/></svg></span><span style={{width:32,height:32,borderRadius:99,background:obj.accentSoft,border:`1px solid ${obj.accentBorder}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={obj.accent} strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+          </div>
+        })}
+
+        <div style={{borderTop:"1px solid rgba(15,30,46,.06)",margin:"14px 0 10px"}}/>
+        <input className="search" placeholder="Autre chose ? Pizza, sushi, kebab..." value={qlSearch} onChange={e=>handleQlSearch(e.target.value)} style={{marginBottom:8}}/>
+
+        {(quickLog?.categories||[]).length>0&&(qlSearch.length>=2||qlCatFilter)&&<div style={{display:"flex",gap:5,marginBottom:8,overflowX:"auto",paddingBottom:4}}>
+          {(quickLog?.categories||[]).map(cat=>{
+            const sel=qlCatFilter===cat.id;
+            return <button key={cat.id} onClick={()=>handleQlCatFilter(cat.id)} style={{
+              padding:"4px 10px",borderRadius:99,fontSize:10,fontWeight:700,whiteSpace:"nowrap",flexShrink:0,
+              background:sel?"rgba(232,134,58,.1)":"#F5F4F1",
+              border:`1px solid ${sel?"rgba(232,134,58,.3)":"rgba(15,30,46,.08)"}`,
+              color:sel?"#E8863A":"#6B7280",cursor:"pointer",fontFamily:"inherit",
+            }}>{cat.icon?cat.icon+" ":""}{cat.label}</button>
+          })}
+        </div>}
+
+        {(quickLog?.searching||quickLog?.browseLoading)&&<SkeletonRows rows={3} h={38}/>}
+
+        {!quickLog?.searching&&!quickLog?.browseLoading&&qlBrowseItems.length>0&&qlBrowseItems.map(item=>(
+          <div key={item.item_id} className="eq-card" role="button" tabIndex={0} onClick={()=>pickQlItem(item)}>
+            <div className="eq-body" style={{flex:1}}>
+              <div className="eq-name" style={{display:"flex",alignItems:"center",gap:6}}>
+                {item.label}
+                {item.is_featured&&<span style={{fontSize:9,fontWeight:700,color:obj.accent,background:obj.accentSoft,padding:"1px 5px",borderRadius:99}}>TOP</span>}
+              </div>
+              <div className="eq-progress" style={{fontSize:11,display:"flex",alignItems:"center",gap:6}}>
+                {item.portions?.length>0&&<span>{Math.round(Number(item.portions[Math.floor(item.portions.length/2)]?.kcal||item.portions[0]?.kcal||0))} kcal</span>}
+                {item.category_label&&<span style={{color:"rgba(15,30,46,.3)"}}>{"·"} {item.category_label}</span>}
+              </div>
+            </div>
+            <span style={{fontSize:18,color:"#E8863A",flexShrink:0}}>+</span>
+          </div>
+        ))}
+
+        {!quickLog?.searching&&!quickLog?.browseLoading&&qlBrowseItems.length===0&&(qlSearch.length>=2||qlCatFilter)&&(
+          <div style={{textAlign:"center",padding:"20px 0"}}><div className="empty-icon" style={{display:"flex",justifyContent:"center",marginBottom:6}}><IcSearch size={24} color="rgba(15,30,46,0.2)"/></div><div style={{fontSize:13,color:"#6B7280"}}>Aucun résultat</div></div>
+        )}
+
+        <div style={{display:"flex",gap:8,marginTop:14}}>
+          <button onClick={()=>setView("catalogue")} style={{flex:1,padding:"10px 14px",borderRadius:14,background:"rgba(15,30,46,.02)",border:"1px solid rgba(15,30,46,.06)",display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
+            <span style={{display:"flex"}}><IcMenuWhy size={16} color="rgba(15,30,46,.45)"/></span>
+            <div style={{flex:1,textAlign:"left"}}>
+              <div style={{fontSize:12,fontWeight:700,color:"#1A1A1A"}}>Catalogue complet</div>
+              <div style={{fontSize:10,color:"#6B7280",marginTop:1}}>Toutes les équivalences</div>
+            </div>
+            <span style={{fontSize:16,color:"#C8CDD3",fontWeight:300}}>›</span>
+          </button>
+          <button onClick={()=>setShowApero(true)} style={{padding:"10px 14px",borderRadius:14,background:"linear-gradient(135deg,rgba(232,134,58,.06),rgba(232,134,58,.02))",border:"1px solid rgba(232,134,58,.15)",display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
+            <span style={{display:"flex"}}><IcSitChampagne size={16} color="#E8863A"/></span>
+            <div style={{textAlign:"left"}}>
+              <div style={{fontSize:12,fontWeight:700,color:"#E8863A"}}>Apéro</div>
+            </div>
+          </button>
+        </div>
+      </>}
+
+      {/* ═══ CATALOGUE ═══ */}
+      {screen==='catalogue'&&<>
+        <input className="search" placeholder="Rechercher\u2026" value={search} onChange={e=>setSearch(e.target.value)}/>
+        <div style={{display:"flex",gap:6,marginBottom:8,flexWrap:"wrap"}}>
+          {[{key:null,label:"Tout"},{key:"vegetarian",label:"V\u00e9g\u00e9"},{key:"glutenFree",label:"Sans gluten"},{key:"lactoseFree",label:"Sans lactose"}].map(f=>{const sel=dietFilter===f.key;return <button key={f.key||"all"} onClick={()=>setDietFilter(f.key)} style={{padding:"4px 10px",borderRadius:99,fontSize:10,fontWeight:700,background:sel?`${obj.accent}15`:"#F5F4F1",border:`1px solid ${sel?obj.accentBorder:"rgba(15,30,46,.08)"}`,color:sel?obj.accent:"#6B7280",cursor:"pointer",fontFamily:"inherit"}}>{f.label}</button>})}
+        </div>
+        {Object.entries(hpGroups).map(([type,eqs])=><div key={type}>
+          <div className="eq-cat-header">{TYPE_LABELS[type]||type}</div>
+          {eqs.map(eq=><div key={eq.eqId} className="eq-card" role="button" tabIndex={0} onClick={()=>pickEq(eq,true)}>
+            <span style={{width:30,display:"flex",alignItems:"center",justifyContent:"center"}}><EqIcon eqId={eq.eqId} size={20}/></span><div className="eq-body"><div className="eq-name">{eq.label}{isInPlan(eq.eqId)&&<span style={{fontSize:10,color:"#6B7280",marginLeft:4}}>(plan, autre slot)</span>}</div><div className="eq-progress" style={{fontSize:11}}>{eq.nutrientsPerPortion.kcal} kcal/portion</div></div><span onClick={e=>{e.stopPropagation();setPeekEq(eq)}} style={{padding:"4px 6px",cursor:"pointer",display:"flex",alignItems:"center"}} title="Voir le tableau"><svg width="18" height="18" viewBox="-0.25 -0.25 24 24" fill="none" stroke="rgba(15,30,46,.3)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M11.75 22.521c5.949 0 10.771-4.822 10.771-10.771 0-5.949-4.822-10.771-10.771-10.771C5.801.979.979 5.801.979 11.75c0 5.949 4.822 10.771 10.771 10.771Z"/><path d="M11.692 16.5v-6.012a.858.858 0 0 0-.252-.607.858.858 0 0 0-.607-.252h-.859"/><path d="M11.263 7.782a.429.429 0 0 1-.43-.43.429.429 0 0 1 .43-.429"/><path d="M11.263 7.782a.429.429 0 0 0 .43-.43.429.429 0 0 0-.43-.429"/><path d="M9.975 16.5h3.55"/></svg></span><span style={{width:32,height:32,borderRadius:99,background:"rgba(232,134,58,.1)",border:"1px solid rgba(232,134,58,.25)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E8863A" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+          </div>)}
+        </div>)}
+      </>}
+
+      {/* ═══ PEEK (eq table consultation) ═══ */}
+      {screen==='peek'&&<>
+        {isInPlan(peekEq.eqId)&&allowed.includes(peekEq.eqId)&&<div style={{display:"flex",gap:12,marginBottom:14}}>
+          <div style={{flex:1,padding:"10px 12px",borderRadius:12,background:"rgba(15,30,46,.03)",textAlign:"center"}}>
+            <div style={{fontSize:10,color:"#9CA3AF",fontWeight:600,textTransform:"uppercase",letterSpacing:".3px",marginBottom:2}}>Cible semaine</div>
+            <div style={{fontSize:18,fontWeight:700,color:"#1A1A1A"}}>{PLAN_TARGETS[peekEq.eqId]}</div>
+          </div>
+          <div style={{flex:1,padding:"10px 12px",borderRadius:12,background:"rgba(15,30,46,.03)",textAlign:"center"}}>
+            <div style={{fontSize:10,color:"#9CA3AF",fontWeight:600,textTransform:"uppercase",letterSpacing:".3px",marginBottom:2}}>Consommé</div>
+            <div style={{fontSize:18,fontWeight:700,color:obj.accent}}>{WEEK_CONSUMED[peekEq.eqId]||0}</div>
+          </div>
+        </div>}
+        {peekEq.noteElevia&&<div style={{marginBottom:14,padding:10,background:obj.accentSoft,border:`1px solid ${obj.accentBorder}`,borderRadius:14,fontSize:12,color:"#1A1A1A",lineHeight:1.6}}>{peekEq.noteElevia}</div>}
+        <div style={{fontSize:12,fontWeight:700,color:obj.accent,textTransform:"uppercase",letterSpacing:".3px",marginBottom:8}}>Tes équivalences</div>
+        {peekEq.items.length===0&&<div style={{textAlign:"center",padding:"24px 0"}}><div className="empty-icon" style={{display:"flex",justifyContent:"center",marginBottom:8}}><IcListEmpty size={28} color="rgba(15,30,46,0.2)"/></div><div style={{fontSize:12,color:"#6B7280"}}>Aucune équivalence détaillée</div></div>}
+        {peekEq.items.map(item=>{
+          const isRecipe=peekEq.type==='recette'||item.foodLabel?.toLowerCase().includes('recette');
+          const hasV=item.variants&&item.variants.length>0&&!isRecipe;
+          const isHP=!allowed.includes(peekEq.eqId);
+          return <div key={item.itemId} role={isHP?"button":undefined} tabIndex={isHP?0:undefined}
+            onClick={isHP?()=>{setPeekEq(null);pickEq(peekEq,true)}:undefined}
+            style={{padding:"10px 12px",marginBottom:4,borderRadius:12,background:"rgba(15,30,46,.02)",border:"1px solid rgba(15,30,46,.06)",cursor:isHP?"pointer":"default",transition:isHP?"background .15s":"none"}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+              <div style={{display:"flex",alignItems:"center",gap:6,minWidth:0,flex:1}}>
+                {item.isRecommended&&<span style={{fontSize:8,color:obj.accent}}>★</span>}
+                <span style={{fontSize:13,fontWeight:600,color:"#1A1A1A",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.foodLabel}</span>
+              </div>
+              {!isHP&&<span style={{fontSize:12,color:"#6B7280",whiteSpace:"nowrap",marginLeft:8}}>
+                {fmtItemQty(item.stepper,slotTargetGrams(peekEq,item),PROFILE_RULES,peekEq.eqId)}
+              </span>}
+              {isHP&&<span style={{fontSize:14,color:"#E8863A",flexShrink:0}}>+</span>}
+            </div>
+            {hasV&&<div style={{display:"flex",flexWrap:"wrap",gap:4,marginTop:5}}>
+              {item.variants.map((v,vi)=><span key={vi} style={{fontSize:9.5,fontWeight:500,padding:"2px 7px",borderRadius:99,background:"rgba(15,30,46,.03)",border:"1px solid rgba(15,30,46,.05)",color:"#9CA3AF",lineHeight:"14px",whiteSpace:"nowrap"}}>{v.label}</span>)}
+            </div>}
+          </div>}
+        )}
+      </>}
+
+      {/* ═══ HP EDUCATION ═══ */}
+      {screen==='hpEdu'&&(
+        <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',textAlign:'center',minHeight:'60%',padding:'40px 0'}}>
+          <div style={{display:"flex",justifyContent:"center",marginBottom:12}}><IcMsgStar size={40} color="rgba(15,30,46,.25)"/></div>
+          <div className="modal-title">Tu peux le faire</div>
+          <div className="modal-sub" style={{marginTop:8}}>{obj.hpEducation}</div>
+        </div>
       )}
 
-      {/* Bottom action buttons */}
-      <div style={{display:"flex",gap:8,marginTop:14}}>
-        <button onClick={()=>setView("catalogue")} style={{flex:1,padding:"10px 14px",borderRadius:14,background:"rgba(15,30,46,.02)",border:"1px solid rgba(15,30,46,.06)",display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
-          <span style={{display:"flex"}}><IcMenuWhy size={16} color="rgba(15,30,46,.45)"/></span>
-          <div style={{flex:1,textAlign:"left"}}>
-            <div style={{fontSize:12,fontWeight:700,color:"#1A1A1A"}}>Catalogue complet</div>
-            <div style={{fontSize:10,color:"#6B7280",marginTop:1}}>Toutes les équivalences</div>
-          </div>
-          <span style={{fontSize:16,color:"#C8CDD3",fontWeight:300}}>›</span>
-        </button>
-        <button onClick={()=>setShowApero(true)} style={{padding:"10px 14px",borderRadius:14,background:"linear-gradient(135deg,rgba(232,134,58,.06),rgba(232,134,58,.02))",border:"1px solid rgba(232,134,58,.15)",display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
-          <span style={{display:"flex"}}><IcSitChampagne size={16} color="#E8863A"/></span>
-          <div style={{textAlign:"left"}}>
-            <div style={{fontSize:12,fontWeight:700,color:"#E8863A"}}>Apéro</div>
-          </div>
-        </button>
-      </div>
-    </>}
+      {/* ═══ QL PORTION PICKER ═══ */}
+      {screen==='qlPortion'&&(()=>{
+        const portions=qlSelected.portions||[];
+        const flags=qlSelected.flags||[];
+        return <>
+          {qlSelected.description&&<div className="modal-sub" style={{marginTop:2}}>{qlSelected.description}</div>}
+          {flags.length>0&&<div style={{display:"flex",gap:4,flexWrap:"wrap",marginTop:6,marginBottom:8}}>
+            {flags.map(f=><span key={f} style={{padding:"2px 8px",borderRadius:99,fontSize:9,fontWeight:700,background:"rgba(15,30,46,.04)",border:"1px solid rgba(15,30,46,.08)",color:"#6B7280",textTransform:"uppercase"}}>{f.replace(/_/g,' ')}</span>)}
+          </div>}
+          <div className="modal-section" style={{marginTop:8}}>Choisis ta taille</div>
+          {portions.map(p=>{
+            const sel=qlPortion?.option_key===p.option_key;
+            return <div key={p.option_key} onClick={()=>setQlPortion(p)} style={{
+              display:"flex",alignItems:"center",justifyContent:"space-between",
+              padding:"12px 14px",marginBottom:8,borderRadius:14,cursor:"pointer",
+              background:sel?obj.accentSoft:"rgba(15,30,46,.02)",
+              border:`1px solid ${sel?obj.accentBorderStrong:"rgba(15,30,46,.06)"}`,
+              transition:"all .15s",
+            }}>
+              <div>
+                <div style={{fontSize:14,fontWeight:700,color:"#1A1A1A"}}>{p.label_short||p.label_long||p.option_key}</div>
+                <div style={{fontSize:12,color:"#6B7280",marginTop:2}}>{p.grams_or_ml}g</div>
+              </div>
+              <div style={{textAlign:"right"}}>
+                <div style={{fontSize:14,fontWeight:700,color:sel?obj.accent:"#1A1A1A"}}>{Math.round(Number(p.kcal))} kcal</div>
+                <div style={{fontSize:11,color:"#6B7280"}}>P{Math.round(Number(p.p))} L{Math.round(Number(p.l))} G{Math.round(Number(p.g))}</div>
+              </div>
+            </div>
+          })}
+        </>;
+      })()}
 
-    {/* Catalogue view (was "Autres" tab) */}
-    {view==="catalogue"&&<>
-      <button aria-label="Retour" className="hdr-back" onClick={()=>setView("main")} style={{marginBottom:8,padding:0}}>← Mon plan</button>
-      <input className="search" placeholder="Rechercher…" value={search} onChange={e=>setSearch(e.target.value)}/>
-      <div style={{display:"flex",gap:6,marginBottom:8,flexWrap:"wrap"}}>
-        {[{key:null,label:"Tout"},{key:"vegetarian",label:"Végé"},{key:"glutenFree",label:"Sans gluten"},{key:"lactoseFree",label:"Sans lactose"}].map(f=>{const sel=dietFilter===f.key;return <button key={f.key||"all"} onClick={()=>setDietFilter(f.key)} style={{padding:"4px 10px",borderRadius:99,fontSize:10,fontWeight:700,background:sel?`${obj.accent}15`:"#F5F4F1",border:`1px solid ${sel?obj.accentBorder:"rgba(15,30,46,.08)"}`,color:sel?obj.accent:"#6B7280",cursor:"pointer",fontFamily:"inherit"}}>{f.label}</button>})}
+      {/* ═══ EQ DETAIL (stepper / items / table) ═══ */}
+      {screen==='eqDetail'&&<>
+        {showNote&&selEq.noteElevia&&<div style={{marginBottom:12,padding:10,background:obj.accentSoft,border:`1px solid ${obj.accentBorder}`,borderRadius:14,fontSize:12,color:"#1A1A1A",lineHeight:1.6,animation:"fadeUp .2s ease-out"}}>{selEq.noteElevia}</div>}
+        {!curHp&&isInPlan(selEq.eqId)&&<div style={{display:"flex",gap:12,margin:"6px 0 10px"}}>
+          <div style={{flex:1,padding:"10px 12px",borderRadius:12,background:"rgba(15,30,46,.03)",textAlign:"center"}}>
+            <div style={{fontSize:10,color:"#9CA3AF",fontWeight:600,textTransform:"uppercase",letterSpacing:".3px",marginBottom:2}}>Cible semaine</div>
+            <div style={{fontSize:18,fontWeight:700,color:"#1A1A1A"}}>{PLAN_TARGETS[selEq.eqId]}</div>
+          </div>
+          <div style={{flex:1,padding:"10px 12px",borderRadius:12,background:"rgba(15,30,46,.03)",textAlign:"center"}}>
+            <div style={{fontSize:10,color:"#9CA3AF",fontWeight:600,textTransform:"uppercase",letterSpacing:".3px",marginBottom:2}}>Consommé</div>
+            <div style={{fontSize:18,fontWeight:700,color:obj.accent}}>{WEEK_CONSUMED[selEq.eqId]||0}</div>
+          </div>
+        </div>}
+
+        {selEq.qtyUi.appInputMode==="PORTION_TAP"&&<>
+          <div style={{fontSize:13,color:"#6B7280",marginBottom:12,textAlign:"center"}}>1 portion = {selEq.qtyPlanGrams}{qtyUnit(selEq)}</div>
+          <div className="stepper" style={{margin:"20px 0"}}>
+            <button aria-label="Réduire la quantité" className="stepper-btn" disabled={portion<=(selEq.qtyUi.portionMin||0.25)} onClick={()=>setPortion(p=>Math.max(selEq.qtyUi.portionMin||0.25,p-(selEq.qtyUi.portionStep||0.25)))}>−</button>
+            <div><div className="stepper-val">{portion}</div><div className="stepper-unit">portion{portion!==1?"s":""}</div></div>
+            <button aria-label="Augmenter la quantité" className="stepper-btn" disabled={portion>=(selEq.qtyUi.portionMax||4)} onClick={()=>setPortion(p=>Math.min(selEq.qtyUi.portionMax||4,p+(selEq.qtyUi.portionStep||0.25)))}>+</button>
+          </div>
+          {liveCalc&&<div className="live-calc"><div className="live-main">≈ {liveCalc.grams}{qtyUnit(selEq)} · {liveCalc.kcal} kcal</div><div className="live-sub">P{liveCalc.p} · L{liveCalc.l} · G{liveCalc.g}</div></div>}
+        </>}
+
+        {selEq.qtyUi.appInputMode!=="PORTION_TAP"&&<>
+          {showTable&&<>
+            <div className="modal-section" style={{marginBottom:8}}>Mes équivalences</div>
+            {selEq.items.map(item=>{
+              const isRecipe=selEq.type==='recette'||item.foodLabel?.toLowerCase().includes('recette');
+              const hasV=item.variants&&item.variants.length>0&&!isRecipe;
+              return <div key={item.itemId} style={{padding:"10px 14px",marginBottom:6,borderRadius:12,background:"rgba(15,30,46,.02)",border:"1px solid rgba(15,30,46,.06)"}}>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:6,minWidth:0}}>
+                    <span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.foodLabel}</span>
+                  </div>
+                  {!curHp&&isInPlan(selEq.eqId)&&<span style={{fontSize:12,color:"#6B7280",whiteSpace:"nowrap",marginLeft:8}}>
+                    {fmtItemQty(item.stepper,slotTargetGrams(selEq,item),PROFILE_RULES,selEq.eqId)}
+                  </span>}
+                </div>
+                {hasV&&<div style={{display:"flex",flexWrap:"wrap",gap:4,marginTop:5}}>
+                  {item.variants.map((v,vi)=><span key={vi} style={{fontSize:9.5,fontWeight:500,padding:"2px 7px",borderRadius:99,background:"rgba(15,30,46,.03)",border:"1px solid rgba(15,30,46,.05)",color:"#9CA3AF",lineHeight:"14px",whiteSpace:"nowrap"}}>{v.label}</span>)}
+                </div>}
+              </div>}
+            )}
+            <button className="btn-text" onClick={()=>setShowTable(false)} style={{marginTop:8}}>← Retour</button>
+          </>}
+          {(showStepper||(curHp&&!showTable))&&(()=>{
+            const refG=selEq.qtyPlanGrams||100;const npp=selEq.nutrientsPerPortion||{kcal:0,p:0,l:0,g:0};
+            const fbCalc=(g)=>({kcal:Math.round(npp.kcal*g/refG),p:Math.round(npp.p*g/refG*10)/10,l:Math.round(npp.l*g/refG*10)/10,g:Math.round(npp.g*g/refG*10)/10});
+            return <>
+            {selEq.items.length>0&&<>
+              <div className="modal-section">{selEq.qtyUi.appInputMode==="ITEM_FIRST_PICK"?"Choisis ton item":"Items"}</div>
+              {selEq.items.map(item=>(
+                <div key={item.itemId} className={`item-row ${selItem?.itemId===item.itemId?"selected":""}`}
+                  onClick={()=>{setSelItem(item);if(item.stepper?.usualGPerUnit>0){const g=slotTargetGrams(selEq,item);setUnits(Math.round(g/item.stepper.usualGPerUnit)||1)}else{setUnits(item.stepper?.defaultUnits||refG)}}}>
+                  <span className="item-label">{item.foodLabel}</span>
+                  <span className="item-detail">{!curHp&&isInPlan(selEq.eqId)?fmtItemQty(item.stepper,slotTargetGrams(selEq,item),PROFILE_RULES,selEq.eqId):""}</span>
+                </div>
+              ))}
+            </>}
+            {selItem?.stepper&&<>
+              <div key={selItem.itemId+"_stepper"} className="stepper" style={{margin:"20px 0"}}>
+                <button aria-label="Réduire la quantité" className="stepper-btn" disabled={units<=(selItem.stepper.minUnits||0)} onClick={()=>{haptic(6);setUnits(u=>Math.max(selItem.stepper.minUnits||0,u-(selItem.stepper.unitStep||1)))}}>−</button>
+                <div><div className="stepper-val"><AnimNum value={units} duration={200}/></div><div className="stepper-unit">{units<=1?selItem.stepper.usualUnitSg:selItem.stepper.usualUnitPl}</div></div>
+                <button aria-label="Augmenter la quantité" className="stepper-btn" disabled={units>=(selItem.stepper.maxUnits||20)} onClick={()=>{haptic(6);setUnits(u=>Math.min(selItem.stepper.maxUnits||20,u+(selItem.stepper.unitStep||1)))}}>+</button>
+              </div>
+              {liveCalc&&<div className="live-calc"><div className="live-main">≈ {liveCalc.grams}{qtyUnit(selEq)} · {liveCalc.kcal} kcal</div><div className="live-sub">P{liveCalc.p} · L{liveCalc.l} · G{liveCalc.g}</div></div>}
+            </>}
+            {(selItem&&!selItem.stepper||selEq.items.length===0)&&<>
+              <div key={(selItem?.itemId||"eq")+"_fb_stepper"} className="stepper" style={{margin:"20px 0"}}>
+                <button aria-label="Réduire" className="stepper-btn" disabled={units<=25} onClick={()=>{haptic(6);setUnits(u=>Math.max(25,u-25))}}>−</button>
+                <div><div className="stepper-val"><AnimNum value={units} duration={200}/></div><div className="stepper-unit">{qtyUnit(selEq)==="ml"?"ml":"grammes"}</div></div>
+                <button aria-label="Augmenter" className="stepper-btn" disabled={units>=500} onClick={()=>{haptic(6);setUnits(u=>Math.min(500,u+25))}}>+</button>
+              </div>
+              {(()=>{const c=fbCalc(units);return <div className="live-calc"><div className="live-main">{c.kcal} kcal</div><div className="live-sub">P{c.p} · L{c.l} · G{c.g}</div></div>})()}
+            </>}
+            </>})()}
+        </>}
+      </>}
+
       </div>
-      {Object.entries(hpGroups).map(([type,eqs])=><div key={type}>
-        <div className="eq-cat-header">{TYPE_LABELS[type]||type}</div>
-        {eqs.map(eq=><div key={eq.eqId} className="eq-card" role="button" tabIndex={0} onClick={()=>pickEq(eq,true)}>
-          <span style={{width:30,display:"flex",alignItems:"center",justifyContent:"center"}}><EqIcon eqId={eq.eqId} size={20}/></span><div className="eq-body"><div className="eq-name">{eq.label}{isInPlan(eq.eqId)&&<span style={{fontSize:10,color:"#6B7280",marginLeft:4}}>(plan, autre slot)</span>}</div><div className="eq-progress" style={{fontSize:11}}>{eq.nutrientsPerPortion.kcal} kcal/portion</div></div><span onClick={e=>{e.stopPropagation();setPeekEq(eq)}} style={{padding:"4px 6px",cursor:"pointer",display:"flex",alignItems:"center"}} title="Voir le tableau"><svg width="18" height="18" viewBox="-0.25 -0.25 24 24" fill="none" stroke="rgba(15,30,46,.3)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M11.75 22.521c5.949 0 10.771-4.822 10.771-10.771 0-5.949-4.822-10.771-10.771-10.771C5.801.979.979 5.801.979 11.75c0 5.949 4.822 10.771 10.771 10.771Z"/><path d="M11.692 16.5v-6.012a.858.858 0 0 0-.252-.607.858.858 0 0 0-.607-.252h-.859"/><path d="M11.263 7.782a.429.429 0 0 1-.43-.43.429.429 0 0 1 .43-.429"/><path d="M11.263 7.782a.429.429 0 0 0 .43-.43.429.429 0 0 0-.43-.429"/><path d="M9.975 16.5h3.55"/></svg></span><span style={{width:32,height:32,borderRadius:99,background:"rgba(232,134,58,.1)",border:"1px solid rgba(232,134,58,.25)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E8863A" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
-        </div>)}
-      </div>)}
-    </>}
-  </SwipeModal>);
+    </div>
+
+    {/* Sticky footer CTA */}
+    {footerCTA&&<div className="fsm-footer">{footerCTA}</div>}
+  </FullScreenModal>);
 }
+
 
 /* ═══ MILESTONE POPUP ═══ */
 function MilestonePopup({milestone,accent,onDismiss}){
@@ -3373,7 +3477,7 @@ export default function EleviaApp({ session, signOut, planData, logs: externalLo
     const root=document.getElementById('root');
     if(!root)return;
     const check=()=>{
-      const overlay=root.querySelector('.overlay')||root.querySelector('.advice-page');
+      const overlay=root.querySelector('.overlay')||root.querySelector('.fsm-overlay')||root.querySelector('.advice-page');
       const tbar=root.querySelector('.tbar');
       if(tbar) tbar.style.display=overlay?'none':'';
     };
