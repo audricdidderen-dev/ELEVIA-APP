@@ -635,10 +635,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','DM Sans',system
 .overlay-closing{animation:overlayOut .28s ease-in forwards!important}@keyframes overlayOut{to{opacity:0;backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0)}}
 .modal-closing{animation:sheetDown .28s ease-in forwards!important}@keyframes sheetDown{to{transform:translateY(100%)}}
 .fsm-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.5);animation:overlayIn .25s ease-out;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);-webkit-transform:translateZ(0);transform:translateZ(0)}
-.fsm-card{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);left:0;right:0;bottom:0;z-index:201;background:var(--bg);border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden;animation:sheetUp .35s cubic-bezier(.32,1.2,.54,1);box-shadow:0 -8px 40px rgba(0,0,0,.15),0 -2px 10px rgba(0,0,0,.06)}
+.fsm-card{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);left:0;right:0;max-height:calc(100% - env(safe-area-inset-top,0px) - 12px);z-index:201;background:var(--bg);border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden;animation:sheetUp .35s cubic-bezier(.32,1.2,.54,1);box-shadow:0 -8px 40px rgba(0,0,0,.15),0 -2px 10px rgba(0,0,0,.06)}
 .fsm-handle{flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:10px 0 2px;position:relative}
 .fsm-nav{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:6px 18px 10px;min-height:36px}
-.fsm-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:0 18px 20px;scroll-behavior:auto;-webkit-transform:translateZ(0);transform:translateZ(0)}.fsm-body::-webkit-scrollbar{display:none}
+.fsm-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding:0 18px 12px;-webkit-transform:translateZ(0);transform:translateZ(0)}.fsm-body::-webkit-scrollbar{display:none}
 .fsm-footer{flex-shrink:0;padding:8px 18px calc(6px + env(safe-area-inset-bottom,8px));border-top:1px solid rgba(15,30,46,.06);background:var(--bg)}
 .advice-page{position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;background:#fff;animation:pageSlideIn .3s cubic-bezier(.25,.46,.45,.94) both}@keyframes pageSlideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
 .advice-page-out{animation:pageSlideOut .28s ease-in forwards!important}@keyframes pageSlideOut{to{transform:translateX(100%)}}
@@ -684,8 +684,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','DM Sans',system
 @keyframes ringGlow{0%{filter:drop-shadow(0 0 0px transparent)}50%{filter:drop-shadow(0 0 10px var(--accent))}100%{filter:drop-shadow(0 0 0px transparent)}}
 @keyframes successPop{0%{transform:scale(1)}30%{transform:scale(1.08)}60%{transform:scale(.97)}100%{transform:scale(1)}}
 @keyframes barGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-.tab-content{animation:tabEnter .28s ease-out both}
-.slot,.card,.advice-item,.eq-card,.alert-card,.tip-banner{animation:cardIn .4s cubic-bezier(.34,1.4,.64,1) both}
+.tab-content{animation:tabEnter .28s ease-out both}.fsm-body .tab-content{animation:none}
+.slot,.card,.advice-item,.eq-card,.alert-card,.tip-banner{animation:cardIn .4s cubic-bezier(.34,1.4,.64,1) both}.fsm-body .eq-card,.fsm-body .item-row{animation:none!important}
 .slot:nth-child(1),.card:nth-child(1){animation-delay:0s}
 .slot:nth-child(2),.card:nth-child(2){animation-delay:.05s}
 .slot:nth-child(3),.card:nth-child(3){animation-delay:.1s}
