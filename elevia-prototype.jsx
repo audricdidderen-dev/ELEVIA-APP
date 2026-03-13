@@ -2066,9 +2066,7 @@ const SECTION_ICON=(header,size=15,color="currentColor")=>{
 /* ═══ ADVICE DETAIL PAGE ═══ */
 function AdviceDetail({adv,onClose,status,advices,onSelectAdv}){
   const obj=useObjective();
-  const [closing,setClosing]=useState(false);
   const [openSec,setOpenSec]=useState(new Set());
-  const scrollRef=useRef(null);
   const bodySections=useMemo(()=>parseAdviceBody(adv.body),[adv.body]);
   const namedSections=bodySections.filter(s=>s.header);
   const introSection=bodySections.find(s=>!s.header);
@@ -2078,22 +2076,17 @@ function AdviceDetail({adv,onClose,status,advices,onSelectAdv}){
   const prev=idx>0?advices[idx-1]:null;
   const next=idx>=0&&idx<(advices||[]).length-1?advices[idx+1]:null;
 
-  useEffect(()=>{const el=scrollRef.current;if(el){el.scrollTop=0;requestAnimationFrame(()=>{el.scrollTop=0})}setOpenSec(new Set())},[adv.id]);
+  useEffect(()=>{setOpenSec(new Set())},[adv.id]);
 
-  const handleClose=useCallback(()=>{if(closing)return;setClosing(true);setTimeout(onClose,300)},[onClose,closing]);
-
-  return createPortal(<div className={`advice-page${closing?' advice-page-out':''}`}>
-    <div className="advice-page-inner">
-      <div className="advice-page-hdr">
-        <button onClick={handleClose} style={{background:'none',border:'none',padding:'6px 2px',cursor:'pointer',display:'flex',alignItems:'center',gap:5,fontFamily:'inherit',fontSize:14,fontWeight:600,color:obj.accent}}>
-          <span style={{fontSize:20,lineHeight:1}}>‹</span> Retour
-        </button>
-        <div style={{flex:1}}/>
-        <span className={`badge ${adv.axis==='priority'?'badge-pri':'badge-sec'}`} style={{fontSize:10}}>{adv.axis==='priority'?'Prioritaire':'Secondaire'}</span>
-        {status&&<span className="badge badge-st" style={{fontSize:10,marginLeft:4}}>{status}</span>}
-      </div>
-
-      <div ref={scrollRef} className="advice-page-scroll">
+  return <>
+    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:16}}>
+      <button onClick={onClose} style={{background:'none',border:'none',padding:'6px 2px',cursor:'pointer',display:'flex',alignItems:'center',gap:5,fontFamily:'inherit',fontSize:14,fontWeight:600,color:obj.accent}}>
+        <span style={{fontSize:20,lineHeight:1}}>‹</span> Retour
+      </button>
+      <div style={{flex:1}}/>
+      <span className={`badge ${adv.axis==='priority'?'badge-pri':'badge-sec'}`} style={{fontSize:10}}>{adv.axis==='priority'?'Prioritaire':'Secondaire'}</span>
+      {status&&<span className="badge badge-st" style={{fontSize:10,marginLeft:4}}>{status}</span>}
+    </div>
         <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:18}}>
           <div style={{width:46,height:46,borderRadius:14,background:obj.accentSoft,border:`1px solid ${obj.accentBorder}`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
             {MODULE_ICON(adv.module,22,obj.accent,adv.id)}
@@ -2151,18 +2144,15 @@ function AdviceDetail({adv,onClose,status,advices,onSelectAdv}){
             })}
           </div>
         </div>}
-      </div>
-
-      {(prev||next)&&<div className="advice-page-nav">
-        {prev?<button className="advice-nav-btn" onClick={()=>{if(onSelectAdv)onSelectAdv(prev)}}>
-          <span style={{fontSize:16}}>‹</span> Précédent
-        </button>:<div/>}
-        {next?<button className="advice-nav-btn" onClick={()=>{if(onSelectAdv)onSelectAdv(next)}}>
-          Suivant <span style={{fontSize:16}}>›</span>
-        </button>:<div/>}
-      </div>}
-    </div>
-  </div>, document.body)
+    {(prev||next)&&<div style={{display:'flex',justifyContent:'space-between',marginTop:20,paddingTop:14,borderTop:'1px solid rgba(15,30,46,.06)'}}>
+      {prev?<button className="advice-nav-btn" onClick={()=>{if(onSelectAdv)onSelectAdv(prev)}}>
+        <span style={{fontSize:16}}>‹</span> Précédent
+      </button>:<div/>}
+      {next?<button className="advice-nav-btn" onClick={()=>{if(onSelectAdv)onSelectAdv(next)}}>
+        Suivant <span style={{fontSize:16}}>›</span>
+      </button>:<div/>}
+    </div>}
+  </>
 }
 
 /* ═══ TAB: CONSEILS ═══ */
@@ -2227,7 +2217,9 @@ function AdviceTab({onCreateBilan,isWarmup,weekConsumed,weekNutrients,daysLogged
     </div>
   )}
 
-  return <div className="page">
+  if(selAdv) return <div key="detail" className="page"><AdviceDetail adv={selAdv} onClose={()=>setSelAdv(null)} status={getStatus(selAdv)} advices={adviceNavList} onSelectAdv={handleSelectAdv}/></div>;
+
+  return <div key="list" className="page">
     <div className="page-title">Conseils</div><div className="page-meta">{isWarmup?"Prise en main":(()=>{const ps=d?._planStartDate?new Date(d._planStartDate):null;if(!ps)return"";const dow=ps.getDay();let start=ps;if(dow>=3||dow===0){start=new Date(ps);start.setDate(start.getDate()+(dow===0?1:8-dow));start.setHours(0,0,0,0)}const w=Math.floor(Math.max(0,(new Date()-start)/86400000)/7)+1;return `Semaine ${w}`})()}</div>
     <Seg options={[{id:"focus",label:"Focus"},{id:"biblio",label:"Bibliothèque"}]} value={view} onChange={setView}/>
     {MICRO_TIPS.length>0&&(()=>{const dayOfYear=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/(1000*60*60*24));const tip=MICRO_TIPS[dayOfYear%MICRO_TIPS.length];return <div className="tip-banner"><span style={{display:"flex"}}><IcBulb size={18} color={obj.accent}/></span><div className="tip-text">{tip.textFr}</div></div>})()}
@@ -2243,7 +2235,6 @@ function AdviceTab({onCreateBilan,isWarmup,weekConsumed,weekNutrients,daysLogged
       <input className="search" placeholder="Rechercher un conseil…" value={biblioQ} onChange={e=>setBiblioQ(e.target.value)}/>
       {Object.entries(byStatus).map(([st,advs])=>{const filtered=biblioQ?advs.filter(a=>(a.title+a.shortBody).toLowerCase().includes(biblioQ.toLowerCase())):advs;return filtered.length>0&&<div key={st}><div className="section-label">{st}</div>{filtered.map(a=><AdvItem key={a.id} a={a}/>)}</div>})}
     </>}
-    {selAdv&&<AdviceDetail adv={selAdv} onClose={()=>setSelAdv(null)} status={getStatus(selAdv)} advices={adviceNavList} onSelectAdv={handleSelectAdv}/>}
     {evalOpen&&<div className="overlay" onClick={()=>setEvalOpen(false)}><div role="dialog" className="modal" onClick={e=>e.stopPropagation()}>
       <div className="modal-handle"/><div className="modal-title">Évaluation {(()=>{const ps=d?._planStartDate?new Date(d._planStartDate):null;if(!ps)return"";const dow=ps.getDay();let start=ps;if(dow>=3||dow===0){start=new Date(ps);start.setDate(start.getDate()+(dow===0?1:8-dow));start.setHours(0,0,0,0)}const w=Math.floor(Math.max(0,(new Date()-start)/86400000)/7)+1;return `semaine ${w}`})()}</div><div className="modal-sub">Comment s'est passée ta semaine ?</div>
       {/* Active advices — full evaluation */}
