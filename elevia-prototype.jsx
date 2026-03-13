@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useEffect, useRef, createContext, useCo
 import { createPortal } from "react-dom";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, ReferenceLine } from "recharts";
 import { getObjectiveConfig, getScoreLabel, getBilanSummary } from "./src/lib/objectiveConfig.js";
+import { getIconSvg, isComposite, getCompositeIcons } from "./src/lib/icon-registry.js";
 import { computeBilan } from "./src/lib/bilanEngine.js";
 import { computeAdviceStatuses, getEvalAdvices, getAdviceDisplayStatus } from "./src/lib/adviceStatus.js";
 import { computeIngredientDisplay, computeRecipeMacros } from "./src/lib/recipeHelpers.js";
@@ -88,6 +89,14 @@ const IcSitMoon=({size=18,color="currentColor"})=><svg width={size} height={size
 const IcSitCart=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M23.5 2.5h-2.571a0.5 0.5 0 0 0-0.495 0.43l-1.877 13.14a0.5 0.5 0 0 1-0.495 0.43H3.5a1 1 0 0 1 0-2h12a1 1 0 0 0 0-2h-13a1 1 0 0 1 0-2H16a1 1 0 0 0 0-2H1.5a1 1 0 0 1 0-2h16"/><path d="M4.496 20a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0Z"/><path d="M15.496 20a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0Z"/></svg>;
 const IcSitScale=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M0.5 23.5h5a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-5"/><path d="M5.5 23.5H22c1.1 0 1.5-0.895 1.5-2v-2c0-1.1-0.4-2-1.5-2H5.5"/><path d="m19.5 17.5 0 6"/><path d="m17.5 17.5 0 6"/><path d="m13.5 17.5 0 6"/><path d="m11.5 17.5 0 6"/><path d="m5.5 21.5-4 0"/><path d="m5.5 19.5-4 0"/><path d="m12 3.5 0 11"/><path d="M0.5 8.465 4 1.5l3.5 6.965"/><path d="M10.5 2a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0Z"/><path d="M4 12a3.416 3.416 0 0 0 3.5-3.5h-7A3.416 3.416 0 0 0 4 12Z"/><path d="M23.5 8.534 20 1.5l-3.5 7.034"/><path d="M20 12a3.416 3.416 0 0 1-3.5-3.5h7A3.416 3.416 0 0 1 20 12Z"/><path d="m13.409 1.5 8.091 0"/><path d="m2.5 1.5 8.091 0"/><path d="M9 17.5a3 3 0 0 1 6 0Z"/></svg>;
 const IcSitChartUp=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="m0.48 20.25 2.038 0"/><path d="m4.477 20.25 2.038 0"/><path d="m8.473 20.25 2.038 0"/><path d="M12.459 20.076a8 8 0 0 0 1.918-0.671"/><path d="M16.005 18.322a8.071 8.071 0 0 0 1.362-1.509"/><path d="M18.277 15.08c0.219-0.643 0.388-1.3 0.554-1.96"/><path d="m19.322 11.224 0.511-1.973"/><path d="m20.324 7.355 0.51-1.973"/><path d="m17.646 5.991 3.607-2.227 2.227 3.607"/></svg>;
+
+/* Render icon from centralized registry (icon_key → SVG string → JSX) */
+function registryIcon(iconKey,size=18,color="currentColor"){
+  if(!iconKey)return null;
+  if(isComposite(iconKey)){const[a,b]=getCompositeIcons(iconKey,Math.round(size*.62),color);return <span style={{display:'inline-flex',alignItems:'center',gap:1}} dangerouslySetInnerHTML={{__html:a+b}}/>;}
+  const svg=getIconSvg(iconKey,size,color);if(!svg)return null;
+  return <span style={{display:'inline-flex',alignItems:'center'}} dangerouslySetInnerHTML={{__html:svg}}/>;
+}
 
 /* Map capsule_id prefix → SVG icon component */
 const CAPSULE_ICON=(id)=>{
@@ -380,7 +389,9 @@ const DEFAULT_ADVICES = [
     summaryObjective:"Ajouter crudités au déjeuner.",summaryBullets:["Prépare la veille.","Tomates cerises ou carottes.","Quelques bouchées comptent."],summaryTip:"Tomates cerises en tupperware = 30 sec.",linkedAlertTypes:[]},
 ];
 
-const MODULE_ICON=(module,size=15,color="currentColor",id)=>{
+const MODULE_ICON=(module,size=15,color="currentColor",id,iconKey)=>{
+  // Try icon_key from registry first
+  const ri=registryIcon(iconKey,size,color);if(ri)return ri;
   // Per-advice icon overrides (by advice_id prefix)
   if(id){
     if(id.startsWith('SWEET_ADD'))return <IcDrinksNoSugar size={size} color={color}/>;
@@ -551,7 +562,7 @@ const EQ_ICONS={
   poudre_proteine:IcProtein, complement_proteine_poudre:IcProtein,
   soupes:IcSoupBowl, soupe_faible_kcal:IcSoupBowl,
 };
-function EqIcon({eqId,size=18,color}){const obj=useObjective();const c=color||obj.accent;const Ic=EQ_ICONS[eqId];if(Ic)return <Ic size={size} color={c}/>;const f=eqIconFile(eqId);if(f)return <img src={`/icons/${f}.svg`} alt="" width={size} height={size} style={{opacity:.7}}/>;const {getEq}=useHelpers();const eq=getEq(eqId);const icon=eq?.icon;return <span style={{fontSize:size,lineHeight:1}}>{icon&&!icon.endsWith('.svg')?icon:"•"}</span>}
+function EqIcon({eqId,size=18,color}){const obj=useObjective();const c=color||obj.accent;const {getEq}=useHelpers();const eq=getEq(eqId);const ri=registryIcon(eq?.iconKey,size,c);if(ri)return ri;const Ic=EQ_ICONS[eqId];if(Ic)return <Ic size={size} color={c}/>;const f=eqIconFile(eqId);if(f)return <img src={`/icons/${f}.svg`} alt="" width={size} height={size} style={{opacity:.7}}/>;const icon=eq?.icon;return <span style={{fontSize:size,lineHeight:1}}>{icon&&!icon.endsWith('.svg')?icon:"•"}</span>}
 
 /* ═══ CSS ═══ */
 const css = `
@@ -619,7 +630,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','DM Sans',system
 .day-hint{font-size:11px;color:rgba(15,30,46,.50);text-align:center;font-style:italic;margin:4px 0 10px}
 .overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:flex-end;animation:overlayIn .25s ease-out;-webkit-transform:translateZ(0);transform:translateZ(0);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
 @keyframes overlayIn{from{opacity:0;backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0)}to{opacity:1;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}}
-.modal{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;margin:0 auto;max-height:90dvh;max-height:90vh;overflow-y:auto;padding:20px 18px calc(30px + env(safe-area-inset-bottom,16px));animation:sheetUp .35s cubic-bezier(.32,1.2,.54,1);box-shadow:0 -8px 40px rgba(0,0,0,.15),0 -2px 10px rgba(0,0,0,.06)}
+.modal{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;margin:0 auto;max-height:90dvh;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:20px 18px calc(40px + env(safe-area-inset-bottom,20px));animation:sheetUp .35s cubic-bezier(.32,1.2,.54,1);box-shadow:0 -8px 40px rgba(0,0,0,.15),0 -2px 10px rgba(0,0,0,.06)}
 @keyframes sheetUp{0%{transform:translateY(100%)}60%{transform:translateY(-2%)}100%{transform:translateY(0)}}
 .overlay-closing{animation:overlayOut .28s ease-in forwards!important}@keyframes overlayOut{to{opacity:0;backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0)}}
 .modal-closing{animation:sheetDown .28s ease-in forwards!important}@keyframes sheetDown{to{transform:translateY(100%)}}
@@ -1236,15 +1247,14 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
   );
 
   if(showHpEdu)return(
-    <div className="overlay" onClick={onClose}><div role="dialog" className="modal" onClick={e=>e.stopPropagation()} style={{maxHeight:"50%"}}>
-      <div className="modal-handle"/>
+    <SwipeModal onClose={onClose} style={{maxHeight:"50%"}}>
       <div style={{textAlign:"center",padding:"10px 0 20px"}}>
         <div style={{display:"flex",justifyContent:"center",marginBottom:12}}><IcMsgStar size={40} color="rgba(15,30,46,.25)"/></div>
         <div className="modal-title">Tu peux le faire</div>
         <div className="modal-sub" style={{marginTop:8}}>{obj.hpEducation}</div>
         <button className="btn-primary" onClick={()=>setShowHpEdu(false)}>Compris</button>
       </div>
-    </div></div>
+    </SwipeModal>
   );
 
   // QL portion picker sub-view
@@ -1252,8 +1262,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
     const portions=qlSelected.portions||[];
     const flags=qlSelected.flags||[];
     return(
-    <div className="overlay" onClick={onClose}><div role="dialog" className="modal" onClick={e=>e.stopPropagation()}>
-      <div className="modal-handle"/>
+    <SwipeModal onClose={onClose}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
         <button aria-label="Retour" className="hdr-back" onClick={()=>{setQlSelected(null);setQlPortion(null)}} style={{padding:0}}>← Retour</button>
       </div>
@@ -1288,14 +1297,13 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
       <button className="btn-primary" disabled={!qlPortion||qlSubmitting} onClick={submitQl} style={{marginTop:8,opacity:qlSubmitting?.6:1}}>
         {qlSubmitting?"...":`Valider ${qlPortion?Math.round(Number(qlPortion.kcal))+" kcal":""}`}
       </button>
-    </div></div>);
+    </SwipeModal>);
   }
 
   if(selEq&&selEq.qtyUi.defaultAction!=="LOG_COMPLETION"){
     const mode=selEq.qtyUi.appInputMode;
     return(
-    <div className="overlay" onClick={onClose}><div role="dialog" className="modal" onClick={e=>e.stopPropagation()}>
-      <div className="modal-handle"/>
+    <SwipeModal onClose={onClose}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
         <button aria-label="Retour" className="hdr-back" onClick={()=>{setSelEq(null);setShowStepper(false);setShowNote(false)}} style={{padding:0}}>← Retour</button>
         {selEq.noteElevia&&<button onClick={()=>setShowNote(n=>!n)} style={{background:showNote?obj.accentSoft:"none",border:showNote?`1px solid ${obj.accentBorderStrong}`:"1px solid transparent",borderRadius:99,padding:"4px 8px",cursor:"pointer",display:"flex",alignItems:"center",gap:4,transition:"all .2s"}}><IcInfoEq size={14} color={showNote?obj.accent:obj.accentLine}/></button>}
@@ -1388,7 +1396,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
           }}>Valider{!selItem?.stepper&&selEq.items.length===0?` ${units}g`:""}</button>
         </>})()}
       </>}
-    </div></div>);
+    </SwipeModal>);
   }
 
   return(
@@ -2013,46 +2021,61 @@ function Portal({children}){return createPortal(children,document.body)}
 
 function SwipeModal({onClose,children,style={}}){
   const modalRef=useRef(null);
+  const overlayRef=useRef(null);
   const startY=useRef(0);
   const currentY=useRef(0);
   const dragging=useRef(false);
   const locked=useRef(false);
+  const dismissed=useRef(false);
   const [closing,setClosing]=useState(false);
 
-  const handleClose=useCallback(()=>{if(closing)return;setClosing(true);setTimeout(onClose,280)},[onClose,closing]);
+  const handleClose=useCallback(()=>{if(closing||dismissed.current)return;setClosing(true);setTimeout(onClose,280)},[onClose,closing]);
 
   const onTouchStart=useCallback(e=>{
-    const t=e.touches[0];
-    startY.current=t.clientY;
+    if(dismissed.current)return;
+    startY.current=e.touches[0].clientY;
     currentY.current=0;
     dragging.current=false;
     locked.current=false;
+    if(modalRef.current)modalRef.current.style.willChange='transform';
   },[]);
 
   const onTouchMove=useCallback(e=>{
-    if(locked.current)return;
+    if(locked.current||dismissed.current)return;
     const dy=e.touches[0].clientY-startY.current;
     if(!dragging.current){
       if(dy<0){locked.current=true;return;}
       const modal=modalRef.current;
-      if(modal&&modal.scrollTop>2){locked.current=true;return;}
-      if(dy>6)dragging.current=true;
+      if(modal&&modal.scrollTop>5){locked.current=true;return;}
+      if(dy>8)dragging.current=true;
       else return;
     }
+    const damped=dy>0?dy*0.55:dy*0.2;
     currentY.current=dy;
-    if(modalRef.current)modalRef.current.style.transform=`translateY(${dy}px)`;
+    if(modalRef.current)modalRef.current.style.transform=`translateY(${damped}px)`;
+    if(overlayRef.current){const p=Math.min(Math.max(damped,0)/250,1);overlayRef.current.style.background=`rgba(0,0,0,${(0.5*(1-p*.6)).toFixed(3)})`;}
     e.preventDefault();
   },[]);
 
   const onTouchEnd=useCallback(()=>{
+    if(modalRef.current)modalRef.current.style.willChange='';
     if(!dragging.current){locked.current=false;return;}
     dragging.current=false;
     locked.current=false;
-    if(currentY.current>70){handleClose();}
-    else if(modalRef.current){modalRef.current.style.transform='';modalRef.current.style.transition='transform .2s ease-out';setTimeout(()=>{if(modalRef.current)modalRef.current.style.transition='';},200);}
-  },[handleClose]);
+    if(currentY.current>80){
+      dismissed.current=true;
+      if(modalRef.current){modalRef.current.style.transition='transform .28s ease-in';modalRef.current.style.transform='translateY(100%)';}
+      if(overlayRef.current){overlayRef.current.style.transition='opacity .28s ease-in';overlayRef.current.style.opacity='0';}
+      setTimeout(onClose,280);
+    } else if(modalRef.current){
+      modalRef.current.style.transition='transform .3s cubic-bezier(.25,.46,.45,.94)';
+      modalRef.current.style.transform='';
+      if(overlayRef.current){overlayRef.current.style.transition='background .3s ease';overlayRef.current.style.background='';}
+      setTimeout(()=>{if(modalRef.current)modalRef.current.style.transition='';if(overlayRef.current)overlayRef.current.style.transition='';},300);
+    }
+  },[onClose]);
 
-  return <div className={`overlay${closing?' overlay-closing':''}`} onClick={handleClose}>
+  return <div ref={overlayRef} className={`overlay${closing?' overlay-closing':''}`} onClick={handleClose}>
     <div ref={modalRef} role="dialog" className={`modal${closing?' modal-closing':''}`} onClick={e=>e.stopPropagation()} style={style}
       onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
       <div style={{paddingBottom:8}}>
@@ -2099,7 +2122,7 @@ function AdviceDetail({adv,onClose,status,advices,onSelectAdv}){
     </div>
         <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:18}}>
           <div style={{width:46,height:46,borderRadius:14,background:obj.accentSoft,border:`1px solid ${obj.accentBorder}`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-            {MODULE_ICON(adv.module,22,obj.accent,adv.id)}
+            {MODULE_ICON(adv.module,22,obj.accent,adv.id,adv.iconKey)}
           </div>
           <div style={{fontSize:22,fontWeight:700,color:'var(--text)',fontFamily:"'Cormorant Garamond',serif",lineHeight:1.25,flex:1}}>{adv.title}</div>
         </div>
@@ -2210,7 +2233,7 @@ function AdviceTab({onCreateBilan,isWarmup,weekConsumed,weekNutrients,daysLogged
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8}}>
         <div style={{flex:1,minWidth:0}}>
           <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:2}}>
-            <span style={{flexShrink:0,display:"flex"}}>{MODULE_ICON(a.module,15,"rgba(15,30,46,0.4)",a.id)}</span>
+            <span style={{flexShrink:0,display:"flex"}}>{MODULE_ICON(a.module,15,"rgba(15,30,46,0.4)",a.id,a.iconKey)}</span>
             <div className="advice-title">{a.title}</div>
           </div>
           <div style={{fontSize:13,color:"#6B7280",lineHeight:1.5,marginTop:3}}>{a.shortBody}</div>
@@ -2249,7 +2272,7 @@ function AdviceTab({onCreateBilan,isWarmup,weekConsumed,weekNutrients,daysLogged
       <div className="modal-handle"/><div className="modal-title">Évaluation {(()=>{const ps=d?._planStartDate?new Date(d._planStartDate):null;if(!ps)return"";const dow=ps.getDay();let start=ps;if(dow>=3||dow===0){start=new Date(ps);start.setDate(start.getDate()+(dow===0?1:8-dow));start.setHours(0,0,0,0)}const w=Math.floor(Math.max(0,(new Date()-start)/86400000)/7)+1;return `semaine ${w}`})()}</div><div className="modal-sub">Comment s'est passée ta semaine ?</div>
       {/* Active advices — full evaluation */}
       {evalSplit.active.map(a=><div key={a.id} style={{marginBottom:12}}>
-        <div style={{fontSize:13,fontWeight:700,color:"#1A1A1A",marginBottom:6,display:"flex",alignItems:"center",gap:7}}><span style={{flexShrink:0,opacity:.55}}>{MODULE_ICON(a.module,14,undefined,a.id)}</span>{a.title}</div>
+        <div style={{fontSize:13,fontWeight:700,color:"#1A1A1A",marginBottom:6,display:"flex",alignItems:"center",gap:7}}><span style={{flexShrink:0,opacity:.55}}>{MODULE_ICON(a.module,14,undefined,a.id,a.iconKey)}</span>{a.title}</div>
         <div style={{display:"flex",gap:6}}>{[{v:2,l:"Solide",c:"#34C759"},{v:1,l:"En progrès",c:obj.accent},{v:0,l:"Pas encore",c:"#E5342D"}].map(o=>{const sel=evalScores[a.id]===o.v;return <button key={o.v} onClick={()=>setEvalScores(s=>({...s,[a.id]:o.v}))} style={{flex:1,padding:"8px 4px",borderRadius:10,fontSize:11,fontWeight:700,background:sel?`${o.c}10`:"#F5F4F1",border:`1px solid ${sel?`${o.c}40`:"rgba(15,30,46,.10)"}`,color:sel?o.c:"#6B7280",cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:5}}><span style={{width:6,height:6,borderRadius:3,background:o.c,flexShrink:0}}/>{o.l}</button>})}</div>
       </div>)}
 
@@ -2259,7 +2282,7 @@ function AdviceTab({onCreateBilan,isWarmup,weekConsumed,weekNutrients,daysLogged
           <div style={{fontSize:11,fontWeight:700,color:obj.accent,textTransform:"uppercase",letterSpacing:".04em",marginBottom:8}}>Re-check — toujours acquis ?</div>
         </div>
         {evalSplit.recheck.map(a=><div key={a.id} style={{marginBottom:12}}>
-          <div style={{fontSize:13,fontWeight:700,color:"#1A1A1A",marginBottom:6,display:"flex",alignItems:"center",gap:7}}><span style={{flexShrink:0,opacity:.55}}>{MODULE_ICON(a.module,14,undefined,a.id)}</span>{a.title}<span style={{fontSize:9,fontWeight:700,color:obj.accent,background:obj.accentSoft,padding:"2px 8px",borderRadius:99,border:`1px solid ${obj.accentBorder}`}}>Acquis</span></div>
+          <div style={{fontSize:13,fontWeight:700,color:"#1A1A1A",marginBottom:6,display:"flex",alignItems:"center",gap:7}}><span style={{flexShrink:0,opacity:.55}}>{MODULE_ICON(a.module,14,undefined,a.id,a.iconKey)}</span>{a.title}<span style={{fontSize:9,fontWeight:700,color:obj.accent,background:obj.accentSoft,padding:"2px 8px",borderRadius:99,border:`1px solid ${obj.accentBorder}`}}>Acquis</span></div>
           <div style={{display:"flex",gap:6}}>{[{v:2,l:"Toujours solide",c:"#34C759"},{v:0,l:"À retravailler",c:"#E5342D"}].map(o=>{const sel=evalScores[a.id]===o.v;return <button key={o.v} onClick={()=>setEvalScores(s=>({...s,[a.id]:o.v}))} style={{flex:1,padding:"8px 4px",borderRadius:10,fontSize:11,fontWeight:700,background:sel?`${o.c}10`:"#F5F4F1",border:`1px solid ${sel?`${o.c}40`:"rgba(15,30,46,.10)"}`,color:sel?o.c:"#6B7280",cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:5}}><span style={{width:6,height:6,borderRadius:3,background:o.c,flexShrink:0}}/>{o.l}</button>})}</div>
         </div>)}
       </>}
@@ -3047,7 +3070,7 @@ function ProfileTab({ signOut, onAddMeasurement, onDeleteMeasurement, milestones
         const isStructured=columns.length>0;
         return <div key={c.id||i} className="card" role="button" tabIndex={0} style={{marginBottom:10,padding:0,overflow:"hidden",cursor:"pointer"}} onClick={()=>setExpandedCapsule(isOpen?null:c.id)}>
           <div style={{display:"flex",alignItems:"center",gap:12,padding:"14px 16px"}}>
-            <span style={{width:32,height:32,borderRadius:10,background:`linear-gradient(135deg,${obj.accentSoft},rgba(198,160,91,.06))`,border:`1px solid ${obj.accentBorder}`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>{(()=>{const SitIc=CAPSULE_ICON(c.id);return SitIc?<SitIc size={17} color="#0F1E2E"/>:<IcBulb size={17} color="rgba(15,30,46,.35)"/>;})()}</span>
+            <span style={{width:32,height:32,borderRadius:10,background:`linear-gradient(135deg,${obj.accentSoft},rgba(198,160,91,.06))`,border:`1px solid ${obj.accentBorder}`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>{(()=>{const ri=registryIcon(c.iconKey,17,"#0F1E2E");if(ri)return ri;const SitIc=CAPSULE_ICON(c.id);return SitIc?<SitIc size={17} color="#0F1E2E"/>:<IcBulb size={17} color="rgba(15,30,46,.35)"/>;})()}</span>
             <div style={{flex:1,minWidth:0}}>
               <div style={{fontSize:14,fontWeight:600,color:"#1A1A1A"}}>{c.title}</div>
               {c.subtitle&&<div style={{fontSize:11,color:"#6B7280",marginTop:1}}>{c.subtitle}</div>}
