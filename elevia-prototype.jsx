@@ -634,11 +634,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','DM Sans',system
 @keyframes sheetUp{0%{transform:translateY(100%)}60%{transform:translateY(-2%)}100%{transform:translateY(0)}}
 .overlay-closing{animation:overlayOut .28s ease-in forwards!important}@keyframes overlayOut{to{opacity:0;backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0)}}
 .modal-closing{animation:sheetDown .28s ease-in forwards!important}@keyframes sheetDown{to{transform:translateY(100%)}}
-.fsm-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.5);animation:overlayIn .25s ease-out;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);-webkit-transform:translateZ(0);transform:translateZ(0)}
-.fsm-card{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);left:0;right:0;max-height:calc(100% - env(safe-area-inset-top,0px) - 12px);z-index:201;background:var(--bg);border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden;animation:sheetUp .35s cubic-bezier(.32,1.2,.54,1);box-shadow:0 -8px 40px rgba(0,0,0,.15),0 -2px 10px rgba(0,0,0,.06)}
-.fsm-handle{flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:10px 0 2px;position:relative}
+.fsm-card{position:fixed;inset:0;z-index:201;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;animation:fsmIn .25s ease-out}
+@keyframes fsmIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.fsm-card.modal-closing{animation:fsmOut .22s ease-in forwards!important}@keyframes fsmOut{to{opacity:0;transform:translateY(40px)}}
+.fsm-handle{flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:calc(env(safe-area-inset-top,0px) + 8px) 0 2px;position:relative}
 .fsm-nav{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:6px 18px 10px;min-height:36px}
-.fsm-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding:0 18px 12px;-webkit-transform:translateZ(0);transform:translateZ(0)}.fsm-body::-webkit-scrollbar{display:none}
+.fsm-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding:0 18px;-webkit-transform:translateZ(0);transform:translateZ(0)}.fsm-body::-webkit-scrollbar{display:none}
 .fsm-footer{flex-shrink:0;padding:8px 18px calc(6px + env(safe-area-inset-bottom,8px));border-top:1px solid rgba(15,30,46,.06);background:var(--bg)}
 .advice-page{position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;background:#fff;animation:pageSlideIn .3s cubic-bezier(.25,.46,.45,.94) both}@keyframes pageSlideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
 .advice-page-out{animation:pageSlideOut .28s ease-in forwards!important}@keyframes pageSlideOut{to{transform:translateX(100%)}}
@@ -1017,65 +1018,9 @@ function fmtItemQty(stepper, totalGrams, profileRulesMap, eqId){
   return`${Math.round(totalGrams)}g`;
 }
 
-/* ═══ FULL-SCREEN MODAL (replaces bottom-sheet for AddModal) ═══ */
-function FullScreenModal({onClose,children}){
-  const cardRef=useRef(null);
-  const overlayRef=useRef(null);
-  const startY=useRef(0);
-  const currentY=useRef(0);
-  const dragging=useRef(false);
-  const dismissed=useRef(false);
-  const [closing,setClosing]=useState(false);
-
-  const handleClose=useCallback(()=>{if(closing||dismissed.current)return;setClosing(true);setTimeout(onClose,280)},[onClose,closing]);
-
-  const onTouchStart=useCallback(e=>{
-    if(dismissed.current)return;
-    const card=cardRef.current;if(!card)return;
-    const rect=card.getBoundingClientRect();
-    if(e.touches[0].clientY-rect.top>50){startY.current=0;return;}
-    startY.current=e.touches[0].clientY;
-    currentY.current=0;dragging.current=false;
-    card.style.willChange='transform';
-  },[]);
-
-  const onTouchMove=useCallback(e=>{
-    if(dismissed.current||!startY.current)return;
-    const dy=e.touches[0].clientY-startY.current;
-    if(!dragging.current){
-      if(dy<0){startY.current=0;return;}
-      if(dy>8)dragging.current=true;else return;
-    }
-    const damped=dy*0.55;
-    currentY.current=dy;
-    if(cardRef.current)cardRef.current.style.transform=`translateY(${damped}px)`;
-    if(overlayRef.current){const p=Math.min(damped/250,1);overlayRef.current.style.background=`rgba(0,0,0,${(0.5*(1-p*.6)).toFixed(3)})`;}
-    e.preventDefault();
-  },[]);
-
-  const onTouchEnd=useCallback(()=>{
-    if(cardRef.current)cardRef.current.style.willChange='';
-    if(!startY.current||!dragging.current){startY.current=0;return;}
-    startY.current=0;dragging.current=false;
-    if(currentY.current>80){
-      dismissed.current=true;
-      if(cardRef.current){cardRef.current.style.transition='transform .28s ease-in';cardRef.current.style.transform='translateY(100%)';}
-      if(overlayRef.current){overlayRef.current.style.transition='opacity .28s ease-in';overlayRef.current.style.opacity='0';}
-      setTimeout(onClose,280);
-    } else if(cardRef.current){
-      cardRef.current.style.transition='transform .3s cubic-bezier(.25,.46,.45,.94)';
-      cardRef.current.style.transform='';
-      if(overlayRef.current){overlayRef.current.style.transition='background .3s ease';overlayRef.current.style.background='';}
-      setTimeout(()=>{if(cardRef.current)cardRef.current.style.transition='';if(overlayRef.current)overlayRef.current.style.transition='';},300);
-    }
-  },[onClose]);
-
-  return <div ref={overlayRef} className={`fsm-overlay${closing?' overlay-closing':''}`} onClick={handleClose}>
-    <div ref={cardRef} className={`fsm-card${closing?' modal-closing':''}`} onClick={e=>e.stopPropagation()}
-      onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
-      {children}
-    </div>
-  </div>;
+/* ═══ FULL-SCREEN MODAL ═══ */
+function FullScreenModal({children}){
+  return <div className="fsm-card">{children}</div>;
 }
 
 /* ═══ ADD MODAL (Plan + Hors Plan + Quick-Log) ═══ */
@@ -1280,9 +1225,24 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
     else if(screen==='catalogue')setView('main');
   };
 
-  // Footer CTA button (sticky at bottom, always visible)
+  // Footer content (fixed at bottom of card)
   let footerCTA=null;
-  if(screen==='peek'){
+  if(screen==='main'){
+    footerCTA=<div style={{display:"flex",gap:8}}>
+      <button onClick={()=>setView("catalogue")} style={{flex:1,padding:"10px 14px",borderRadius:14,background:"rgba(15,30,46,.02)",border:"1px solid rgba(15,30,46,.06)",display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
+        <span style={{display:"flex"}}><IcMenuWhy size={16} color="rgba(15,30,46,.45)"/></span>
+        <div style={{flex:1,textAlign:"left"}}>
+          <div style={{fontSize:12,fontWeight:700,color:"#1A1A1A"}}>Catalogue complet</div>
+          <div style={{fontSize:10,color:"#6B7280",marginTop:1}}>Toutes les équivalences</div>
+        </div>
+        <span style={{fontSize:16,color:"#C8CDD3",fontWeight:300}}>›</span>
+      </button>
+      <button onClick={()=>setShowApero(true)} style={{padding:"10px 14px",borderRadius:14,background:"linear-gradient(135deg,rgba(232,134,58,.06),rgba(232,134,58,.02))",border:"1px solid rgba(232,134,58,.15)",display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
+        <span style={{display:"flex"}}><IcSitChampagne size={16} color="#E8863A"/></span>
+        <div style={{textAlign:"left"}}><div style={{fontSize:12,fontWeight:700,color:"#E8863A"}}>Apéro</div></div>
+      </button>
+    </div>;
+  } else if(screen==='peek'){
     footerCTA=<button className="btn-primary" onClick={()=>{setPeekEq(null);pickEq(peekEq,!allowed.includes(peekEq.eqId))}}>Logger cette équivalence</button>;
   } else if(screen==='qlPortion'){
     footerCTA=<button className="btn-primary" disabled={!qlPortion||qlSubmitting} onClick={submitQl} style={{opacity:qlSubmitting?.6:1}}>
@@ -1328,7 +1288,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
     {/* Handle + close */}
     <div className="fsm-handle">
       <div className="modal-handle"/>
-      <button onClick={onClose} aria-label="Fermer" style={{position:"absolute",top:8,right:14,width:30,height:30,borderRadius:99,background:"rgba(15,30,46,.06)",border:"none",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:14,color:"#9CA3AF"}}>✕</button>
+      <button onClick={onClose} aria-label="Fermer" style={{position:"absolute",top:"calc(env(safe-area-inset-top,0px) + 8px)",right:14,width:30,height:30,borderRadius:99,background:"rgba(15,30,46,.06)",border:"none",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:14,color:"#9CA3AF"}}>✕</button>
     </div>
 
     {/* Navigation bar */}
@@ -1414,22 +1374,6 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
           <div style={{textAlign:"center",padding:"20px 0"}}><div className="empty-icon" style={{display:"flex",justifyContent:"center",marginBottom:6}}><IcSearch size={24} color="rgba(15,30,46,0.2)"/></div><div style={{fontSize:13,color:"#6B7280"}}>Aucun résultat</div></div>
         )}
 
-        <div style={{display:"flex",gap:8,marginTop:14}}>
-          <button onClick={()=>setView("catalogue")} style={{flex:1,padding:"10px 14px",borderRadius:14,background:"rgba(15,30,46,.02)",border:"1px solid rgba(15,30,46,.06)",display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
-            <span style={{display:"flex"}}><IcMenuWhy size={16} color="rgba(15,30,46,.45)"/></span>
-            <div style={{flex:1,textAlign:"left"}}>
-              <div style={{fontSize:12,fontWeight:700,color:"#1A1A1A"}}>Catalogue complet</div>
-              <div style={{fontSize:10,color:"#6B7280",marginTop:1}}>Toutes les équivalences</div>
-            </div>
-            <span style={{fontSize:16,color:"#C8CDD3",fontWeight:300}}>›</span>
-          </button>
-          <button onClick={()=>setShowApero(true)} style={{padding:"10px 14px",borderRadius:14,background:"linear-gradient(135deg,rgba(232,134,58,.06),rgba(232,134,58,.02))",border:"1px solid rgba(232,134,58,.15)",display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
-            <span style={{display:"flex"}}><IcSitChampagne size={16} color="#E8863A"/></span>
-            <div style={{textAlign:"left"}}>
-              <div style={{fontSize:12,fontWeight:700,color:"#E8863A"}}>Apéro</div>
-            </div>
-          </button>
-        </div>
       </>}
 
       {/* ═══ CATALOGUE ═══ */}
@@ -3479,7 +3423,7 @@ export default function EleviaApp({ session, signOut, planData, logs: externalLo
     const root=document.getElementById('root');
     if(!root)return;
     const check=()=>{
-      const overlay=root.querySelector('.overlay')||root.querySelector('.fsm-overlay')||root.querySelector('.advice-page');
+      const overlay=root.querySelector('.overlay')||root.querySelector('.fsm-card')||root.querySelector('.advice-page');
       const tbar=root.querySelector('.tbar');
       const mask=root.querySelector('[data-bottom-mask]');
       if(tbar) tbar.style.display=overlay?'none':'';

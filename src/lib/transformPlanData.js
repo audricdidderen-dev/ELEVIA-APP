@@ -7,7 +7,7 @@ import { getObjectiveConfig, getScoreLabel } from './objectiveConfig.js'
 // Migration 255 sets FIXED usual values for ALL assaisonnement items in DB.
 // No hardcoded fallback needed — all values come from ref_eq_items/plan_items.
 
-export function transformPlanData({ profile, plan, equivalences, items, slots, slotMapping, targets, advices, microTips, refMicroTips, measurements, bilans, refEqMaster, refEqItems, videoGuides, recipes, progression, capsules, usualRules, itemVariants, questionnaireResponses }) {
+export function transformPlanData({ profile, plan, equivalences, items, slots, slotMapping, targets, advices, microTips, refMicroTips, measurements, bilans, refEqMaster, refEqItems, videoGuides, recipes, progression, capsules, usualRules, itemVariants, adviceTemplates, questionnaireResponses }) {
 
   // --- VARIANTS LOOKUP (eq_id + item_id → variants[]) ---
   const variantsByItem = {}
@@ -97,6 +97,12 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
     itemsByEq[item.eq_id].push(item)
   }
 
+  // icon_key lookup from ref_eq_master (Supabase → icon-registry.js)
+  const iconKeyByEq = {}
+  for (const ref of (refEqMaster || [])) {
+    if (ref.icon_key) iconKeyByEq[ref.eq_id] = ref.icon_key
+  }
+
   const CATALOGUE = equivalences.map(eq => ({
     eqId: eq.eq_id,
     label: eq.label_fr,
@@ -104,6 +110,7 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
     type: eq.type,
     eqGroupId: eq.eq_group_id || null,
     eqImportance: eq.eq_importance,
+    iconKey: iconKeyByEq[eq.eq_id] || null,
     icon: (eq.icon && !String(eq.icon).endsWith('.svg')) ? eq.icon : null,
     nutrientsPerPortion: {
       kcal: Number(eq.kcal_per_portion),
@@ -210,9 +217,15 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
   }
 
   // --- ADVICES ---
+  const adviceIconKeys = {}
+  for (const t of (adviceTemplates || [])) {
+    if (t.icon_key) adviceIconKeys[t.advice_id] = t.icon_key
+  }
+
   const ADVICES = advices.map(a => ({
     id: a.template_id,
     module: a.module,
+    iconKey: adviceIconKeys[a.template_id] || null,
     title: a.title,
     axis: a.axis,
     priorityScore: a.priority,
@@ -342,6 +355,7 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
       type: ref.type,
       eqGroupId: null,
       eqImportance: 'normal',
+      iconKey: ref.icon_key || null,
       icon: typeIcons[ref.type] || '🍽️',
       nutrientsPerPortion: {
         kcal: Number(ref.kcal_ref) || 0,
@@ -509,6 +523,7 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
     id: c.capsule_id,
     title: c.title,
     subtitle: c.subtitle || '',
+    iconKey: c.icon_key || null,
     icon: c.icon || '',
     body: c.body,
     category: c.category,

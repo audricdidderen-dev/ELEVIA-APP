@@ -56,9 +56,10 @@ export function usePlanData(session) {
           supabase.from('plan_capsules').select('*').order('display_order'),
           supabase.from('calc_usual_rules').select('*'),
           supabase.from('ref_item_variants').select('*').order('parent_eq_id').order('parent_item_id').order('rank'),
+          supabase.from('calc_advice_templates').select('advice_id, icon_key'),
         ])
 
-        const names = ['client_plans', 'plan_equivalences', 'plan_items', 'plan_slots', 'plan_slot_mapping', 'plan_targets', 'plan_advices', 'plan_micro_tips', 'ref_micro_tips', 'measurements', 'weekly_bilans', 'ref_eq_master', 'ref_eq_items', 'plan_video_guides', 'plan_recipes', 'plan_progression', 'plan_capsules', 'calc_usual_rules', 'ref_item_variants']
+        const names = ['client_plans', 'plan_equivalences', 'plan_items', 'plan_slots', 'plan_slot_mapping', 'plan_targets', 'plan_advices', 'plan_micro_tips', 'ref_micro_tips', 'measurements', 'weekly_bilans', 'ref_eq_master', 'ref_eq_items', 'plan_video_guides', 'plan_recipes', 'plan_progression', 'plan_capsules', 'calc_usual_rules', 'ref_item_variants', 'calc_advice_templates']
         const extracted = {}
         for (let i = 0; i < results.length; i++) {
           const { data: d, error: e } = results[i]
@@ -109,6 +110,7 @@ export function usePlanData(session) {
           capsules: extracted.plan_capsules,
           usualRules: extracted.calc_usual_rules,
           itemVariants: extracted.ref_item_variants,
+          adviceTemplates: extracted.calc_advice_templates,
           questionnaireResponses,
         })
 
