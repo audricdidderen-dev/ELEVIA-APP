@@ -639,7 +639,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','DM Sans',system
 .fsm-handle{flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:10px 0 2px;position:relative}
 .fsm-nav{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:6px 18px 10px;min-height:36px}
 .fsm-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:0 18px 20px}.fsm-body::-webkit-scrollbar{display:none}
-.fsm-footer{flex-shrink:0;padding:12px 18px calc(12px + env(safe-area-inset-bottom,16px));border-top:1px solid rgba(15,30,46,.06);background:var(--bg)}
+.fsm-footer{position:-webkit-sticky;position:sticky;bottom:0;padding:12px 18px calc(12px + env(safe-area-inset-bottom,16px));border-top:1px solid rgba(15,30,46,.06);background:var(--bg);margin:0 -18px -20px;z-index:2}
 .advice-page{position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;background:#fff;animation:pageSlideIn .3s cubic-bezier(.25,.46,.45,.94) both}@keyframes pageSlideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
 .advice-page-out{animation:pageSlideOut .28s ease-in forwards!important}@keyframes pageSlideOut{to{transform:translateX(100%)}}
 .advice-page-inner{width:100%;max-width:430px;margin:0 auto;height:100%;display:flex;flex-direction:column}
@@ -1132,6 +1132,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
   const [qlSubmitting,setQlSubmitting]=useState(false);
   const [showApero,setShowApero]=useState(false);
   const qlDebounceRef=useRef(null);
+  const stepperRef=useRef(null);
 
   const allowed=SLOT_ALLOWED[slotId]||[];
   const planEqs=CATALOGUE.filter(eq=>allowed.includes(eq.eqId)&&isInPlan(eq.eqId));
@@ -1565,14 +1566,14 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
               <div className="modal-section">{selEq.qtyUi.appInputMode==="ITEM_FIRST_PICK"?"Choisis ton item":"Items"}</div>
               {selEq.items.map(item=>(
                 <div key={item.itemId} className={`item-row ${selItem?.itemId===item.itemId?"selected":""}`}
-                  onClick={()=>{setSelItem(item);if(item.stepper?.usualGPerUnit>0){const g=slotTargetGrams(selEq,item);setUnits(Math.round(g/item.stepper.usualGPerUnit)||1)}else{setUnits(item.stepper?.defaultUnits||refG)}}}>
+                  onClick={()=>{setSelItem(item);if(item.stepper?.usualGPerUnit>0){const g=slotTargetGrams(selEq,item);setUnits(Math.round(g/item.stepper.usualGPerUnit)||1)}else{setUnits(item.stepper?.defaultUnits||refG)};setTimeout(()=>{if(stepperRef.current)stepperRef.current.scrollIntoView({behavior:'smooth',block:'center'})},80)}}>
                   <span className="item-label">{item.foodLabel}</span>
                   <span className="item-detail">{!curHp&&isInPlan(selEq.eqId)?fmtItemQty(item.stepper,slotTargetGrams(selEq,item),PROFILE_RULES,selEq.eqId):""}</span>
                 </div>
               ))}
             </>}
             {selItem?.stepper&&<>
-              <div key={selItem.itemId+"_stepper"} className="stepper" style={{margin:"20px 0"}}>
+              <div ref={stepperRef} key={selItem.itemId+"_stepper"} className="stepper" style={{margin:"20px 0"}}>
                 <button aria-label="Réduire la quantité" className="stepper-btn" disabled={units<=(selItem.stepper.minUnits||0)} onClick={()=>{haptic(6);setUnits(u=>Math.max(selItem.stepper.minUnits||0,u-(selItem.stepper.unitStep||1)))}}>−</button>
                 <div><div className="stepper-val"><AnimNum value={units} duration={200}/></div><div className="stepper-unit">{units<=1?selItem.stepper.usualUnitSg:selItem.stepper.usualUnitPl}</div></div>
                 <button aria-label="Augmenter la quantité" className="stepper-btn" disabled={units>=(selItem.stepper.maxUnits||20)} onClick={()=>{haptic(6);setUnits(u=>Math.min(selItem.stepper.maxUnits||20,u+(selItem.stepper.unitStep||1)))}}>+</button>
@@ -1580,7 +1581,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
               {liveCalc&&<div className="live-calc"><div className="live-main">≈ {liveCalc.grams}{qtyUnit(selEq)} · {liveCalc.kcal} kcal</div><div className="live-sub">P{liveCalc.p} · L{liveCalc.l} · G{liveCalc.g}</div></div>}
             </>}
             {(selItem&&!selItem.stepper||selEq.items.length===0)&&<>
-              <div key={(selItem?.itemId||"eq")+"_fb_stepper"} className="stepper" style={{margin:"20px 0"}}>
+              <div ref={stepperRef} key={(selItem?.itemId||"eq")+"_fb_stepper"} className="stepper" style={{margin:"20px 0"}}>
                 <button aria-label="Réduire" className="stepper-btn" disabled={units<=25} onClick={()=>{haptic(6);setUnits(u=>Math.max(25,u-25))}}>−</button>
                 <div><div className="stepper-val"><AnimNum value={units} duration={200}/></div><div className="stepper-unit">{qtyUnit(selEq)==="ml"?"ml":"grammes"}</div></div>
                 <button aria-label="Augmenter" className="stepper-btn" disabled={units>=500} onClick={()=>{haptic(6);setUnits(u=>Math.min(500,u+25))}}>+</button>
@@ -1592,10 +1593,8 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
       </>}
 
       </div>
+      {footerCTA&&<div className="fsm-footer">{footerCTA}</div>}
     </div>
-
-    {/* Sticky footer CTA */}
-    {footerCTA&&<div className="fsm-footer">{footerCTA}</div>}
   </FullScreenModal>);
 }
 
@@ -3479,7 +3478,9 @@ export default function EleviaApp({ session, signOut, planData, logs: externalLo
     const check=()=>{
       const overlay=root.querySelector('.overlay')||root.querySelector('.fsm-overlay')||root.querySelector('.advice-page');
       const tbar=root.querySelector('.tbar');
+      const mask=root.querySelector('[data-bottom-mask]');
       if(tbar) tbar.style.display=overlay?'none':'';
+      if(mask) mask.style.display=overlay?'none':'';
     };
     const obs=new MutationObserver(check);
     obs.observe(root,{childList:true,subtree:true});
@@ -3586,7 +3587,7 @@ export default function EleviaApp({ session, signOut, planData, logs: externalLo
         </div>
       </div>
       {/* Bottom mask: hides content scrolling behind tab bar + safe area */}
-      <div style={{position:"absolute",bottom:0,left:0,right:0,height:`calc(90px + env(safe-area-inset-bottom, 16px))`,background:"linear-gradient(to bottom, transparent 0%, #F5F4F1 20%)",pointerEvents:"none",zIndex:40}}/>
+      <div data-bottom-mask style={{position:"absolute",bottom:0,left:0,right:0,height:`calc(90px + env(safe-area-inset-bottom, 16px))`,background:"linear-gradient(to bottom, transparent 0%, #F5F4F1 20%)",pointerEvents:"none",zIndex:40}}/>
       <div className="tbar" data-tour="tab-bar">
         {/* Sliding glow indicator */}
         <div style={{position:"absolute",top:4,left:`${tabs.findIndex(t=>t.id===tab)*(100/tabs.length)}%`,width:`${100/tabs.length}%`,height:"calc(100% - 8px)",borderRadius:16,background:`radial-gradient(ellipse at center,rgba(198,160,91,.1) 0%,transparent 70%)`,transition:"left .3s cubic-bezier(.4,0,.2,1)",pointerEvents:"none",zIndex:0}}/>
