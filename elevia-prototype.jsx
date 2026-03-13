@@ -623,12 +623,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','DM Sans',system
 @keyframes sheetUp{0%{transform:translateY(100%)}60%{transform:translateY(-2%)}100%{transform:translateY(0)}}
 .overlay-closing{animation:overlayOut .28s ease-in forwards!important}@keyframes overlayOut{to{opacity:0;backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0)}}
 .modal-closing{animation:sheetDown .28s ease-in forwards!important}@keyframes sheetDown{to{transform:translateY(100%)}}
-.advice-page{position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;background:#fff;animation:pageSlideIn .3s cubic-bezier(.25,.46,.45,.94) both}@keyframes pageSlideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+.advice-page{position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;background:#fff;animation:pageSlideIn .3s cubic-bezier(.25,.46,.45,.94) both}@keyframes pageSlideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
 .advice-page-out{animation:pageSlideOut .28s ease-in forwards!important}@keyframes pageSlideOut{to{transform:translateX(100%)}}
 .advice-page-inner{width:100%;max-width:430px;margin:0 auto;height:100%;display:flex;flex-direction:column}
-.advice-page-hdr{display:flex;align-items:center;gap:10px;padding:max(14px,env(safe-area-inset-top,14px)) 18px 14px;border-bottom:1px solid rgba(15,30,46,.06);flex-shrink:0;background:#fff}
-.advice-page-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 18px 20px}
-.advice-page-nav{display:flex;justify-content:space-between;align-items:center;padding:12px 18px calc(12px + env(safe-area-inset-bottom,16px));border-top:1px solid rgba(15,30,46,.06);flex-shrink:0;background:#fff}
+.advice-page-hdr{display:flex;align-items:center;gap:10px;padding:12px 18px 10px;border-bottom:1px solid rgba(15,30,46,.06);flex-shrink:0;background:#fff}
+.advice-page-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:20px 18px 20px}
+.advice-page-nav{display:flex;justify-content:space-between;align-items:center;padding:10px 18px;border-top:1px solid rgba(15,30,46,.06);flex-shrink:0;background:#fff}
 .advice-nav-btn{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:12px;border:1px solid rgba(15,30,46,.10);background:#fff;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;font-family:inherit;transition:all .15s ease}.advice-nav-btn:active{background:var(--accent-soft);border-color:var(--accent-border);transform:scale(.97)}
 .advice-section-card{border-radius:16px;border:1px solid rgba(15,30,46,.06);background:#FAFAF8;padding:16px;margin-bottom:14px}.advice-section-title{font-size:12px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
 .modal-handle{width:44px;height:5px;background:#E0E2E6;border-radius:99px;margin:0 auto 18px}
@@ -2078,11 +2078,11 @@ function AdviceDetail({adv,onClose,status,advices,onSelectAdv}){
   const prev=idx>0?advices[idx-1]:null;
   const next=idx>=0&&idx<(advices||[]).length-1?advices[idx+1]:null;
 
-  useEffect(()=>{if(scrollRef.current)scrollRef.current.scrollTop=0;setOpenSec(new Set())},[adv.id]);
+  useEffect(()=>{const el=scrollRef.current;if(el){el.scrollTop=0;requestAnimationFrame(()=>{el.scrollTop=0})}setOpenSec(new Set())},[adv.id]);
 
   const handleClose=useCallback(()=>{if(closing)return;setClosing(true);setTimeout(onClose,300)},[onClose,closing]);
 
-  return <div className={`advice-page${closing?' advice-page-out':''}`}>
+  return createPortal(<div className={`advice-page${closing?' advice-page-out':''}`}>
     <div className="advice-page-inner">
       <div className="advice-page-hdr">
         <button onClick={handleClose} style={{background:'none',border:'none',padding:'6px 2px',cursor:'pointer',display:'flex',alignItems:'center',gap:5,fontFamily:'inherit',fontSize:14,fontWeight:600,color:obj.accent}}>
@@ -2162,7 +2162,7 @@ function AdviceDetail({adv,onClose,status,advices,onSelectAdv}){
         </button>:<div/>}
       </div>}
     </div>
-  </div>
+  </div>, document.body)
 }
 
 /* ═══ TAB: CONSEILS ═══ */
