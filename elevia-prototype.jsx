@@ -639,7 +639,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','DM Sans',system
 .fsm-handle{flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:10px 0 2px;position:relative}
 .fsm-nav{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:6px 18px 10px;min-height:36px}
 .fsm-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:0 18px 20px}.fsm-body::-webkit-scrollbar{display:none}
-.fsm-footer{position:-webkit-sticky;position:sticky;bottom:0;padding:12px 18px calc(12px + env(safe-area-inset-bottom,16px));border-top:1px solid rgba(15,30,46,.06);background:var(--bg);margin:0 -18px -20px;z-index:2}
+.fsm-footer{flex-shrink:0;padding:10px 18px calc(8px + env(safe-area-inset-bottom,12px));border-top:1px solid rgba(15,30,46,.06);background:var(--bg)}
 .advice-page{position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;background:#fff;animation:pageSlideIn .3s cubic-bezier(.25,.46,.45,.94) both}@keyframes pageSlideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
 .advice-page-out{animation:pageSlideOut .28s ease-in forwards!important}@keyframes pageSlideOut{to{transform:translateX(100%)}}
 .advice-page-inner{width:100%;max-width:430px;margin:0 auto;height:100%;display:flex;flex-direction:column}
@@ -657,7 +657,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','DM Sans',system
 .modal-tab.active{color:#1A1A1A}
 .modal-tab-pill{position:absolute;top:3px;bottom:3px;border-radius:8px;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.08);transition:left .3s cubic-bezier(.4,0,.2,1),width .3s cubic-bezier(.4,0,.2,1);z-index:0;pointer-events:none}
 .item-row{display:flex;align-items:center;gap:10px;padding:10px;background:#F5F4F1;border-radius:12px;margin-bottom:6px;cursor:pointer;border:1px solid transparent}
-.item-row:hover,.item-row.selected{border-color:var(--accent-border);background:var(--accent-soft)}
+.item-row.selected{border-color:var(--accent-border);background:var(--accent-soft)}
 .item-label{font-size:14px;font-weight:600;color:#1A1A1A;flex:1}.item-detail{font-size:11px;color:#6B7280}
 .stepper{display:flex;align-items:center;justify-content:center;gap:16px;margin:16px 0}
 .stepper-btn{width:44px;height:44px;border-radius:99px;background:var(--accent-soft);border:1px solid var(--accent-border);font-size:20px;font-weight:700;color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center}
@@ -1132,7 +1132,6 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
   const [qlSubmitting,setQlSubmitting]=useState(false);
   const [showApero,setShowApero]=useState(false);
   const qlDebounceRef=useRef(null);
-  const stepperRef=useRef(null);
 
   const allowed=SLOT_ALLOWED[slotId]||[];
   const planEqs=CATALOGUE.filter(eq=>allowed.includes(eq.eqId)&&isInPlan(eq.eqId));
@@ -1295,17 +1294,32 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
     const mode=selEq.qtyUi.appInputMode;
     if(mode==='PORTION_TAP'){
       footerCTA=<button className="btn-primary" onClick={()=>doLog(selEq,null,portion,portion,curHp)}>Valider {portion} portion{portion!==1?"s":""}</button>;
-    } else if(!showStepper&&!showTable&&!curHp){
-      footerCTA=<>
-        <button className="btn-primary" onClick={()=>{const pg=portionGrams(selEq,selItem);const u=selItem?.stepper?.usualGPerUnit>0?Math.round(pg/selItem.stepper.usualGPerUnit)||1:1;doLog(selEq,selItem,u,1,curHp)}}>Ajouter 1 portion</button>
-        <button className="btn-text" onClick={()=>{setShowStepper(true);if(selEq.items.length===0)setUnits(selEq.qtyPlanGrams||100)}}>Modifier la quantité →</button>
-      </>;
     } else if(!showTable&&(showStepper||curHp)){
       const refG=selEq.qtyPlanGrams||100;
-      footerCTA=<button className="btn-primary" onClick={()=>{
-        if(selItem?.stepper)doLog(selEq,selItem,units,liveCalc?.portion||1,curHp);
-        else{const port=units/(refG||100);doLog(selEq,selItem,units,Math.round(port*100)/100,curHp)}
-      }}>Valider{!selItem?.stepper&&selEq.items.length===0?` ${units}g`:""}</button>;
+      const npp=selEq.nutrientsPerPortion||{kcal:0,p:0,l:0,g:0};
+      const fbCalc=(g)=>({kcal:Math.round(npp.kcal*g/refG),p:Math.round(npp.p*g/refG*10)/10,l:Math.round(npp.l*g/refG*10)/10,g:Math.round(npp.g*g/refG*10)/10});
+      footerCTA=<>
+        {selItem?.stepper&&<>
+          <div className="stepper" style={{margin:"4px 0 8px"}}>
+            <button aria-label="Réduire la quantité" className="stepper-btn" disabled={units<=(selItem.stepper.minUnits||0)} onClick={()=>{haptic(6);setUnits(u=>Math.max(selItem.stepper.minUnits||0,u-(selItem.stepper.unitStep||1)))}}>−</button>
+            <div><div className="stepper-val"><AnimNum value={units} duration={200}/></div><div className="stepper-unit">{units<=1?selItem.stepper.usualUnitSg:selItem.stepper.usualUnitPl}</div></div>
+            <button aria-label="Augmenter la quantité" className="stepper-btn" disabled={units>=(selItem.stepper.maxUnits||20)} onClick={()=>{haptic(6);setUnits(u=>Math.min(selItem.stepper.maxUnits||20,u+(selItem.stepper.unitStep||1)))}}>+</button>
+          </div>
+          {liveCalc&&<div className="live-calc"><div className="live-main">≈ {liveCalc.grams}{qtyUnit(selEq)} · {liveCalc.kcal} kcal</div><div className="live-sub">P{liveCalc.p} · L{liveCalc.l} · G{liveCalc.g}</div></div>}
+        </>}
+        {(selItem&&!selItem.stepper||selEq.items.length===0)&&<>
+          <div className="stepper" style={{margin:"4px 0 8px"}}>
+            <button aria-label="Réduire" className="stepper-btn" disabled={units<=25} onClick={()=>{haptic(6);setUnits(u=>Math.max(25,u-25))}}>−</button>
+            <div><div className="stepper-val"><AnimNum value={units} duration={200}/></div><div className="stepper-unit">{qtyUnit(selEq)==="ml"?"ml":"grammes"}</div></div>
+            <button aria-label="Augmenter" className="stepper-btn" disabled={units>=500} onClick={()=>{haptic(6);setUnits(u=>Math.min(500,u+25))}}>+</button>
+          </div>
+          {(()=>{const c=fbCalc(units);return <div className="live-calc"><div className="live-main">{c.kcal} kcal</div><div className="live-sub">P{c.p} · L{c.l} · G{c.g}</div></div>})()}
+        </>}
+        <button className="btn-primary" style={{marginTop:8}} onClick={()=>{
+          if(selItem?.stepper)doLog(selEq,selItem,units,liveCalc?.portion||1,curHp);
+          else{const port=units/(refG||100);doLog(selEq,selItem,units,Math.round(port*100)/100,curHp)}
+        }}>Valider{!selItem?.stepper&&selEq.items.length===0?` ${units}g`:""}</button>
+      </>;
     }
   }
 
@@ -1558,43 +1572,27 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
             )}
             <button className="btn-text" onClick={()=>setShowTable(false)} style={{marginTop:8}}>← Retour</button>
           </>}
-          {(showStepper||(curHp&&!showTable))&&(()=>{
-            const refG=selEq.qtyPlanGrams||100;const npp=selEq.nutrientsPerPortion||{kcal:0,p:0,l:0,g:0};
-            const fbCalc=(g)=>({kcal:Math.round(npp.kcal*g/refG),p:Math.round(npp.p*g/refG*10)/10,l:Math.round(npp.l*g/refG*10)/10,g:Math.round(npp.g*g/refG*10)/10});
-            return <>
-            {selEq.items.length>0&&<>
-              <div className="modal-section">{selEq.qtyUi.appInputMode==="ITEM_FIRST_PICK"?"Choisis ton item":"Items"}</div>
-              {selEq.items.map(item=>(
-                <div key={item.itemId} className={`item-row ${selItem?.itemId===item.itemId?"selected":""}`}
-                  onClick={()=>{setSelItem(item);if(item.stepper?.usualGPerUnit>0){const g=slotTargetGrams(selEq,item);setUnits(Math.round(g/item.stepper.usualGPerUnit)||1)}else{setUnits(item.stepper?.defaultUnits||refG)};setTimeout(()=>{if(stepperRef.current)stepperRef.current.scrollIntoView({behavior:'smooth',block:'center'})},80)}}>
-                  <span className="item-label">{item.foodLabel}</span>
-                  <span className="item-detail">{!curHp&&isInPlan(selEq.eqId)?fmtItemQty(item.stepper,slotTargetGrams(selEq,item),PROFILE_RULES,selEq.eqId):""}</span>
-                </div>
-              ))}
-            </>}
-            {selItem?.stepper&&<>
-              <div ref={stepperRef} key={selItem.itemId+"_stepper"} className="stepper" style={{margin:"20px 0"}}>
-                <button aria-label="Réduire la quantité" className="stepper-btn" disabled={units<=(selItem.stepper.minUnits||0)} onClick={()=>{haptic(6);setUnits(u=>Math.max(selItem.stepper.minUnits||0,u-(selItem.stepper.unitStep||1)))}}>−</button>
-                <div><div className="stepper-val"><AnimNum value={units} duration={200}/></div><div className="stepper-unit">{units<=1?selItem.stepper.usualUnitSg:selItem.stepper.usualUnitPl}</div></div>
-                <button aria-label="Augmenter la quantité" className="stepper-btn" disabled={units>=(selItem.stepper.maxUnits||20)} onClick={()=>{haptic(6);setUnits(u=>Math.min(selItem.stepper.maxUnits||20,u+(selItem.stepper.unitStep||1)))}}>+</button>
-              </div>
-              {liveCalc&&<div className="live-calc"><div className="live-main">≈ {liveCalc.grams}{qtyUnit(selEq)} · {liveCalc.kcal} kcal</div><div className="live-sub">P{liveCalc.p} · L{liveCalc.l} · G{liveCalc.g}</div></div>}
-            </>}
-            {(selItem&&!selItem.stepper||selEq.items.length===0)&&<>
-              <div ref={stepperRef} key={(selItem?.itemId||"eq")+"_fb_stepper"} className="stepper" style={{margin:"20px 0"}}>
-                <button aria-label="Réduire" className="stepper-btn" disabled={units<=25} onClick={()=>{haptic(6);setUnits(u=>Math.max(25,u-25))}}>−</button>
-                <div><div className="stepper-val"><AnimNum value={units} duration={200}/></div><div className="stepper-unit">{qtyUnit(selEq)==="ml"?"ml":"grammes"}</div></div>
-                <button aria-label="Augmenter" className="stepper-btn" disabled={units>=500} onClick={()=>{haptic(6);setUnits(u=>Math.min(500,u+25))}}>+</button>
-              </div>
-              {(()=>{const c=fbCalc(units);return <div className="live-calc"><div className="live-main">{c.kcal} kcal</div><div className="live-sub">P{c.p} · L{c.l} · G{c.g}</div></div>})()}
-            </>}
-            </>})()}
+          {!showTable&&(showStepper||curHp)&&selEq.items.length>0&&<>
+            <div className="modal-section">{selEq.qtyUi.appInputMode==="ITEM_FIRST_PICK"?"Choisis ton item":"Items"}</div>
+            {selEq.items.map(item=>{
+              const refG=selEq.qtyPlanGrams||100;
+              return <div key={item.itemId} className={`item-row ${selItem?.itemId===item.itemId?"selected":""}`}
+                onClick={()=>{setSelItem(item);if(item.stepper?.usualGPerUnit>0){const g=slotTargetGrams(selEq,item);setUnits(Math.round(g/item.stepper.usualGPerUnit)||1)}else{setUnits(item.stepper?.defaultUnits||refG)}}}>
+                <span className="item-label">{item.foodLabel}</span>
+                <span className="item-detail">{!curHp&&isInPlan(selEq.eqId)?fmtItemQty(item.stepper,slotTargetGrams(selEq,item),PROFILE_RULES,selEq.eqId):""}</span>
+              </div>}
+            )}
+          </>}
+          {!showStepper&&!showTable&&!curHp&&<div style={{marginTop:16}}>
+            <button className="btn-primary" onClick={()=>{const pg=portionGrams(selEq,selItem);const u=selItem?.stepper?.usualGPerUnit>0?Math.round(pg/selItem.stepper.usualGPerUnit)||1:1;doLog(selEq,selItem,u,1,curHp)}}>Ajouter 1 portion</button>
+            <button className="btn-text" onClick={()=>{setShowStepper(true);if(selEq.items.length===0)setUnits(selEq.qtyPlanGrams||100)}}>Modifier la quantité →</button>
+          </div>}
         </>}
       </>}
 
       </div>
-      {footerCTA&&<div className="fsm-footer">{footerCTA}</div>}
     </div>
+    {footerCTA&&<div className="fsm-footer">{footerCTA}</div>}
   </FullScreenModal>);
 }
 
