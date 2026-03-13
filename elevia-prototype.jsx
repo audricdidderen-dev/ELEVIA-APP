@@ -568,15 +568,15 @@ function EqIcon({eqId,size=18,color}){const obj=useObjective();const c=color||ob
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap');
 :root{--accent:#C6A05B;--accent-soft:rgba(198,160,91,.12);--accent-border:rgba(198,160,91,.22);--accent-border-strong:rgba(198,160,91,.34);--accent-line:rgba(198,160,91,.55);--navy:#121E2D;--bg:#F5F4F1;--text:#1A1A1A;--text-muted:#6B7280;--text-faint:rgba(15,30,46,.50);--green:#34C759;--orange:#E8863A;--red:#FF3B30;--hairline:rgba(15,30,46,.10)}
-*{margin:0;padding:0;box-sizing:border-box}*:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}*:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
 html,body,#root{height:100%;-webkit-text-size-adjust:100%;background:var(--navy);margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','DM Sans',system-ui,sans-serif;background:var(--navy);overflow:hidden;line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','DM Sans',system-ui,sans-serif;background:var(--navy);overflow:hidden;line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-.01em;touch-action:manipulation}
 .app-shell{position:fixed;inset:0;width:100%;height:100%;background:var(--bg);display:flex;flex-direction:column;overflow:clip}
 .hdr{background:var(--navy);padding:13px 16px;border-bottom:1px solid var(--accent-line);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;padding-top:max(env(safe-area-inset-top,0px) + 13px, 13px);transition:box-shadow .3s ease}
 .hdr.scrolled{box-shadow:0 4px 20px rgba(0,0,0,.3)}
 .hdr-logo{font-size:20px;font-weight:700;letter-spacing:2px;color:var(--accent);font-style:italic}
 .hdr-back{background:none;border:none;color:var(--accent);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
-.content{flex:1;overflow-y:auto;overflow-x:clip;padding-bottom:calc(110px + env(safe-area-inset-bottom,16px));-webkit-font-smoothing:antialiased}.content::-webkit-scrollbar{display:none}
+.content{flex:1;overflow-y:auto;overflow-x:clip;padding-bottom:calc(110px + env(safe-area-inset-bottom,16px));-webkit-font-smoothing:antialiased;-webkit-overflow-scrolling:touch;-webkit-transform:translateZ(0);transform:translateZ(0)}.content::-webkit-scrollbar{display:none}
 .variant-scroll{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}.variant-scroll::-webkit-scrollbar{display:none}
 .tbar{position:absolute;bottom:0;left:12px;right:12px;margin-bottom:max(8px, calc(env(safe-area-inset-bottom,8px) - 16px));background:#121E2D;border:1px solid rgba(198,160,91,.30);border-radius:22px;display:flex;height:auto;padding:10px 4px;box-shadow:0 4px 20px rgba(0,0,0,.35),0 1px 6px rgba(0,0,0,.2);z-index:50}
 .tbar-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding-top:6px;cursor:pointer;background:none;border:none;font-family:inherit}
@@ -638,8 +638,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','DM Sans',system
 .fsm-card{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);left:0;right:0;bottom:0;z-index:201;background:var(--bg);border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden;animation:sheetUp .35s cubic-bezier(.32,1.2,.54,1);box-shadow:0 -8px 40px rgba(0,0,0,.15),0 -2px 10px rgba(0,0,0,.06)}
 .fsm-handle{flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:10px 0 2px;position:relative}
 .fsm-nav{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:6px 18px 10px;min-height:36px}
-.fsm-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:0 18px 20px}.fsm-body::-webkit-scrollbar{display:none}
-.fsm-footer{flex-shrink:0;padding:10px 18px calc(8px + env(safe-area-inset-bottom,12px));border-top:1px solid rgba(15,30,46,.06);background:var(--bg)}
+.fsm-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:0 18px 20px;scroll-behavior:auto;-webkit-transform:translateZ(0);transform:translateZ(0)}.fsm-body::-webkit-scrollbar{display:none}
+.fsm-footer{flex-shrink:0;padding:8px 18px calc(6px + env(safe-area-inset-bottom,8px));border-top:1px solid rgba(15,30,46,.06);background:var(--bg)}
 .advice-page{position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;background:#fff;animation:pageSlideIn .3s cubic-bezier(.25,.46,.45,.94) both}@keyframes pageSlideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
 .advice-page-out{animation:pageSlideOut .28s ease-in forwards!important}@keyframes pageSlideOut{to{transform:translateX(100%)}}
 .advice-page-inner{width:100%;max-width:430px;margin:0 auto;height:100%;display:flex;flex-direction:column}
@@ -1300,22 +1300,22 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
       const fbCalc=(g)=>({kcal:Math.round(npp.kcal*g/refG),p:Math.round(npp.p*g/refG*10)/10,l:Math.round(npp.l*g/refG*10)/10,g:Math.round(npp.g*g/refG*10)/10});
       footerCTA=<>
         {selItem?.stepper&&<>
-          <div className="stepper" style={{margin:"4px 0 8px"}}>
+          <div className="stepper" style={{margin:"0 0 2px",transform:"scale(.88)",transformOrigin:"center"}}>
             <button aria-label="Réduire la quantité" className="stepper-btn" disabled={units<=(selItem.stepper.minUnits||0)} onClick={()=>{haptic(6);setUnits(u=>Math.max(selItem.stepper.minUnits||0,u-(selItem.stepper.unitStep||1)))}}>−</button>
             <div><div className="stepper-val"><AnimNum value={units} duration={200}/></div><div className="stepper-unit">{units<=1?selItem.stepper.usualUnitSg:selItem.stepper.usualUnitPl}</div></div>
             <button aria-label="Augmenter la quantité" className="stepper-btn" disabled={units>=(selItem.stepper.maxUnits||20)} onClick={()=>{haptic(6);setUnits(u=>Math.min(selItem.stepper.maxUnits||20,u+(selItem.stepper.unitStep||1)))}}>+</button>
           </div>
-          {liveCalc&&<div className="live-calc"><div className="live-main">≈ {liveCalc.grams}{qtyUnit(selEq)} · {liveCalc.kcal} kcal</div><div className="live-sub">P{liveCalc.p} · L{liveCalc.l} · G{liveCalc.g}</div></div>}
+          {liveCalc&&<div style={{textAlign:"center",fontSize:12,color:"#6B7280",marginBottom:6}}>≈ {liveCalc.grams}{qtyUnit(selEq)} · {liveCalc.kcal} kcal — P{liveCalc.p} L{liveCalc.l} G{liveCalc.g}</div>}
         </>}
         {(selItem&&!selItem.stepper||selEq.items.length===0)&&<>
-          <div className="stepper" style={{margin:"4px 0 8px"}}>
+          <div className="stepper" style={{margin:"0 0 2px",transform:"scale(.88)",transformOrigin:"center"}}>
             <button aria-label="Réduire" className="stepper-btn" disabled={units<=25} onClick={()=>{haptic(6);setUnits(u=>Math.max(25,u-25))}}>−</button>
             <div><div className="stepper-val"><AnimNum value={units} duration={200}/></div><div className="stepper-unit">{qtyUnit(selEq)==="ml"?"ml":"grammes"}</div></div>
             <button aria-label="Augmenter" className="stepper-btn" disabled={units>=500} onClick={()=>{haptic(6);setUnits(u=>Math.min(500,u+25))}}>+</button>
           </div>
-          {(()=>{const c=fbCalc(units);return <div className="live-calc"><div className="live-main">{c.kcal} kcal</div><div className="live-sub">P{c.p} · L{c.l} · G{c.g}</div></div>})()}
+          {(()=>{const c=fbCalc(units);return <div style={{textAlign:"center",fontSize:12,color:"#6B7280",marginBottom:6}}>{c.kcal} kcal — P{c.p} L{c.l} G{c.g}</div>})()}
         </>}
-        <button className="btn-primary" style={{marginTop:8}} onClick={()=>{
+        <button className="btn-primary" onClick={()=>{
           if(selItem?.stepper)doLog(selEq,selItem,units,liveCalc?.portion||1,curHp);
           else{const port=units/(refG||100);doLog(selEq,selItem,units,Math.round(port*100)/100,curHp)}
         }}>Valider{!selItem?.stepper&&selEq.items.length===0?` ${units}g`:""}</button>
@@ -1586,6 +1586,11 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
           {!showStepper&&!showTable&&!curHp&&<div style={{marginTop:16}}>
             <button className="btn-primary" onClick={()=>{const pg=portionGrams(selEq,selItem);const u=selItem?.stepper?.usualGPerUnit>0?Math.round(pg/selItem.stepper.usualGPerUnit)||1:1;doLog(selEq,selItem,u,1,curHp)}}>Ajouter 1 portion</button>
             <button className="btn-text" onClick={()=>{setShowStepper(true);if(selEq.items.length===0)setUnits(selEq.qtyPlanGrams||100)}}>Modifier la quantité →</button>
+            {selEq.items.length>0&&<button onClick={()=>setShowTable(true)} style={{display:"flex",alignItems:"center",gap:8,margin:"18px auto 0",padding:"10px 18px",borderRadius:14,background:"rgba(15,30,46,.02)",border:"1px solid rgba(15,30,46,.06)",cursor:"pointer",fontFamily:"inherit",transition:"all .15s",width:"100%"}}>
+              <span style={{width:24,height:24,borderRadius:99,background:"rgba(15,30,46,.04)",border:"1px solid rgba(15,30,46,.08)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><IcInfoEq size={14} color="rgba(15,30,46,.35)"/></span>
+              <span style={{fontSize:13,fontWeight:600,color:"rgba(15,30,46,.5)"}}>Rappel de ma portion</span>
+              <span style={{marginLeft:"auto",fontSize:14,color:"rgba(15,30,46,.2)",fontWeight:300}}>›</span>
+            </button>}
           </div>}
         </>}
       </>}
