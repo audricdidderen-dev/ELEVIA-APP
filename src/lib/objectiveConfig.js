@@ -341,7 +341,11 @@ const OBJECTIVE_CONFIG = {
  */
 export function getObjectiveConfig(code) {
   if (OBJECTIVE_CONFIG[code]) return OBJECTIVE_CONFIG[code]
-  // Legacy mappings
+  // Legacy / alias mappings
+  if (code === 'weight_loss') return OBJECTIVE_CONFIG.PW
+  if (code === 'maintenance') return OBJECTIVE_CONFIG.MAINT
+  if (code === 'muscle_gain') return OBJECTIVE_CONFIG.GAIN_LEAN
+  if (code === 'recomposition') return OBJECTIVE_CONFIG.GAIN_LEAN
   if (code === 'LEAN') return OBJECTIVE_CONFIG.RECOMP
   return OBJECTIVE_CONFIG.PW
 }

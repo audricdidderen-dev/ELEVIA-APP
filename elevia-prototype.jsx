@@ -28,14 +28,159 @@ const IcTarget=({size=14,color="#C6A05B"})=><svg width={size} height={size} view
 const IcCheck=({size=12,color="#34C759"})=><svg width={size} height={size} viewBox="-0.25 -0.25 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="m23.01.489-16.156 22.521-6.365-6.365"/></svg>;
 const IcApple=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M12 22.5c1.5 0 .5 1 3.5 1s6-6 6-10-2.5-7-5.5-7-3 1-4 1-1-1-4-1-5.5 3-5.5 7 3 10 6 10 2-1 3.5-1Z"/><path d="M12 7.5v-2a2.006 2.006 0 0 0-2-2H8"/><path d="M14.628 4.918a4.5 4.5 0 0 0 3.829-3.828.517.517 0 0 0-.585-.585 4.5 4.5 0 0 0-3.828 3.829.515.515 0 0 0 .584.584Z"/></svg>;
 const IcBread=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="-0.25 -0.25 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="m12.24 11.73.979 8.832"/><path d="M3.447 11.535a4.259 4.259 0 0 1-2.938-4.083A4.524 4.524 0 0 1 5.004 2.938h6.639a4.524 4.524 0 0 1 4.514 4.514 4.269 4.269 0 0 1-3.917 4.279"/><path d="M18.604 11.75a4.406 4.406 0 0 0 0-8.813h-7.833"/><path d="m3.447 11.535-.842 7.912a.979.979 0 0 0 .979 1.116h16.489a.979.979 0 0 0 .744-.333.979.979 0 0 0 .225-.783l-.852-7.99"/></svg>;
-const IcBottle=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M23.5 10.914a1 1 0 0 0-.293-.707L18.5 5.5l-5 5v13h9a1 1 0 0 0 1-1Z"/><path d="M18.5 5.5h-13L.793 10.207a1 1 0 0 0-.293.707V22.5a1 1 0 0 0 1 1h12v-13"/><path d="m23.41 10.5-22.82 0"/><path d="M18.5 5.5V3a2.793 2.793 0 0 0-3-2.5h-7a2.793 2.793 0 0 0-3 2.5v2.5"/><path d="M2.5 13.5h8v4h-8z"/></svg>;
+
 const IcAcorn=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M1.62 21.748c.054.144.139.275.248.384.109.109.24.194.384.248 7.382 2.77 12.247.107 17.113-4.759L6.379 4.636c-4.865 4.864-7.53 9.731-4.759 17.112Z"/><path d="M23.184 3.108a1.08 1.08 0 0 0 0-1.528l-.764-.764a1.08 1.08 0 0 0-1.528 0l-2.336 2.336a8.5 8.5 0 0 0-6.322-2.123 8.5 8.5 0 0 0-6.203 2.45.3.3 0 0 0-.013.388L19.736 17.992a.3.3 0 0 0 .388-.013 8.5 8.5 0 0 0 2.45-6.202 8.5 8.5 0 0 0-2.124-6.322l2.337-2.336Z"/><path d="M17.75 11a.25.25 0 0 1-.25-.25.25.25 0 0 1 .25-.25"/><path d="M17.75 11a.25.25 0 0 0 .25-.25.25.25 0 0 0-.25-.25"/><path d="M18.75 14a.25.25 0 0 1-.25-.25.25.25 0 0 1 .25-.25"/><path d="M18.75 14a.25.25 0 0 0 .25-.25.25.25 0 0 0-.25-.25"/><path d="M20.75 12a.25.25 0 0 1-.25-.25.25.25 0 0 1 .25-.25"/><path d="M20.75 12a.25.25 0 0 0 .25-.25.25.25 0 0 0-.25-.25"/></svg>;
 const IcDrumstick=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M4.821 22.7a3.339 3.339 0 0 1-.673-2.795 3.428 3.428 0 0 1-2.848-.722c-2.493-2.493 1.381-6.367 4.076-2.7l3.015-3.073 2.122 2.121L7.5 18.606c3.69 2.673-.185 6.594-2.679 4.094Z"/><path d="m11.27 16.289-3.535-3.537c-1.891-1.89 6.435-17.678 13.813-10.3 7.43 7.428-8.628 15.486-10.278 13.837Z"/></svg>;
 const IcCarrot=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M20.56 10.47a32.7 32.7 0 0 0-3.24-3.79 32.7 32.7 0 0 0-3.79-3.24 1.58 1.58 0 0 0-2.1.4L.77 21.31a1.37 1.37 0 0 0 1.92 1.92l17.47-10.66a1.58 1.58 0 0 0 .4-2.1Z"/><path d="M15.89 5.34 17.83.5"/><path d="m18.66 8.11 4.84-1.94"/><path d="m17.32 6.68 4.52-4.52"/><path d="m10.42 5.5 4.03 4.04"/><path d="m11.11 12.15 3.69 3.69"/><path d="m8.19 16.53 2.08 2.07"/></svg>;
 
 const IcMonoE=({size=16,color="#C6A05B",letter="É"})=><span style={{fontSize:size,fontWeight:700,fontStyle:"italic",color,fontFamily:"'Cormorant Garamond','Georgia','Times New Roman',serif",lineHeight:1,display:"flex",alignItems:"center",justifyContent:"center"}}>{letter}</span>;
 
+const IcMenuWhy=({size=16,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M12 4.735a21.874 21.874 0 0 1 10.477 -3.2 0.5 0.5 0 0 1 0.523 0.5v16.212a0.5 0.5 0 0 1 -0.479 0.5 21.9 21.9 0 0 0 -9.564 2.653 1.912 1.912 0 0 1 -0.957 0.13"/><path d="M12 4.735a21.874 21.874 0 0 0 -10.477 -3.2A0.5 0.5 0 0 0 1 2.03v16.217a0.5 0.5 0 0 0 0.479 0.5 21.9 21.9 0 0 1 9.564 2.653 1.912 1.912 0 0 0 0.957 0.13"/><path d="m12 4.735 0 16.805"/><path d="M3 18.872v3.1a0.5 0.5 0 0 0 0.609 0.488 38.849 38.849 0 0 1 16.782 0 0.5 0.5 0 0 0 0.609 -0.49v-3.1"/></svg>;
+const IcMenuMeasures=({size=16,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M4.5 20a0.5 0.5 0 0 0 -0.5 -0.5H2a0.5 0.5 0 0 0 -0.5 0.5v3.5h3Z"/><path d="M10.5 15a0.5 0.5 0 0 0 -0.5 -0.5H8a0.5 0.5 0 0 0 -0.5 0.5v8.5h3Z"/><path d="M16.5 18a0.5 0.5 0 0 0 -0.5 -0.5h-2a0.5 0.5 0 0 0 -0.5 0.5v5.5h3Z"/><path d="M22.5 10a0.5 0.5 0 0 0 -0.5 -0.5h-2a0.5 0.5 0 0 0 -0.5 0.5v13.5h3Z"/><path d="m0.504 23.5 23 0"/><path d="M3.918 8.586 6.59 5.914"/><path d="m9.732 5.508 2.544 1.484"/><path d="m15.577 6.764 3.854 -3.028"/><path d="M19.004 2.5a2 2 0 1 0 4 0 2 2 0 1 0 -4 0Z"/><path d="M12.004 8a2 2 0 1 0 4 0 2 2 0 1 0 -4 0Z"/><path d="M6.004 4.5a2 2 0 1 0 4 0 2 2 0 1 0 -4 0Z"/><path d="M0.504 10a2 2 0 1 0 4 0 2 2 0 1 0 -4 0Z"/></svg>;
+const IcMenuEq=({size=16,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M1.5 0.5h21s1 0 1 1v21s0 1 -1 1h-21s-1 0 -1 -1v-21s0 -1 1 -1"/><path d="M12 0.5 12 23"/><path d="m12 8 11.5 0"/><path d="M23.5 16 12 16"/><path d="M12 12 0.5 12"/></svg>;
+const IcMenuRecipes=({size=16,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeMiterlimit="10" strokeWidth="1"><path d="m2.02922 23.25 -1.199995 -5.3c-0.2 -0.8 -0.000006 -1.6 0.399995 -2.3l1.3 -2.1c0.3 -0.5 0.9 -0.8 1.5 -0.8h1"/><path d="M5.05075 17.25v-2c0 -1 0.8 -1.8 1.8 -1.8s1.80001 0.8 1.80001 1.8v3.6c0 0.9 -0.20002 1.8 -0.70002 2.6l-0.79998 1.3v0.5"/><path d="m21.9708 23.25 1.2 -5.3c0.2 -0.8 0 -1.6 -0.4 -2.3l-1.3 -2.1c-0.3 -0.5 -0.9 -0.8 -1.5 -0.8h-0.8927"/><path d="M19.0508 17.25v-2c0 -1 -0.8001 -1.8 -1.8001 -1.8s-1.8 0.8 -1.8 1.8v3.6c0 0.9 0.2001 1.8 0.7001 2.6l0.7999 1.3v0.5"/><path d="M19.0289 11.15s0.232 -10.11875 0 -10.399999c-0.232 -0.281251 -4.1 3.699999 -4.5 9.399999 0 0.3 0.1 0.5 0.3 0.7 0.2 0.2 0.5 0.3 0.7 0.3h3.5Z"/><path d="M19.0289 11.15c0.0062 1.4043 0.0216 4.8656 0.0216 4.8656"/><path d="M5.05075 0.750001V15.15"/><path d="M8.05075 0.750001V4.95c0 1.7 -1.3 3 -3 3s-3 -1.3 -3 -3V0.750001"/></svg>;
+const IcMenuMessages=({size=16,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M14.5 0.5h-10a4 4 0 0 0 -4 4v5a4 4 0 0 0 4 4h1v4l4.5 -4h4.5a4 4 0 0 0 4 -4v-5a4 4 0 0 0 -4 -4Z"/><path d="M11.5 16.5V18a2.5 2.5 0 0 0 2.5 2.5h2.5l3 3v-3H21a2.5 2.5 0 0 0 2.5 -2.5v-3a2.5 2.5 0 0 0 -2.5 -2.5h-0.5"/></svg>;
+const IcMenuGuides=({size=16,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="m20.959 10.5 -2 -2 -2 2v-8a0.5 0.5 0 0 1 0.5 -0.5h3a0.5 0.5 0 0 1 0.5 0.5Z"/><path d="M15 3c-2 0 -3 1.5 -3 3.5 0 -2 -1 -3.5 -3 -3.5H2a1 1 0 0 0 -1 1v14a1 1 0 0 0 1 1h7a2.652 2.652 0 0 1 3 3 2.652 2.652 0 0 1 3 -3h7a1 1 0 0 0 1 -1V4a1 1 0 0 0 -1 -1h-1"/><path d="m12 6.5 0 15"/></svg>;
+const IcMenuRoadmap=({size=16,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M9 2.996a2.5 2.5 0 1 0 5 0 2.5 2.5 0 1 0 -5 0Z"/><path d="M12.8 9.5a1 1 0 0 1 -0.771 -0.362L10.1 6.982a1.5 1.5 0 0 0 -2.425 0.3l-3.49 6.482A1.516 1.516 0 0 0 4 14.5v3.146l-1.842 3.681a1.5 1.5 0 1 0 2.684 1.342l2 -4A1.5 1.5 0 0 0 7 18v-1.7l1.771 0.322a1.5 1.5 0 0 1 1.2 1.15l0.568 2.556a1.5 1.5 0 0 0 2.928 -0.65l-0.567 -2.561a4.49 4.49 0 0 0 -3.587 -3.451L7.8 13.392l1.522 -2.827a4.655 4.655 0 0 0 3.722 1.935H15.5a1.5 1.5 0 0 0 0 -3s-1.817 0 -2.7 0Z"/><path d="M3.227 10.57a1 1 0 0 1 -1.368 0.359L1 10.424a1 1 0 0 1 -0.364 -1.368l2.775 -4.749a1 1 0 0 1 1.368 -0.359l0.863 0.505A1 1 0 0 1 6 5.821Z"/><path d="m9 21.996 -1.5 1.5 16 0"/><path d="M23 0.5 21.336 3A2 2 0 0 0 21 4.1v3.067a2 2 0 0 1 -0.586 1.414l-0.828 0.828A2 2 0 0 0 19 10.823v4.662c0 1.178 -1.555 3.134 -2.86 4.01"/></svg>;
+const IcMenuSettings=({size=16,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M19.922 7.213a1.874 1.874 0 0 0 1.065 2.571l1.265 0.45a1.875 1.875 0 0 1 0 3.534l-1.265 0.45a1.874 1.874 0 0 0 -1.065 2.571L20.5 18a1.875 1.875 0 0 1 -2.5 2.5l-1.213 -0.576a1.874 1.874 0 0 0 -2.571 1.065l-0.45 1.265a1.875 1.875 0 0 1 -3.533 0l-0.45 -1.265a1.875 1.875 0 0 0 -2.572 -1.065L6 20.5A1.874 1.874 0 0 1 3.5 18l0.576 -1.213a1.874 1.874 0 0 0 -1.065 -2.571l-1.265 -0.45a1.875 1.875 0 0 1 0 -3.534l1.265 -0.45a1.874 1.874 0 0 0 1.065 -2.569L3.5 6A1.874 1.874 0 0 1 6 3.5l1.213 0.576a1.875 1.875 0 0 0 2.57 -1.063l0.45 -1.265a1.875 1.875 0 0 1 3.533 0l0.45 1.265a1.874 1.874 0 0 0 2.571 1.065L18 3.5A1.875 1.875 0 0 1 20.5 6Z"/><path d="M7.499 12.001a4.5 4.5 0 1 0 9 0 4.5 4.5 0 1 0 -9 0Z"/></svg>;
+
+const IcFlame=({size=20,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M10.747 0.884a0.5 0.5 0 0 0 -0.679 0.669C11.883 5.1 11.69 9.959 9.205 12.7a6.568 6.568 0 0 1 -1.5 -3.029c-5.9 4.225 -2.789 13.5 4.5 13.5 10.47 0.004 9.073 -16.706 -1.458 -22.287Z"/><path d="M12.705 14.175c0.99 1.763 -1.512 4.294 -3 3.944a2.494 2.494 0 0 0 2.454 2.056c3.624 0 3.229 -5 0.546 -6Z"/></svg>;
+const IcFlash=({size=20,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="m20 9.498 -10 14 2 -9 -8 0 10 -14 -2 9 8 0z"/></svg>;
+const IcSugar=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M0.75 20.25v-7l6 3v7l-6-3Z"/><path d="m0.75 13.25 6-3 6 3"/><path d="M12.75 20.25v-7l-6 3v7l6-3Z"/><path d="M11.25 10.75v-7l6 3v7l-6-3Z"/><path d="m11.25 3.75 6-3 6 3"/><path d="M23.25 10.75v-7l-6 3v7l6-3Z"/></svg>;
+const IcVegan=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M19.972 4.031C11.761 8.378 9.829 22.867 9.829 22.867S8.4 4.432 1.1 1.133a69.659 69.659 0 0 0 8.729 21.734"/><path d="M12.9 12.433a6.465 6.465 0 0 1 0.307-8.4c2.415-2.9 9.66-2.9 9.66-2.9s0.421 5.217-1.932 8.694c-2.117 3.131-5.304 4.283-8.035 2.606Z"/></svg>;
+const IcVeganMilk=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M18.033 4.155A10.5 10.5 0 1 1 12 2.25a10.594 10.594 0 0 1 1.074 0.054"/><path d="M17.414 8.312a7 7 0 1 1-12.273 3.034"/><path d="M8 7.005a6.974 6.974 0 0 1 4-1.255"/><path d="M7.5 9.749c3 1 1 5 5.5 7 3-5 0.5-13 4-16"/></svg>;
+const IcStress=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M4.675 23.25v-6.265c-1.382-1.28-2.345-2.947-2.765-4.783-0.42-1.836-0.276-3.756 0.413-5.51 0.688-1.753 1.89-3.258 3.446-4.318C7.326 1.314 9.167 0.748 11.05 0.75c7.139 0 8.68 5.878 11.225 12.48a1 1 0 0 1-0.349 1.07h-1.9v3a3 3 0 0 1-3 3h-1.5v3"/><path d="m10.418 3.896-0.847 2.647h2.069l-0.87 2.37"/><path d="m16.912 7.486-2.42 1.369 1.52 1.405-2.249 1.149"/><path d="m4.591 8.11 1.034 2.58 1.595-1.318 0.839 2.381"/></svg>;
+const IcSleep=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="m1.295 7.364 6.986 0-6.986 8.562 6.986 0"/><path d="m12.736 0.979 5.21 0-5.21 6.385 5.21 0"/><path d="m14.426 12.874 8.28 0-8.28 10.147 8.28 0"/></svg>;
+const IcDrool=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M5.5 8a3.564 3.564 0 0 1 3-1.5"/><path d="M18.5 8a3.564 3.564 0 0 0-3-1.5"/><path d="M11.5 20.475a5 5 0 0 1-4.343-3.726 1 1 0 0 1 0.97-1.249h7.746a1 1 0 0 1 0.97 1.249 5 5 0 0 1-1.343 2.322"/><path d="M12.371 18.886A1.148 1.148 0 0 0 11.5 20v0.5a1 1 0 0 0 2 0v2a1 1 0 0 0 2 0V18a0.47 0.47 0 0 0-0.754-0.375 7.255 7.255 0 0 1-2.375 1.261Z"/><path d="M17.5 22.1a11.522 11.522 0 1 0-6 1.374"/></svg>;
+const IcBattery=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M6.5 21.5a3 3 0 0 1-3-3v-13a3 3 0 0 1 3-3h8"/><path d="M17.5 2.5a3 3 0 0 1 3 3v13a3 3 0 0 1-3 3h-8"/><path d="m12.5 0.5 2 2-2 2"/><path d="m11.5 19.5-2 2 2 2"/><path d="M8.5 17a0.5 0.5 0 0 0 0.5 0.5h6a0.5 0.5 0 0 0 0.5-0.5V9a0.5 0.5 0 0 0-0.5-0.5h-1.5V7a0.5 0.5 0 0 0-0.5-0.5h-2a0.5 0.5 0 0 0-0.5 0.5v1.5H9a0.5 0.5 0 0 0-0.5 0.5Z"/><path d="m13 10.031-1.633 1.613a0.5 0.5 0 0 0 0.351 0.856h0.582a0.5 0.5 0 0 1 0.356 0.851L11 15.031"/></svg>;
+const IcEye=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M12 8.595c-2.033-0.034-4.137 1.387-5.459 2.842a0.857 0.857 0 0 0 0 1.123c1.293 1.425 3.39 2.878 5.459 2.844 2.068 0.034 4.166-1.42 5.46-2.844a0.857 0.857 0 0 0 0-1.123C16.137 9.982 14.034 8.561 12 8.595Z"/><path d="M12 1v3.09"/><path d="M12 19.913V23"/><path d="m5.52 16.213-2.676 1.545"/><path d="M5.52 7.787 2.844 6.242"/><path d="m18.826 16.213 2.676 1.545"/><path d="m18.826 7.787 2.676-1.545"/><path d="M9.499 2.313 12 0.997l2.501 1.316"/><path d="m19.002 19.318 2.501-1.316v-3.001"/><path d="M4.998 4.682 2.497 5.998v3.001"/><path d="m4.998 19.318-2.501-1.316v-3.001"/><path d="M9.499 21.687 12 23.003l2.501-1.316"/><path d="m19.002 4.682 2.501 1.316v3.001"/><path d="M13.441 12a1.441 1.441 0 1 1-2.882 0 1.441 1.441 0 0 1 2.882 0Z"/></svg>;
+const IcTelescope=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="m9.5 23.5 0-9"/><path d="m4.5 23.5 5-9 5 9"/><path d="M5.681 9.514 6.719 12.33l-2.815 1.037a1 1 0 0 1-1.284-0.592L2.274 11.836a1 1 0 0 1 0.592-1.284l2.815-1.037Z"/><path d="m10.027 6.846 1.729 4.692-3.753 1.383a1 1 0 0 1-1.284-0.592L5.681 9.514a1 1 0 0 1 0.592-1.284l3.753-1.383Z"/><path d="M12.992 12.224a1 1 0 0 1-1.211-0.616L10 6.777a1 1 0 0 1 0.521-1.254l4.1-1.881a1 1 0 0 1 1.355 0.563L18 9.685a1 1 0 0 1-0.666 1.308Z"/><path d="m20.875 18.8 2.544-0.953a0.125 0.125 0 0 0 0-0.234l-2.544-0.955a0.123 0.123 0 0 1-0.073-0.073l-0.954-2.543a0.125 0.125 0 0 0-0.234 0l-0.954 2.543a0.12 0.12 0 0 1-0.073 0.073l-2.544 0.955a0.125 0.125 0 0 0 0 0.234l2.544 0.953a0.123 0.123 0 0 1 0.073 0.073l0.954 2.545a0.125 0.125 0 0 0 0.234 0l0.954-2.545a0.125 0.125 0 0 1 0.073-0.073Z"/><path d="m3.5 0.5-0.788 2.1a0.187 0.187 0 0 1-0.11 0.11L0.5 3.5l2.1 0.787a0.187 0.187 0 0 1 0.11 0.11L3.5 6.5l0.788-2.1a0.187 0.187 0 0 1 0.11-0.11L6.5 3.5l-2.1-0.789a0.187 0.187 0 0 1-0.11-0.11Z"/></svg>;
+const IcSoyBean=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 48 48" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="3"><path d="M30 2C40 2 46 10 46 20c-0.228 13.8-12.24 25.735-26 26C10 46 2 40 2 30c0-8.776 8-10 13-15C20 10 21 2 30 2Z"/><path d="M20.798 6.893c2.046 1.244 3.201 3.665 3.201 6.471-0.093 5.645-5.007 10.528-10.636 10.636-2.781 0-5.183-1.134-6.437-3.145 0.913-0.682 1.894-1.315 2.886-1.956 1.799-1.162 3.637-2.349 5.187-3.899 1.555-1.555 2.724-3.401 3.866-5.206 0.632-0.998 1.256-1.985 1.934-2.902Z"/></svg>;
+const IcVeganFood=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill={color} fillRule="evenodd" stroke="none"><path d="M17.25 13.48a1.07 1.07 0 0 0 0.07-0.27.88.88 0 0 0 0-.28 1.26 1.26 0 0 0-.05-.28c-.27-1-.39-1-.58-1s-.35.05-.52 1a1.41 1.41 0 0 0 0 .29.68.68 0 0 0 0 .28 5.38 5.38 0 0 0-1.34.34A4.48 4.48 0 0 0 15 13a4.67 4.67 0 0 0-.23-1.6A6 6 0 0 0 14 10c-.41-.59-.91-1.13-1.32-1.72a.58.58 0 0 0-1 .06l-.25.48c-.29.4-.61.81-.89 1.25a7.23 7.23 0 0 0-1.05 2.19 3.57 3.57 0 0 0-.08 1.56 4.61 4.61 0 0 0-1-.34 6 6 0 0 0-.63-.09.3.3 0 0 0 0-.1 1.46 1.46 0 0 0 0-.22c-.23-.86-.38-.86-.53-.86-.4 0-.61 1-.61 1.06a.82.82 0 0 0 0 .22l0 .12a.64.64 0 0 0-.13.33 7.72 7.72 0 0 0 0 1.44 3.9 3.9 0 0 0 .27 1A5 5 0 0 0 9 18.6a4.89 4.89 0 0 0 2.71.64c0 .12-.06.23-.08.34s0 .3 0 .42a3.2 3.2 0 0 0 .07.41c0 .22.14.47.28.93a.34.34 0 0 0 .36.32.33.33 0 0 0 .32-.37 8.22 8.22 0 0 0 .13-1 1.36 1.36 0 0 0 0-.4 1.44 1.44 0 0 0-.05-.39c0-.08 0-.16-.07-.25a5.62 5.62 0 0 0 2.92-1.15 4.46 4.46 0 0 0 1.77-3.27l-.06-1.11a.63.63 0 0 0-.05-.24Zm-6.87-1a7.47 7.47 0 0 1 1.12-1.8l.82-1.08c.36.41.73.82 1 1.26a5.42 5.42 0 0 1 .49.84 3.8 3.8 0 0 1 .3 1.27A3.87 3.87 0 0 1 14 14l-.06 0a6 6 0 0 0-1.9 2.14.25.25 0 0 0 0-.09 7 7 0 0 0-.41-.6 5.15 5.15 0 0 0-.47-.56 5.08 5.08 0 0 0-.88-.74 2.74 2.74 0 0 1 .1-1.67Zm-.87 5.35a4 4 0 0 1-1.6-1.9 3.06 3.06 0 0 1-.15-.73l0-.65.48 0a4.22 4.22 0 0 1 1.2.39 4.75 4.75 0 0 1 1.06.7 4.67 4.67 0 0 1 .45.44 5 5 0 0 1 .4.49 3.12 3.12 0 0 1 .48 1.95 4.05 4.05 0 0 1-2.32-.69Zm5.49-.44a4.85 4.85 0 0 1-2.52 1.19.22.22 0 0 0-.05-.11 1.87 1.87 0 0 0 0-.34 4.34 4.34 0 0 0-.09-1l.27-.57a5.3 5.3 0 0 1 1.82-1.66 4.25 4.25 0 0 1 1.74-.52l0 .45A3.46 3.46 0 0 1 15 17.39Z"/><path d="M7.14 4.19a.34.34 0 0 0-.38-.29.34.34 0 0 0-.3.39 9.08 9.08 0 0 1 0 2.55A4 4 0 0 1 5.5 9a1.88 1.88 0 0 1-2.41.33 3.53 3.53 0 0 1-1.73-2.16 6.6 6.6 0 0 1-.13-2.66 5 5 0 0 1 1-2.43 2.31 2.31 0 0 1 2.17-1 2.69 2.69 0 0 1 2 1.57.3.3 0 0 0 .4.15.31.31 0 0 0 .16-.4A3.45 3.45 0 0 0 4.52.34a3.15 3.15 0 0 0-3 1.11 5.71 5.71 0 0 0-1.4 2.87 7.37 7.37 0 0 0 .11 3.14 4.58 4.58 0 0 0 3.08 3.14l.19 0c-.09 1.35-.19 2.7-.25 4 0 .67 0 1.34-.06 2s0 1.34 0 2c0 1.56.12 3.12.2 4.69a.35.35 0 0 0 .35.34.35.35 0 0 0 .35-.35c.05-1.61.15-3.2.21-4.81 0-1.06.06-2.13.06-3.2 0-1.57-.11-3.13-.18-4.69a2.75 2.75 0 0 0 2-1 4.8 4.8 0 0 0 1-2.12 9.26 9.26 0 0 0-.04-3.27Z"/><path d="M23.6.86a.35.35 0 0 0-.39-.29.36.36 0 0 0-.29.4A18.14 18.14 0 0 1 23 5.25a5.06 5.06 0 0 1-.86 2.48 2 2 0 0 1-1.41.88l0-1.16c-.11-2.19-.25-4.38-.47-6.55a.29.29 0 0 0-.32-.29.3.3 0 0 0-.28.33c.07 2.51 0 5 0 7.56a3.56 3.56 0 0 1-2.14-2A10.27 10.27 0 0 1 17 4.33a22.17 22.17 0 0 1-.23-3.41.31.31 0 0 0-.62 0 25.81 25.81 0 0 0 0 3.53 11 11 0 0 0 .42 2.39 4.55 4.55 0 0 0 2.75 2.79 2.37 2.37 0 0 0 .36.09c0 1.44 0 2.88.07 4.31q.14 4.4.71 8.74a.34.34 0 1 0 .68-.07c-.24-3-.24-6.08-.26-9.13 0-1.22 0-2.44-.05-3.66l0-.1a3.16 3.16 0 0 0 2.28-1.41 6.24 6.24 0 0 0 .89-3A18.54 18.54 0 0 0 23.6.86Z"/></svg>;
+const IcJamJar=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M17.5 11v12.5h-14V11"/><path d="m19.5 9-2 2-2-2.5L13 11l-2.5-2.5L8 11 5.5 8.5l-2 2.5-2-2L3 6.5 0.5 6V3.5h20V6l-2 0.5 1 2.5Z"/><path d="M3 6.5h15.5"/><path d="m8 19.5-2-2 2-2h5l2 2-2 2H8Z"/><path d="M22.5 9.5 21 8l1.5-1.5"/></svg>;
+const IcMilkCan=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="-0.5 -0.5 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M15.094 4.552h-7.188L5.271 8.98a1.485 1.485 0 0 0-0.24 0.795v11.069a1.438 1.438 0 0 0 1.438 1.438h10.063a1.438 1.438 0 0 0 1.438-1.438V9.775a1.485 1.485 0 0 0-0.24-0.795Z"/><path d="M17.25 2.635a1.917 1.917 0 0 0-1.917-1.917H7.667a1.917 1.917 0 0 0 0 3.833h7.667a1.917 1.917 0 0 0 1.917-1.917Z"/><path d="m5.098 9.344 12.803 0"/><path d="m5.031 10.063-2.875-2.875"/><path d="m17.969 10.063 2.875-2.875"/></svg>;
+const IcJar=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="m4.5 0.5 15 0 0 5-15 0Z"/><path d="M18.5 23.5a3.009 3.009 0 0 0 3-3v-8c0-2.686-2.356-4.194-3.452-4.751a1 1 0 0 1-0.548-0.892V5.5h-11v1.357a1 1 0 0 1-0.548 0.892C4.856 8.306 2.5 9.814 2.5 12.5v8a3.009 3.009 0 0 0 3 3Z"/><path d="m7.5 0.5 0 5"/><path d="m10.5 0.5 0 5"/><path d="m13.5 0.5 0 5"/><path d="m16.5 0.5 0 5"/><path d="M2.5 12.5h19v6h-19z"/><path d="m7 15.5 10 0"/></svg>;
+const IcSparkle=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill={color} stroke="none"><path d="M20.87 12.69a1 1 0 0 0 0-2c-6.18-0.14-9-3-9-9a1 1 0 0 0-1-1 1 1 0 0 0-1 1c0 6.05-2.89 8.91-9 9a1 1 0 0 0 0 2c6.06 0 8.91 2.86 9 9a1 1 0 0 0 1 1 1 1 0 0 0 1-1c0.31-6.17 3.15-9 8.94-9Z"/><path d="M16.89 3.81h1.25v1.25a0.75 0.75 0 0 0 1.5 0V3.81h1.25a0.75 0.75 0 0 0 0-1.5h-1.25V1.06a0.75 0.75 0 1 0-1.5 0v1.25h-1.25a0.75 0.75 0 0 0 0 1.5Z"/><path d="M23.12 20.19h-1.25v-1.25a0.75 0.75 0 0 0-1.5 0v1.25h-1.25a0.75 0.75 0 0 0 0 1.5h1.25v1.25a0.75 0.75 0 0 0 1.5 0v-1.25h1.25a0.75 0.75 0 0 0 0-1.5Z"/></svg>;
+const IcPastaWarm=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="m0.5 18 23 0"/><path d="M21.5 18c0-3.5-5-3-5-3a4.7 4.7 0 0 0-4.5-3 4.7 4.7 0 0 0-4.5 3s-5-0.5-5 3l1.724 3.447a1 1 0 0 0 0.894 0.553h13.764a1 1 0 0 0 0.894-0.553Z"/><path d="M6 5.5C4.5 7 7.5 8 6 9.5"/><path d="M18 5.5c1.5 1.5-1.5 2.5 0 4"/><path d="M12 2c-3 3 2.994 4 0 7"/></svg>;
+const IcDrinksNoSugar=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M10.748 4.653c0 0.53 0.211 1.039 0.586 1.414 0.375 0.375 0.884 0.586 1.414 0.586 0.53 0 1.039-0.211 1.414-0.586 0.375-0.375 0.586-0.884 0.586-1.414v-2c0-0.53-0.211-1.039-0.586-1.414A1.999 1.999 0 0 0 12.748 0.653c-0.53 0-1.039 0.211-1.414 0.586-0.375 0.375-0.586 0.884-0.586 1.414v2Z"/><path d="m18.748 6.653 3.5-5"/><path d="m10.748 2.653 4 2"/><path d="M12.748 9.653v3.5a0.5 0.5 0 0 1-0.5 0.5H6.748v-6h1.751"/><path d="M3.748 7.653v-5.5a0.5 0.5 0 0 1 0.5-0.5h3.5"/><path d="M1.248 7.653h5.5v6h-5.5a0.5 0.5 0 0 1-0.5-0.5v-5a0.5 0.5 0 0 1 0.5-0.5Z"/><path d="M0.641 17.524c-0.85 6.656 8.422 7.606 10.46 2.848h10.842a1.436 1.436 0 0 0 0-2.948H11.201"/><path d="M5.933 19.491c2.924 0 5.294-0.834 5.294-1.863s-2.37-1.863-5.294-1.863-5.294 0.834-5.294 1.863 2.37 1.863 5.294 1.863Z"/></svg>;
+const IcFactory=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="m3.375 15.287 1.012-10.63 4.645 0 0.852 8.945"/><path d="M1 22.991h22V11.608a1.083 1.083 0 0 0-1.356-1.049L1.733 15.712a0.978 0.978 0 0 0-0.733 0.947Z"/><path d="m19.578 22.99-4.889 0v-4.378a1 1 0 0 1 1-1h2.889a1 1 0 0 1 1 1v4.378Z"/><path d="m4 9.009 5 0"/><path d="M20.5 1.009a2.489 2.489 0 0 0-2.158 1.259 1.5 1.5 0 1 0 0 2.483A2.5 2.5 0 1 0 20.5 1.009Z"/><path d="M11 3.509a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0"/><path d="m5 18.009 1 0"/><path d="m5 20.009 1 0"/><path d="m10 18.009 1 0"/><path d="m10 20.009 1 0"/></svg>;
+const IcBurger=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M12.192 10.507 12.491 8.079a0.5 0.5 0 0 0-0.489-0.56H1.05a0.5 0.5 0 0 0-0.497 0.56l1.866 14.935a0.5 0.5 0 0 0 0.498 0.436h4.107"/><path d="M22.456 17.476H8.517v-0.996a3.983 3.983 0 0 1 3.983-3.983h5.974a3.983 3.983 0 0 1 3.983 3.983v0.996Z"/><path d="M23.452 18.97a1.494 1.494 0 0 1-1.494 1.493H9.015a1.494 1.494 0 0 1 0-2.987h12.943a1.494 1.494 0 0 1 1.494 1.494Z"/><path d="M22.456 21.459a1.991 1.991 0 0 1-1.991 1.991h-9.957a1.991 1.991 0 0 1-1.991-1.991v-0.996h13.939v0.996Z"/><path d="M5.032 18.97 6.907 1.439a0.75 0.75 0 0 1 1.178-0.482l4.415 0.845"/></svg>;
+const IcSoftDrink=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M18.114 23.058a0.5 0.5 0 0 1-0.5 0.442H9.382a0.5 0.5 0 0 1-0.5-0.442L7 7.058a0.5 0.5 0 0 1 0.5-0.558h12a0.5 0.5 0 0 1 0.5 0.558L18.114 23.058Z"/><path d="M11.5 21.5 9.75 3.113a2.75 2.75 0 0 0-2.875-2.613H4"/><path d="M12.438 10.5h7.154"/><path d="M7.408 10.5h3.045"/></svg>;
+const IcLadleHot=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M13.25 7.5c-1.732 1.5 1.732 2.5 0 4"/><path d="M17.25 7.5c-1.732 1.5 1.732 2.5 0 4"/><path d="M20.75 17.5a6 6 0 0 1-12 0"/><path d="M8.75 17.5a6 2.5 0 1 0 12 0 6 2.5 0 1 0-12 0Z"/><path d="M3.25 0.5A5.5 5.5 0 0 1 8.75 6v11.5"/></svg>;
+const IcLadle=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M9.75 18.5V6A5.5 5.5 0 0 0 4.25 0.5"/><path d="M9.75 18.5a5 5 0 0 0 10 0V18"/><path d="M19.75 18c0-0.828-2.239-1.5-5-1.5s-5 0.672-5 1.5c0 0.658 1.423 1.212 3.39 1.413a0.5 0.5 0 0 1 0.366 0.22l0.873 1.31a0.5 0.5 0 0 0 0.8 0.043l1.193-1.433a0.5 0.5 0 0 1 0.321-0.176c1.793-0.227 3.057-0.756 3.057-1.377Z"/></svg>;
+const IcSeeds=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M2.36079 20.8683c0.83908 2.2378 2.59055 2.166 4.29393 1.5273 1.71488-0.6071 3.10183-1.6791 2.30425-3.932-1.16699-3.2964-2.41615-3.1796-3.66294-3.6511-0.87562-0.3311-1.04343-1.9648-2.00477-1.6457-0.97072 0.3222-0.12135 1.6781-0.58898 2.552-0.63029 1.1777-1.54128 1.9497-0.34149 5.1495Z"/><path d="M21.229 20.8198c2.0349-1.2535 1.6279-2.9585 0.6738-4.5074-0.9253-1.5663-2.2438-2.7214-4.3015-1.5058-3.0108 1.7787-2.6561 2.9821-2.8793 4.2962-0.1566 0.923-1.7276 1.4016-1.2298 2.2837 0.5028 0.8907 1.6702-0.2034 2.6176 0.0876 1.277 0.3923 2.2096 1.1379 5.1192-0.6543Z"/><path d="M1.24603 6.47536c-0.717944 2.12168 0.5958 3.10813 2.21079 3.65464 1.60461 0.5762 3.24687 0.6206 4.00391-1.48746 1.10767-3.08443 0.13181-3.74039-0.49352-4.82186-0.43917-0.75952 0.40774-2.0447-0.47919-2.38314-0.89557-0.34175-1.08312 1.14597-1.94066 1.50289-1.15584 0.48107-2.27474 0.50116-3.30133 3.53493Z"/><path d="M8.81248 12.2004c-0.40192 1.9335 0.85313 2.6566 2.32482 2.9625 1.4659 0.3331 2.9079 0.1967 3.3455-1.729 0.6402-2.8177-0.2838-3.2876-0.9465-4.16738-0.4654-0.61786 0.1386-1.83302-0.6737-2.03457-0.8203-0.20352-0.8256 1.11853-1.5381 1.52241-0.9602 0.54438-1.93731 0.68136-2.51202 3.44604Z"/><path d="M16.8245 8.18913c0.978 1.71561 2.3975 1.4273 3.7034 0.68281 1.3194-0.72023 2.3103-1.77671 1.3641-3.5101-1.3844-2.53624-2.3882-2.27712-3.4672-2.49821-0.7578-0.15528-1.109-1.46606-1.8514-1.07964-0.7497 0.39019 0.1211 1.38496-0.1458 2.1592-0.3597 1.04355-1.0017 1.79282 0.3969 4.24594Z"/></svg>;
+const IcDuo=({A,B,size=18,color="currentColor"})=>{const s=Math.round(size*0.62);return <span style={{display:"inline-flex",alignItems:"center",gap:1,flexShrink:0}}><A size={s} color={color}/><B size={s} color={color}/></span>;};
+const IcRunner=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M11.25 3.25a2.75 2.75 0 1 0 5.5 0 2.75 2.75 0 1 0-5.5 0"/><path d="M19.589 5a1.237 1.237 0 0 0-1.313 1.165c0 .02-.171 2.069-1.624 2.389A8.445 8.445 0 0 1 13.143 8a9.878 9.878 0 0 0-4.722-.591A4.749 4.749 0 0 0 4.7 11.143a1.246 1.246 0 0 0 1.02 1.433 1.289 1.289 0 0 0 .205.017 1.241 1.241 0 0 0 1.22-1.041 2.273 2.273 0 0 1 1.806-1.709 5.517 5.517 0 0 1 2.321.232l-1.49 3.747a.953.953 0 0 0-.044.127l-.724 2.626c-.317 1.6-.861 1.89-3.255 2.547l-1.6.436a1.246 1.246 0 0 0 .324 2.447 1.212 1.212 0 0 0 .326-.043l1.6-.437c2.256-.619 4.386-1.2 5.012-4.371l.213-.769a5.787 5.787 0 0 1 1.1 5.476 1.246 1.246 0 0 0 .783 1.575 1.219 1.219 0 0 0 .392.064 1.241 1.241 0 0 0 1.175-.851 8.1 8.1 0 0 0-2.614-8.868l1.211-3.046a7.574 7.574 0 0 0 3.506.254c2.62-.576 3.473-3.2 3.564-4.665A1.242 1.242 0 0 0 19.589 5Z"/></svg>;
+
+/* ═══ SITUATION CAPSULE ICONS — Streamline Ultimate ═══ */
+const IcSitRestaurant=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M4.5 0.5v5a3 3 0 0 0 6 0v-5"/><path d="m7.5 0.5 0 23"/><path d="m16.5 8.5 0 15"/><path d="M13.5 3.5a3 3 0 0 1 6 0v2a3 3 0 0 1-6 0Z"/></svg>;
+const IcSitChampagne=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="m5.948 9.846 0.613 0.876c0.273 0.3944 0.637 0.7167 1.062 0.9394 0.425 0.2226 0.897 0.3389 1.377 0.3389 0.48 0 0.952-0.1163 1.377-0.3389 0.425-0.2227 0.789-0.545 1.062-0.9394l0.614-0.876-0.062-0.115c-0.978-1.8-1.49-3.815-1.49-5.863V1a0.5 0.5 0 0 0-0.5-0.5H8a0.5 0.5 0 0 0-0.5 0.5v2.868c0 2.048-0.513 4.063-1.49 5.863-0.957 1.687-1.476 3.588-1.51 5.527V21.5c0.001 0.53 0.213 1.038 0.588 1.413 0.375 0.374 0.883 0.585 1.412 0.587H12"/><path d="M4.5 15.5h7"/><path d="M4.5 20.5h7"/><path d="M7.5 3.5h3"/><path d="M9 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"/><path d="M16.5 19.5v4"/><path d="M14 23.5h5"/><path d="M13.952 12.5h5.096"/><path d="M14.934 8.5c-0.12 0-0.237 0.044-0.328 0.123-0.091 0.079-0.15 0.188-0.167 0.307C14.222 10.473 13.5 15.678 13.5 16.5a3 3 0 0 0 6 0c0-0.822-0.722-6.027-0.939-7.57a0.44 0.44 0 0 0-0.5-0.43h-3.127Z"/><path d="M16.75 15a0.25 0.25 0 1 1 0-0.5"/><path d="M16.75 15a0.25 0.25 0 1 0 0-0.5"/><path d="M16.25 17.5a0.25 0.25 0 1 1 0-0.5"/><path d="M16.25 17.5a0.25 0.25 0 1 0 0-0.5"/></svg>;
+const IcSitCalendar=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M16.5 23.5h-15a1 1 0 0 1-1-1v-19a1 1 0 0 1 1-1h21a1 1 0 0 1 1 1v12"/><path d="m5.5 0.5 0 5"/><path d="m18.5 0.5 0 5"/><path d="m0.5 7.5 23 0"/><path d="M23.5 15.5v7a1 1 0 0 1-1 1h-6"/><path d="M6.5 11h3a2 2 0 0 1 0 4h0a2 2 0 0 1 0 4h-3"/><path d="m14.5 19 4.5 0"/><path d="M17 19v-7.5a0.5 0.5 0 0 0-0.812-0.391l-1.688 1.35"/></svg>;
+const IcSitPlane=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M20.513 4.912 6.846 10.857l-2.793-1.4a0.5 0.5 0 0 0-0.421-0.013l-2.608 1.122a0.5 0.5 0 0 0-0.156 0.813l3.744 3.745a0.5 0.5 0 0 0 0.54 0.11l7.194-2.877-2.553 6.808a0.5 0.5 0 0 0 0.691 0.623l2.716-1.357a0.5 0.5 0 0 0 0.223-0.223l3.926-7.851 4.7-1.75a2 2 0 1 0-1.53-3.695Z"/><path d="M16.017 6.867 9.551 4.2a0.5 0.5 0 0 0-0.382 0l-2.389 0.99a0.5 0.5 0 0 0 0 0.924l5.62 2.325"/></svg>;
+const IcSitFamily=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M12.45 9.81a0.62 0.62 0 0 1-0.9 0l-4.34-4.5a2.8 2.8 0 0 1-0.53-3.25h0a2.84 2.84 0 0 1 4.54-0.74l0.78 0.78 0.78-0.78a2.84 2.84 0 0 1 4.54 0.74h0a2.8 2.8 0 0 1-0.53 3.25Z"/><path d="M2.5 12.5a3 3 0 1 0 6 0 3 3 0 1 0-6 0"/><path d="M2.91 11a5 5 0 0 0 5.56 1.12"/><path d="M22.14 15.64a4 4 0 0 1-0.57-2.18v-0.89a3.07 3.07 0 0 0-6.14 0v0.89a4 4 0 0 1-0.57 2.18"/><path d="M15.43 13.07a4 4 0 0 0 3.07-1.4 4 4 0 0 0 3.07 1.4"/><path d="M15.81 13.06a2.7 2.7 0 0 0 5.38 0"/><path d="M7.76 17A5 5 0 0 0 0.5 21.5"/><path d="M16.45 16.93a5.19 5.19 0 0 1 2.05-0.43 5 5 0 0 1 5 5"/><path d="M9.75 17.75a2.25 2.25 0 1 0 4.5 0 2.25 2.25 0 1 0-4.5 0"/><path d="M8 23.5a4.5 4.5 0 0 1 8.06 0"/></svg>;
+const IcSitParty=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M22.454 1.66v1.991"/><path d="M23.45 2.656h-1.991"/><path d="M4.533 11.617v1.991"/><path d="M5.528 12.613h-1.991"/><path d="M20.463 19.582v1.991"/><path d="M21.459 20.578h-1.991"/><path d="M13.494 3.652v1.991"/><path d="M14.489 4.647h-1.991"/><path d="M0.55 0.665S10.507 9.128 23.45 10.621"/><path d="M3.039 2.526v6.173c0 0.09 0.025 0.178 0.071 0.256 0.046 0.077 0.113 0.14 0.192 0.183 0.079 0.043 0.169 0.063 0.259 0.058 0.09-0.004 0.177-0.033 0.252-0.083l4.829-3.219"/><path d="m8.999 6.074 1.335 6.671c0.017 0.086 0.057 0.166 0.116 0.232 0.058 0.066 0.133 0.115 0.217 0.143 0.083 0.027 0.173 0.032 0.259 0.014 0.086-0.018 0.166-0.059 0.231-0.118l4.546-4.132"/><path d="m16.163 9.033 1.131 5.655c0.018 0.088 0.059 0.17 0.119 0.237 0.061 0.067 0.138 0.116 0.224 0.142 0.086 0.026 0.178 0.028 0.265 0.007 0.087-0.022 0.167-0.067 0.231-0.13l4.434-4.437"/><path d="m8.466 17.493 3.899 4.748c0.056 0.068 0.129 0.12 0.211 0.151 0.083 0.031 0.172 0.039 0.259 0.024 0.087-0.015 0.168-0.053 0.235-0.11 0.067-0.057 0.119-0.13 0.148-0.213l2.29-6.408c-4.806 1.676-9.87 2.489-14.959 2.404"/><path d="m7.991 17.576-1.939 5.429c-0.03 0.085-0.083 0.16-0.153 0.217-0.07 0.057-0.153 0.094-0.243 0.108-0.089 0.013-0.18 0.002-0.263-0.032-0.083-0.034-0.156-0.091-0.209-0.163l-3.744-5.029"/><path d="M1.546 14.853a0.249 0.249 0 1 1 0-0.498"/><path d="M1.546 14.853a0.249 0.249 0 1 0 0-0.498"/><path d="M19.467 5.892a0.249 0.249 0 1 1 0-0.498"/><path d="M19.467 5.892a0.249 0.249 0 1 0 0-0.498"/><path d="M23.201 18.338a0.249 0.249 0 1 1 0-0.498"/><path d="M23.201 18.338a0.249 0.249 0 1 0 0-0.498"/></svg>;
+const IcSitBriefcase=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="m1.5 15.5 0.739 4.8A2 2 0 0 0 4.216 22h15.568a2 2 0 0 0 1.977-1.7l0.739-4.8a1 1 0 0 0 1-1V8a2 2 0 0 0-2-2h-19a2 2 0 0 0-2 2v6.5a1 1 0 0 0 1 1Z"/><path d="M16.5 6h-9V5a3 3 0 0 1 3-3h3a3 3 0 0 1 3 3Z"/><path d="m1.5 15.5 8.5 0"/><path d="m14 15.5 8.5 0"/><path d="M10 15.5a2 2.5 0 1 0 4 0 2 2.5 0 1 0-4 0Z"/></svg>;
+const IcSitSmiley=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M7.478 18.98a4.494 4.494 0 0 1 9 0"/><path d="M4.482 7.994c0.338-0.477 0.788-0.863 1.311-1.124 0.523-0.261 1.102-0.39 1.686-0.374"/><path d="M19.463 7.994c-0.338-0.477-0.788-0.863-1.311-1.124-0.523-0.261-1.102-0.39-1.686-0.374"/><path d="m16.097 17.202 6.991-5.084a1 1 0 0 0-0.924-1.744l-6.991 5.094"/><path d="m19.453 12.269 1.179 1.618"/><path d="M22.729 7.994c-0.963-2.585-2.825-4.737-5.245-6.061C15.064 0.609 12.248 0.201 9.551 0.784 6.855 1.366 4.459 2.901 2.801 5.106 1.144 7.312 0.337 10.04 0.527 12.793c0.191 2.752 1.366 5.343 3.311 7.299 1.945 1.956 4.53 3.146 7.281 3.352 2.751 0.206 5.484-0.587 7.699-2.232 2.214-1.645 3.762-4.033 4.36-6.726"/><path d="M6.48 10.242a0.25 0.25 0 1 1 0-0.5"/><path d="M6.479 10.242a0.25 0.25 0 1 0 0-0.5"/><path d="M17.466 10.242a0.25 0.25 0 1 1 0-0.5"/><path d="M17.465 10.242a0.25 0.25 0 1 0 0-0.5"/></svg>;
+const IcSitDumbbell=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M1.5 0.5h2s1 0 1 1v11s0 1-1 1h-2s-1 0-1-1v-11s0-1 1-1"/><path d="M20.5 0.5h2s1 0 1 1v11s0 1-1 1h-2s-1 0-1-1v-11s0-1 1-1"/><path d="M6.5 11v0.5a2 2 0 0 0 0.657 1.482 3 3 0 0 1 0.935 2.761L6.5 23.5"/><path d="M4.5 8.5h3a1 1 0 0 0 1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v5.749a3 3 0 0 1-0.883 2.132 3 3 0 0 0-0.835 2.672L16.5 23.5"/><path d="m4.5 5.5 4 0"/><path d="m16.5 5.5 3 0"/><path d="m16.5 8.5 3 0"/><path d="m10.5 3.5 0 3.5"/><path d="m12.5 3.5 0 3.5"/><path d="m14.5 3.5 0 3.5"/></svg>;
+const IcSitTreadmill=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M2.25 23.5h19a2 2 0 0 0 0-4l-19 1"/><path d="m12.25 23.5 5.525-3.817L16.25 8.5h2.5l4.351 12.242"/><path d="m15.25 8.5 3.5 0 2-3"/><path d="M0.75 22a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0"/><path d="M6.75 3a2.5 2.5 0 1 0 5 0 2.5 2.5 0 1 0-5 0"/><path d="m12.005 8.274-1.844 0.37-1.527-1.528a1.22 1.22 0 0 0-0.457-0.283 1.24 1.24 0 0 0-0.427-0.083h-2.5a2.26 2.26 0 0 0-1.8 0.9l-1.2 1.6a1.25 1.25 0 1 0 2 1.5l1.125-1.5h0.816l-0.662 2.979a1.2 1.2 0 0 0-0.029 0.271v2.092a1.75 1.75 0 0 1-0.294 0.971l-1.5 2.244a1.249 1.249 0 1 0 2.08 1.386l1.5-2.245A4.24 4.24 0 0 0 8 14.592v-0.2l1.1 0.471 0.411 3.288a1.25 1.25 0 0 0 1.395 1.085 1.249 1.249 0 0 0 1.085-1.395l-0.428-3.43a2.26 2.26 0 0 0-1.347-1.789L8.2 11.76l0.282-1.266a2.24 2.24 0 0 0 2.033 0.616l1.975-0.395a1.25 1.25 0 1 0-0.49-2.452Z"/></svg>;
+const IcSitBeach=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M23.5 18.838c-2.505 0.521-4.06-1.979-4.06-1.979a4.4 4.4 0 0 1-3.621 2.056 3.822 3.822 0 0 1-3.319-2.056A5.706 5.706 0 0 1 11 18.2"/><path d="m0.5 21.95 23 0"/><path d="m2.956 21.95 5.544-16 0 16"/><path d="M7.64 5.606 1 2.949c3.6-2.4 7.5 0.5 7.5 3"/><path d="M9.365 5.6 16 2.949c-3.6-2.4-7.5 0.5-7.5 3"/><path d="M16.358 12.95c0.73-5.612-4.927-8.5-7.858-7.057Z"/><path d="M0.642 12.95c-0.73-5.612 4.927-8.5 7.858-7.057Z"/><path d="m6.423 19.776 2.077 0"/><path d="m6.923 17.776 1.577 0"/></svg>;
+const IcSitMoon=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M18.414 0.58a11.5 11.5 0 1 0 0 22.842c-9.098-4.405-9.079-18.449 0-22.842Z"/></svg>;
+const IcSitCart=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M23.5 2.5h-2.571a0.5 0.5 0 0 0-0.495 0.43l-1.877 13.14a0.5 0.5 0 0 1-0.495 0.43H3.5a1 1 0 0 1 0-2h12a1 1 0 0 0 0-2h-13a1 1 0 0 1 0-2H16a1 1 0 0 0 0-2H1.5a1 1 0 0 1 0-2h16"/><path d="M4.496 20a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0Z"/><path d="M15.496 20a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0Z"/></svg>;
+const IcSitScale=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M0.5 23.5h5a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-5"/><path d="M5.5 23.5H22c1.1 0 1.5-0.895 1.5-2v-2c0-1.1-0.4-2-1.5-2H5.5"/><path d="m19.5 17.5 0 6"/><path d="m17.5 17.5 0 6"/><path d="m13.5 17.5 0 6"/><path d="m11.5 17.5 0 6"/><path d="m5.5 21.5-4 0"/><path d="m5.5 19.5-4 0"/><path d="m12 3.5 0 11"/><path d="M0.5 8.465 4 1.5l3.5 6.965"/><path d="M10.5 2a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0Z"/><path d="M4 12a3.416 3.416 0 0 0 3.5-3.5h-7A3.416 3.416 0 0 0 4 12Z"/><path d="M23.5 8.534 20 1.5l-3.5 7.034"/><path d="M20 12a3.416 3.416 0 0 1-3.5-3.5h7A3.416 3.416 0 0 1 20 12Z"/><path d="m13.409 1.5 8.091 0"/><path d="m2.5 1.5 8.091 0"/><path d="M9 17.5a3 3 0 0 1 6 0Z"/></svg>;
+const IcSitChartUp=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="m0.48 20.25 2.038 0"/><path d="m4.477 20.25 2.038 0"/><path d="m8.473 20.25 2.038 0"/><path d="M12.459 20.076a8 8 0 0 0 1.918-0.671"/><path d="M16.005 18.322a8.071 8.071 0 0 0 1.362-1.509"/><path d="M18.277 15.08c0.219-0.643 0.388-1.3 0.554-1.96"/><path d="m19.322 11.224 0.511-1.973"/><path d="m20.324 7.355 0.51-1.973"/><path d="m17.646 5.991 3.607-2.227 2.227 3.607"/></svg>;
+
+/* Map capsule_id prefix → SVG icon component */
+const CAPSULE_ICON=(id)=>{
+  if(!id)return null;
+  const k=id.toUpperCase();
+  if(k.startsWith("SIT_RESTO"))return IcSitRestaurant;
+  if(k.startsWith("SIT_APERO"))return IcSitChampagne;
+  if(k.startsWith("SIT_WEEKEND"))return IcSitCalendar;
+  if(k.startsWith("SIT_FETES"))return IcSitParty;
+  if(k==="SIT_BUREAU")return IcSitBriefcase;
+  if(k==="SIT_CRAQUER")return IcSitSmiley;
+  if(k.startsWith("SIT_PERIWO"))return IcSitTreadmill;
+  if(k==="SIT_SOIR")return IcSitMoon;
+  if(k==="SIT_VEGPROT")return IcVegan;
+  if(k.startsWith("SIT_COURSES"))return IcSitCart;
+  if(k==="SIT_PLATEAU")return IcSitScale;
+  if(k==="SIT_ALCOOL")return IcWineGlass;
+  if(k==="SIT_MAINTIEN")return IcTarget;
+  if(k.startsWith("SIT_SURPLUS")||k.startsWith("SIT_CALORIES"))return IcSitChartUp;
+  // Legacy IDs
+  if(k==="SIT_RESTAURANT")return IcSitRestaurant;
+  if(k==="SIT_SOCIAL")return IcSitChampagne;
+  if(k==="SIT_VOYAGE")return IcSitPlane;
+  if(k==="SIT_FAMILLE")return IcSitFamily;
+  if(k==="SIT_STRESS")return IcSitSmiley;
+  if(k==="SIT_GAIN_CIBLE")return IcSitDumbbell;
+  if(k==="SIT_GAIN_SPORT")return IcSitTreadmill;
+  return null;
+};
+
 const IcInfoEq=({size=14,color="currentColor"})=><svg width={size} height={size} viewBox="-0.25 -0.25 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M11.75 22.521c5.949 0 10.771-4.822 10.771-10.771 0-5.949-4.822-10.771-10.771-10.771C5.801.979.979 5.801.979 11.75c0 5.949 4.822 10.771 10.771 10.771Z"/><path d="M11.692 16.5v-6.012a.858.858 0 0 0-.252-.607.858.858 0 0 0-.607-.252h-.859"/><path d="M11.263 7.782a.429.429 0 0 1-.43-.43.429.429 0 0 1 .43-.429"/><path d="M11.263 7.782a.429.429 0 0 0 .43-.43.429.429 0 0 0-.43-.429"/><path d="M9.975 16.5h3.55"/></svg>;
+
+const IcMsgStar=({size=16,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="m12.589 5.109 1.282 2.641h2.495a0.612 0.612 0 0 1 0.434 1.069l-2.166 2.263 1.2 2.761a0.654 0.654 0 0 1-0.931 0.819L12 13.028l-2.9 1.634a0.654 0.654 0 0 1-0.931-0.819l1.2-2.761L7.2 8.819a0.612 0.612 0 0 1 0.432-1.069h2.5l1.285-2.641a0.662 0.662 0 0 1 1.172 0Z"/><path d="m17.992 13.752 1.03-2.215a0.531 0.531 0 0 1 0.943 0l1.027 2.215h2a0.49 0.49 0 0 1 0.346 0.855L21.6 16.316l0.962 2.209a0.523 0.523 0 0 1-0.746 0.654l-2.325-1.307-2.324 1.307a0.523 0.523 0 0 1-0.746-0.654l0.551-1.266"/><path d="m7.032 17.271 0.546 1.254a0.523 0.523 0 0 1-0.746 0.654l-2.325-1.307-2.324 1.307a0.523 0.523 0 0 1-0.746-0.654l0.963-2.209-1.737-1.709a0.489 0.489 0 0 1 0.343-0.855h2l1.03-2.215a0.531 0.531 0 0 1 0.943 0l1.027 2.215"/></svg>;
+
+/* ═══ EQ ICONS — Streamline Ultimate (dynamic color) ═══ */
+const IcCereal=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M16.583 11.611 21.29 1.239a1.142 1.142 0 1 1 2.137 0.805l-2.646 9.237"/><path d="M4.5 12.5a2 2 0 0 1 4 0"/><path d="M13 14.25a1.5 1.5 0 0 1 3 0"/><path d="M10.5 10.5a1 1 0 0 1 2 0"/><path d="M0.5 11.5V14c0 5.247 4.5 9.5 11.5 9.5s11.5-4.253 11.5-9.5v-2.5"/><path d="M16.5 6.9a24.859 24.859 0 0 0-4.5-0.4C5.649 6.5 0.5 8.739 0.5 11.5s5.149 5 11.5 5 11.5-2.239 11.5-5a2.36 2.36 0 0 0-0.261-1.059"/></svg>;
+const IcPotato=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M18.48 18.48c4.84-4.84 5.87-11.67 2.29-15.25C17.19-0.35 10.36 0.68 5.52 5.52 0.68 10.36-0.35 17.19 3.23 20.77c3.58 3.58 10.41 2.55 15.25-2.29Z"/><path d="M11.62 6.23c0.21 0 0.38-0.17 0.38-0.38s-0.17-0.38-0.38-0.38"/><path d="M11.62 6.23c-0.21 0-0.38-0.17-0.38-0.38s0.17-0.38 0.38-0.38"/><path d="M14 4.38c0.21 0 0.38-0.17 0.38-0.38s-0.17-0.38-0.38-0.38"/><path d="M14 4.38c-0.21 0-0.38-0.17-0.38-0.38s0.17-0.38 0.38-0.38"/><path d="M15.01 8.38c0.21 0 0.38-0.17 0.38-0.38s-0.17-0.38-0.38-0.38"/><path d="M15.01 8.38c-0.21 0-0.38-0.17-0.38-0.38s0.17-0.38 0.38-0.38"/><path d="M2.15 9.68c1.42 1.02 2.66 2.26 3.67 3.69"/><path d="M7.5 9.68S11 12.32 12 14.71"/></svg>;
+const IcSteak=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M10.5 0.5a10 10 0 0 0-10 10V19a4.5 4.5 0 0 0 9 0 4.5 4.5 0 0 1 4.5-4.5h2.5a7 7 0 0 0 0-14Z"/><path d="M11.5 3.5a8 8 0 0 0-8 8V13A2.812 2.812 0 0 0 6 16c2 0 0.118-4.5 7-4.5h3.5a4 4 0 0 0 0-8Z"/><path d="M4 19a1 1 0 1 0 2 0 1 1 0 1 0-2 0Z"/></svg>;
+const IcBacon=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M0.644 12.581a1.043 1.043 0 0 1 0.469-1.239c2.078-1.242 2.661-3.925 5.124-4.79 2.745-0.965 5.075 1.3 7.82 0.331 2.289-0.8 2.96-3.186 4.708-4.51a1.036 1.036 0 0 1 1.593 0.5l3 8.551a1.044 1.044 0 0 1-0.469 1.239c-2.079 1.239-2.669 3.93-5.127 4.79-2.739 0.958-5.075-1.3-7.819-0.33-2.287 0.8-2.96 3.184-4.706 4.508a1.037 1.037 0 0 1-1.594-0.5Z"/><path d="M1.945 15.324c2.383-1.138 2.887-4.2 5.489-5.114 2.745-0.964 5.075 1.3 7.82 0.331s3.314-3.636 6.053-4.6"/><path d="M3.114 19.659c2.745-0.964 3.155-4.319 5.9-5.284s5.075 1.3 7.82 0.332 3.313-3.637 6.052-4.6"/></svg>;
+const IcFish=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M22.856 1.128c0.916 0.917 1.548 7.991-3.16 12.7a17.347 17.347 0 0 1-11.111 4.743L5.412 15.4A17.614 17.614 0 0 1 10.17 4.3C14.828-0.358 21.939 0.211 22.856 1.128Z"/><path d="m8.585 18.571-2.1 4.309a1.121 1.121 0 0 1-2.03-0.052l-0.869-2.1-2.449-1.168a1.121 1.121 0 0 1-0.017-2.014L5.412 15.4Z"/><path d="M20.963 12.338c-0.009 0.255-0.2 3.378-4.433 7.943a1.122 1.122 0 0 1-1.619 0.028l-2.37-2.392"/><path d="m5.793 12.609-2.669-2.67a1.123 1.123 0 0 1-0.245-1.219C3.448 7.336 5.2 4.474 10 4.47"/><path d="M17.272 4.266a1.121 1.121 0 1 1-1.585 0 1.121 1.121 0 0 1 1.585 0Z"/></svg>;
+const IcSalmon=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M23.455 15.113a0.5 0.5 0 0 1-0.695 0.645c-1.469-0.8-3.26-2.181-3.26-3.758s1.791-2.956 3.26-3.758a0.5 0.5 0 0 1 0.695 0.645 7.728 7.728 0 0 0 0 6.226Z"/><path d="M4.5 12a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0Z"/><path d="M2.5 12a3.5 3.5 0 1 0 7 0 3.5 3.5 0 1 0-7 0Z"/><path d="M6 6.5c10 0 13.5 5.5 13.5 5.5s-4 5.5-13.5 5.5"/><path d="M0.5 12a5.5 5.5 0 1 0 11 0 5.5 5.5 0 1 0-11 0Z"/></svg>;
+const IcEgg=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M5.5 8.062a4.562 4.562 0 1 0 9.124 0 4.562 4.562 0 1 0-9.124 0Z"/><path d="M8.034 8.062a2.028 2.028 0 0 1 2.028-2.028"/><path d="M1.29 4.81c-2.57 4.87 1.736 6.363 4.266 15.206C7.721 27.583 23.5 22.044 23.5 10.892c0-13.179-19-12.165-22.21-6.082Z"/></svg>;
+const IcCan=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M0.662 8.475v10.546c0 2.436 5.047 4.41 11.272 4.41s11.272-1.974 11.272-4.41V8.475"/><path d="M22.072 6.093a2.928 2.928 0 0 1 1.134 2.145c0 2.707-5.047 4.9-11.272 4.9S0.662 10.945 0.662 8.238s5.047-4.9 11.272-4.9a24.553 24.553 0 0 1 4.223 0.356"/><path d="M12.579 10.3c-0.338 0.017-0.684 0.026-1.036 0.026-3.665 0-6.636-0.935-6.636-2.089 0-1.074 2.58-1.96 5.9-2.075"/><path d="M6.706 18.285a5.079 2.393 0 1 0 10.158 0 5.079 2.393 0 1 0-10.158 0"/></svg>;
+const IcSalad=({size=18,color="currentColor"})=>{const p={fill:"none",stroke:color,strokeLinecap:"round",strokeLinejoin:"round",strokeWidth:"1"};return<svg width={size} height={size} viewBox="0 0 24 24" fill="none"><path {...p} d="M0.5 14.5c0 5 5 9 11.5 9s11.5-4 11.5-9Z"/><path {...p} d="M10 11a2.2 2.2 0 0 0-1.44-1.19 2.26 2.26 0 0 0-2.13-2.43 2.65 2.65 0 0 0-3.19-2 2.63 2.63 0 0 0-1.6 3.43 2.18 2.18 0 0 0-0.85 2.48 2.17 2.17 0 0 0 0.34 0.72 1.91 1.91 0 0 0-0.39 0.54"/><path {...p} d="M15.92 6.23A2.74 2.74 0 0 0 13.7 3.6 3.26 3.26 0 0 0 10.17 0.53a3.26 3.26 0 0 0-2.57 3.9 2.61 2.61 0 0 0-1.5 2.15"/><path {...p} d="M21.56 12.5A2.43 2.43 0 0 0 22.72 9a2.25 2.25 0 0 0 0.18-3.2 2.64 2.64 0 0 0-0.85-3.69 2.64 2.64 0 0 0-3.54 1.34 2.28 2.28 0 0 0-2.63 2.36"/><path {...p} d="M10.23 12.5a3 3 0 1 1 5.54 0"/><path {...p} d="M15.16 9.24a2.48 2.48 0 0 1 0.26-0.4A2.58 2.58 0 0 1 19.5 12a2.84 2.84 0 0 1-0.49 0.49"/></svg>};
+const IcBarley=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="m16.363 23.052 0-2.84"/><path d="M16.362 0.99s-1.873 0.823-1.873 2.984 1.873 2.984 1.873 2.984 1.873-0.823 1.873-2.984S16.362 0.99 16.362 0.99Z"/><path d="M22.447 16.622s-1.03-0.263-2.955-0.027c-1.925 0.236-2.183 0.946-2.368 1.254-0.187 0.312-0.53 1.596-0.318 2.06 0.218 0.476 2.504 0.363 3.789-0.039 1.285-0.402 1.852-3.248 1.852-3.248Z"/><path d="M22.447 11s-1.03-0.263-2.955-0.027c-1.925 0.236-2.183 0.946-2.368 1.254-0.187 0.312-0.53 1.596-0.318 2.06 0.218 0.476 2.504 0.363 3.789-0.039 1.285-0.402 1.852-3.248 1.852-3.248Z"/><path d="M22.447 5.347s-1.03-0.263-2.955-0.027c-1.925 0.236-2.183 0.946-2.368 1.254-0.187 0.312-0.53 1.596-0.318 2.06 0.218 0.476 2.504 0.363 3.789-0.039 1.285-0.402 1.852-3.248 1.852-3.248Z"/><path d="M10.276 16.622s1.03-0.263 2.955-0.027c1.925 0.236 2.183 0.946 2.368 1.254 0.187 0.312 0.53 1.596 0.318 2.06-0.218 0.476-2.504 0.363-3.789-0.039-1.285-0.402-1.852-3.248-1.852-3.248Z"/><path d="M10.276 11s1.03-0.263 2.955-0.027c1.925 0.236 2.183 0.946 2.368 1.254 0.187 0.312 0.53 1.596 0.318 2.06-0.218 0.476-2.504 0.363-3.789-0.039-1.285-0.402-1.852-3.248-1.852-3.248Z"/><path d="M10.276 5.347s1.03-0.263 2.955-0.027c1.925 0.236 2.183 0.946 2.368 1.254 0.187 0.312 0.53 1.596 0.318 2.06-0.218 0.476-2.504 0.363-3.789-0.039-1.285-0.402-1.852-3.248-1.852-3.248Z"/></svg>;
+const IcLemon=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M0.5 12a10 10 0 1 0 20 0 10 10 0 1 0-20 0Z"/><path d="m10.5 7.5 0 1.5"/><path d="m7.318 8.818 1.061 1.061"/><path d="m6 12 1.5 0"/><path d="m7.318 15.182 1.061-1.061"/><path d="m10.5 16.5 0-1.5"/><path d="m13.682 15.182-1.061-1.061"/><path d="m15 12-1.5 0"/><path d="m13.682 8.818-1.061 1.061"/><path d="M10.5 2c7.18 0 13 3.5 13 10s-5.82 10-13 10"/></svg>;
+const IcJuicer=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M20.5 19.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V19a1.89 1.89 0 0 0-0.19-0.85L0.55 12.22a0.51 0.51 0 0 1 0-0.48 0.52 0.52 0 0 1 0.45-0.24h19.5Z"/><path d="M17.5 11.5c0-3.87-4.75-9-6-9s-6 5.13-6 9"/><path d="m11.5 2.5 0 9"/><path d="M20.5 11.5h1a2 2 0 0 1 2 2v7"/></svg>;
+const IcSpread=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M18.425 11.1A5.6 5.6 0 0 0 15.9 0.5H6.041A5.552 5.552 0 0 0 0.5 6.1c0 3.091 2.11 5.6 5.2 5.6L4.367 22.941a0.5 0.5 0 0 0 0.5 0.559h12.822a0.5 0.5 0 0 0 0.49-0.6l-1.333-6.555"/><path d="M23.5 23.5 10.506 3c-4.394 2.4 1.265 11.62 5.2 9.131l0.434-0.249"/><path d="M8.616 11.5c-0.9 1.58 0.089 4 1.884 4-2.225 4.894 5.445 4.642 4 1.006"/></svg>;
+const IcCroissant=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M10.048 14.038a5 5 0 0 0-4.548 4.98v2a1 1 0 0 1-0.622 0.925C3.883 22.35 0.5 19.235 0.5 15.018a11.494 11.494 0 0 1 5.48-9.8"/><path d="m18.281 4.653-4.513 9.784a1 1 0 0 1-0.908 0.581h-1.72a1 1 0 0 1-0.908-0.581L5.719 4.653a1.012 1.012 0 0 1 0.494-1.334 13.521 13.521 0 0 1 11.574 0 1.012 1.012 0 0 1 0.494 1.334Z"/><path d="M18.02 5.218a11.494 11.494 0 0 1 5.48 9.8c0 4.151-3.321 7.357-4.378 6.925a1 1 0 0 1-0.622-0.925v-2a5 5 0 0 0-4.548-4.98"/><path d="m1.314 10.761 5.429 4.957"/><path d="m22.686 10.761-5.429 4.957"/></svg>;
+const IcCheese=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="m23.5 7.5-7-7-16 9"/><path d="M0.5 9.5v3l4 3-4 3v5l23-3v-13l-23 2Z"/><path d="m8 16.5-1.5 1V19L8 20l1.5-1v-1.5l-1.5-1Z"/><path d="m21.5 13.75-2 1.25-2-1.25v-2l2-1.25 2 1.25v2Z"/></svg>;
+const IcChocolate=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M19.5 21.5a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2V13a0.5 0.5 0 0 1 0.5-0.5h14a0.5 0.5 0 0 1 0.5 0.5Z"/><path d="M18.5 1.5a1 1 0 0 0-1-1h-11a1 1 0 0 0-1 1v11h13Z"/><path d="m19.5 13-1.019 2.711a3 3 0 0 1-4.288 1.554l-4.517-2.56"/><path d="m12 12.5 0-12"/><path d="m5.5 6.5 13 0"/><path d="m5.5 6.5 6.5-6"/><path d="M5.5 12.5 18.195 0.781"/><path d="m12 12.5 6.5-6"/></svg>;
+const IcCocktail=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M12 13.293 12 23.5"/><path d="m7.5 23.5 9 0"/><path d="M7.5 4.5 4.149 0.671A0.5 0.5 0 0 0 3.773 0.5H0.5"/><path d="M3.854 5.354a0.5 0.5 0 0 1 0.353-0.854h15.586a0.5 0.5 0 0 1 0.353 0.854l-7.792 7.792a0.5 0.5 0 0 1-0.708 0Z"/><path d="M21 7.355A3.5 3.5 0 1 0 16.837 2.5"/></svg>;
+const IcCoffee=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M8 6.157a2 2 0 0 1 0-2.829A2 2 0 0 0 8 0.5"/><path d="M12 6.157a2 2 0 0 1 0-2.829A2 2 0 0 0 12 0.5"/><path d="M16 6.157a2 2 0 0 1 0-2.829A2 2 0 0 0 16 0.5"/><path d="M5.5 11.542a6.5 3 0 1 0 13 0 6.5 3 0 1 0-13 0Z"/><path d="M18.5 11.542a17.914 17.914 0 0 1-1.165 6.558 1.992 1.992 0 0 1-0.53 0.763A7.121 7.121 0 0 1 12 20.542a7.121 7.121 0 0 1-4.8-1.679 1.981 1.981 0 0 1-0.53-0.763 17.9 17.9 0 0 1-1.17-6.558"/><path d="M18.219 14.886C19.933 15.8 21 17.079 21 18.5c0 2.761-4.029 5-9 5s-9-2.239-9-5c0-1.421 1.067-2.7 2.78-3.614"/></svg>;
+const IcCookie=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M20 6.88c-0.739-0.001-1.464-0.207-2.092-0.597-0.628-0.39-1.136-0.947-1.465-1.609-0.739-0.278-1.539-0.31-2.303-0.089-0.569 0.174-1.092 0.495-1.506 0.928-0.414 0.434-0.702 0.968-0.834 1.547-1.061 0-2.078-0.421-2.828-1.172C8.221 4.938 7.8 3.921 7.8 2.86c0-0.039-0.008-0.077-0.025-0.112C6.044 3.186 4.5 4.158 3.338 5.5 2.018 7.02 1.219 8.947 1.073 10.975c-0.146 2.029 0.369 4.046 1.472 5.744 1.103 1.697 2.741 2.985 4.647 3.675 1.906 0.69 3.982 0.742 5.92 0.148 1.939-0.594 3.637-1.794 4.83-3.421 1.193-1.627 1.822-3.593 1.793-5.606 0-0.621-0.073-1.24-0.218-1.842l-0.517 0.207Z"/><path d="M8 10.88a2 2 0 1 0 4 0 2 2 0 1 0-4 0Z"/><path d="M15 14.88a1 1 0 1 0 2 0 1 1 0 1 0-2 0Z"/><path d="M9 18.88a2 2 0 1 0 4 0 2 2 0 1 0-4 0Z"/><path d="M4 12.88a0.25 0.25 0 1 0 0.5 0 0.25 0.25 0 1 0-0.5 0Z"/><path d="M16 9.88a0.25 0.25 0 1 0 0.5 0 0.25 0.25 0 1 0-0.5 0Z"/><path d="M15 18.88a0.25 0.25 0 1 0 0.5 0 0.25 0.25 0 1 0-0.5 0Z"/></svg>;
+const IcProtein=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M6 5.5h12s4 0 4 4v10s0 4-4 4H6s-4 0-4-4v-10s0-4 4-4"/><path d="M18 5.5v-4a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v4"/><path d="m10 5.5 0-5"/><path d="m14 5.5 0-5"/><path d="m2 9.5 20 0"/><path d="m2 19.5 20 0"/><path d="m10 14.5 4 0"/><path d="M8 16.5H7a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1h1"/><path d="M16 12.5h1a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-1"/><path d="M10 17a0.5 0.5 0 0 1-0.5 0.5H9a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h0.5a0.5 0.5 0 0 1 0.5 0.5Z"/><path d="M16 16.5a1 1 0 0 1-1 1h-0.5a0.5 0.5 0 0 1-0.5-0.5v-5a0.5 0.5 0 0 1 0.5-0.5h0.5a1 1 0 0 1 1 1Z"/></svg>;
+const IcAvocado=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M7.571 14.28a4.429 4.429 0 1 0 8.858 0 4.429 4.429 0 1 0-8.858 0"/><path d="M12.333 12.374a1.905 1.905 0 0 1 1.9 1.906"/><path d="M12 23.25a9.019 9.019 0 0 0 9.014-10.41C19.963 6.037 15.91 0.75 12 0.75S4.037 6.037 2.986 12.84A9.019 9.019 0 0 0 12 23.25Z"/></svg>;
+const IcFig=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M12 0.75c3.014 0 1.467 3.424 2.935 4.891s7.337 3.913 7.337 9.783c0 4.891-3.913 7.826-10.272 7.826S1.728 20.315 1.728 15.424c0-5.87 5.87-8.315 7.337-9.783S9.153 0.75 12 0.75Z"/><path d="M6.5 14.5a5.5 5.5 0 1 0 11 0 5.5 5.5 0 1 0-11 0"/><path d="m12.009 16.51 0 0.854"/><path d="m12.001 11.5 0 0.854"/><path d="m9.927 14.436-0.854 0"/><path d="m14.937 14.428-0.855 0"/><path d="m13.477 15.898 0.604 0.604"/><path d="m9.929 12.362 0.604 0.604"/><path d="m10.538 15.904-0.604 0.604"/><path d="m14.075 12.356-0.604 0.604"/></svg>;
+const IcIceCream=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M10.5 9.5a1 1 0 0 0-2 0 1.5 1.5 0 0 1-3 0V7a6.5 6.5 0 0 1 13 0v2.5a1.5 1.5 0 0 1-3 0 1 1 0 0 0-2 0v1a1.5 1.5 0 0 1-3 0Z"/><path d="m7 11 4.531 12.174a0.5 0.5 0 0 0 0.938 0L17 11"/></svg>;
+const IcHoney=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M10.5 11.38C9.21 9.8 8.61 8.32 9.13 7.8s2.73 0.43 4.68 2.39 3 4.05 2.39 4.68-2-0.08-3.58-1.37l-9.56 9.56a1.5 1.5 0 0 1-2.12-2.12Z"/><path d="M17.05 0.59c0.39-0.39 1.93 0.52 3.89 2.47S23.8 6.56 23.41 7"/><path d="M11.87 2.94c0.49-0.49 2.94 1.17 5.48 3.71s4.2 5 3.71 5.48"/><path d="M14 1.52c0.49-0.48 2.78 1 5.13 3.36S23 9.52 22.48 10"/><path d="M10.46 5.06c0.48-0.49 2.78 1 5.12 3.36s3.85 4.64 3.36 5.13"/></svg>;
+const IcMilkBottle=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="-0.25 -0.25 14 14" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="0.5"><path d="M4.199 1.902c0.029 0.441 0.414 0.757 0.856 0.77 1.15 0.032 2.241 0.032 3.39 0 0.442-0.012 0.827-0.329 0.856-0.77 0.014-0.209 0.014-0.417 0-0.626-0.029-0.441-0.414-0.757-0.856-0.77-1.15-0.032-2.241-0.032-3.39 0-0.442 0.012-0.827 0.329-0.856 0.77-0.014 0.209-0.014 0.417 0 0.626Z"/><path d="m3.376 5.48 1.714-2.784h3.32l1.714 2.784c0.15 0.243 0.244 0.516 0.272 0.8 0.192 1.972 0.205 3.913 0.039 5.881-0.041 0.49-0.456 0.86-0.947 0.86H4.013c-0.492 0-0.906-0.37-0.948-0.86-0.166-1.968-0.153-3.909 0.039-5.881 0.028-0.284 0.122-0.557 0.272-0.8Z"/></svg>;
+const IcMilkCarton=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="-0.5 -0.5 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M17.25 5.031H5.75L3.026 9.04A1.438 1.438 0 0 0 2.875 9.679v11.165a1.438 1.438 0 0 0 1.438 1.438h14.375a1.438 1.438 0 0 0 1.438-1.438V9.679a1.438 1.438 0 0 0-0.151-0.643Z"/><path d="M17.25 2.156a1.438 1.438 0 0 0-1.438-1.438h-8.625a1.438 1.438 0 0 0-1.438 1.438v2.875h11.5Z"/><path d="m6.469 9.344 10.063 0"/><path d="M8.625 16.531a2.875 2.875 0 1 0 5.75 0 2.875 2.875 0 1 0-5.75 0Z"/></svg>;
+const IcOliveOil=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="-0.25 -0.25 14 14" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="0.5"><path d="M1.808 9.624c0 1.795 1.573 3.394 1.573 3.394h5.421s1.572-1.6 1.573-3.394c0-2.39-2.886-4.885-2.886-4.885L7.42 2.071H4.764L4.695 4.739s-2.886 2.495-2.886 4.885Z"/><path d="M1.84 9.18c2.845-0.231 5.657-0.226 8.503 0.016 0.019 0.143 0.031 0.286 0.031 0.428-0.000 1.78-1.548 3.369-1.573 3.394H3.381C3.353 12.99 1.808 11.403 1.808 9.624c0-0.148 0.011-0.296 0.032-0.444Z"/><path d="M8.04 5.17c0.329-0.482 0.893-0.74 1.659-0.74 1.276 0 1.993 0.718 1.993 1.993 0 1.099-0.533 1.784-1.496 1.952"/><path d="M4.114 2.071h3.954"/><path d="M5.05 0.482h2.084"/></svg>;
+const IcSoupBowl=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M23.5 13c0 6-5.5 10.5-11.5 10.5S0.5 19 0.5 13"/><path d="M0.5 13a11.5 2 0 1 0 23 0 11.5 2 0 1 0-23 0"/><path d="M11.64 0.5c-3 3 3 4 0 7"/><path d="M7.14 2c-3 3 3 4 0 7"/><path d="M16.64 2c-3 3 3 4 0 7"/></svg>;
+const IcSpirits=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M4.178 19.991 12 9.5l7.815 10.385"/><path d="M2.839 9.5 12 20.5l9.161-11"/><path d="m2.839 9.5 18.322 0"/><path d="m4.446 20.5 15.108 0"/><path d="M14 3.5v1.617a1.724 1.724 0 0 0 0.953 1.543l5.126 2a3.441 3.441 0 0 1 1.915 3.254 20.85 20.85 0 0 1-3.743 10.792 1.731 1.731 0 0 1-1.453 0.8H7.2a1.731 1.731 0 0 1-1.453-0.8 20.85 20.85 0 0 1-3.741-10.793 3.441 3.441 0 0 1 1.915-3.254l5.126-2A1.724 1.724 0 0 0 10 5.117V3.5"/><path d="M15.811 0.915A1 1 0 0 0 15 0.5H9a1 1 0 0 0-0.949 1.316l0.334 1a1 1 0 0 0 0.948 0.684h5.334a1 1 0 0 0 0.948-0.684l0.334-1a1 1 0 0 0-0.138-0.901Z"/></svg>;
+const IcLimaBean=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M19.34 11.357a2 2 0 0 0-2.14 0.843 3.442 3.442 0 0 1-3.994 1.259 2 2 0 0 0-2.238 0.535 5.035 5.035 0 0 0-1.176 4.955c1 3.16 3.86 5.6 8.629 4.1s5.719-5.142 4.724-8.3a5.034 5.034 0 0 0-3.805-3.392Z"/><path d="M12.28 13.327a3.1 3.1 0 0 0 0.125 0.605c0.5 1.58 1 3.186 3.865 2.285s2.355-2.508 1.857-4.088a2.992 2.992 0 0 0-0.244-0.567"/><path d="m16.27 16.217 1.25 3.967"/><path d="M12.323 2.74a1.909 1.909 0 0 0-2.154-0.418 3.173 3.173 0 0 1-2.105 0.139A3.167 3.167 0 0 1 6.311 1.29 1.909 1.909 0 0 0 4.236 0.575 4.8 4.8 0 0 0 0.752 3.959c-0.817 3.052 0.24 6.481 4.848 7.714s7.235-1.209 8.052-4.262a4.8 4.8 0 0 0-1.329-4.671Z"/><path d="M5.633 0.71a2.921 2.921 0 0 0-0.209 0.55c-0.409 1.526-0.824 3.078 1.94 3.818s3.179-0.812 3.588-2.338a2.95 2.95 0 0 0 0.093-0.582"/><path d="M7.364 5.078 6.338 8.91"/></svg>;
+const IcPea=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M11.918 16.499a2.495 2.495 0 1 0 4.99 0 2.495 2.495 0 1 0-4.99 0"/><path d="M5.929 18.994a1.996 1.996 0 1 0 3.992 0 1.996 1.996 0 1 0-3.992 0"/><path d="M16.908 12.008a1.996 1.996 0 1 0 3.992 0 1.996 1.996 0 1 0-3.992 0"/><path d="M8.526 23.47a4.468 4.468 0 0 0 3.83-1.9A5.5 5.5 0 0 0 19.8 16.4v-0.025c2.459-0.793 4.5-2.6 3.511-12.525a0.5 0.5 0 0 0-0.369-0.442 0.547 0.547 0 0 0-0.541 0.2C15.9 10.753 7.427 14.75 1.475 17.309a1.891 1.891 0 0 0-1.019 2c0.1 0.811 0.793 1.237 1.477 1.685C4.01 22.349 6.7 23.47 8.526 23.47Z"/><path d="M22.938 3.412S22.9 0.53 20.443 0.53"/></svg>;
+const IcWaterGlass=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M4.5 1.889a7.5 1.389 0 1 0 15 0 7.5 1.389 0 1 0-15 0Z"/><path d="M5.5 12.249a6.5 1.204 0 1 0 13 0 6.5 1.204 0 1 0-13 0Z"/><path d="m19.5 1.889-2 20.63c0 0.562-2.462 0.981-5.5 0.981s-5.5-0.419-5.5-0.981l-2-20.63"/></svg>;
+const IcCake=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M4.509 16.509H19.49c0.53 0 1.038 0.21 1.412 0.585 0.375 0.375 0.585 0.883 0.585 1.413v4.494c0 0.265-0.105 0.519-0.293 0.707-0.187 0.187-0.441 0.293-0.707 0.293H3.013c-0.265 0-0.519-0.106-0.707-0.293-0.187-0.188-0.293-0.442-0.293-0.707v-4.494c0-0.53 0.21-1.038 0.585-1.413 0.375-0.375 0.883-0.585 1.412-0.585Z"/><path d="M12 16.509V14.012"/><path d="m5.009 14.012 13.982 0"/><path d="M17.493 14.012v-3.496c0-0.265-0.105-0.519-0.293-0.706-0.187-0.188-0.441-0.293-0.706-0.293H7.506c-0.265 0-0.519 0.105-0.706 0.293-0.188 0.187-0.293 0.441-0.293 0.706v3.496"/><path d="M15.496 9.518V7.52c0-0.265-0.105-0.519-0.293-0.706-0.187-0.188-0.441-0.293-0.706-0.293H9.503c-0.265 0-0.519 0.105-0.706 0.293-0.188 0.187-0.293 0.441-0.293 0.706v1.998"/><path d="M12 23.5v-2.497"/><path d="M17.992 23.5v-2.996"/><path d="M14.996 23.5v-3.995"/><path d="M6.008 23.5v-2.996"/><path d="M9.004 23.5v-3.995"/><path d="M12.439 5.343c-0.118 0.115-0.275 0.179-0.439 0.179s-0.322-0.064-0.439-0.179L9.343 3.086c-0.239-0.211-0.401-0.494-0.463-0.806-0.061-0.312-0.018-0.636 0.123-0.921 0.119-0.223 0.287-0.415 0.493-0.56 0.206-0.146 0.443-0.241 0.692-0.279 0.249-0.038 0.504-0.017 0.744 0.061 0.24 0.078 0.458 0.211 0.637 0.389L12 1.378l0.439-0.409c0.178-0.177 0.396-0.311 0.635-0.389 0.239-0.078 0.493-0.099 0.742-0.061 0.249 0.038 0.485 0.134 0.69 0.279 0.205 0.146 0.373 0.338 0.49 0.56 0.146 0.281 0.196 0.602 0.142 0.914-0.054 0.312-0.209 0.598-0.441 0.813L12.439 5.343Z"/></svg>;
+const IcWineGlass=({size=18,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="m12 14.5 0 9"/><path d="m9 23.5 6 0"/><path d="M5.5 8 6.442 0.934A0.5 0.5 0 0 1 6.938 0.5h10.124a0.5 0.5 0 0 1 0.5 0.434L18.5 8a6.5 6.5 0 0 1-13 0Z"/><path d="m5.7 6.5 12.506 0"/></svg>;
+const IcSearch=({size=20,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><circle cx="10.5" cy="10.5" r="7.5"/><path d="m16.5 16.5 6 6"/></svg>;
+const IcListEmpty=({size=20,color="currentColor"})=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1"><path d="M15 2.5H9a1 1 0 0 0-1 1v1.5h8V3.5a1 1 0 0 0-1-1Z"/><path d="M6.5 4.5H4a1 1 0 0 0-1 1v15a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-15a1 1 0 0 0-1-1h-2.5"/><path d="m8 11 8 0"/><path d="m8 15 5 0"/></svg>;
+
+const MSG_TYPE_ICON=(type,size=16,color="currentColor")=>{
+  if(type==='milestone_comment')return <IcMsgStar size={size} color={color}/>;
+  if(type==='bilan_feedback')return <IcMenuMeasures size={size} color={color}/>;
+  if(type==='alert')return <IcFlash size={size} color={color}/>;
+  if(type==='adjustment')return <IcMenuSettings size={size} color={color}/>;
+  return <IcMenuMessages size={size} color={color}/>;
+};
+
+const SLOT_ICON_MAP={PDJ:'sunrise',breakfast:'sunrise',COLLATION:'apple',EN_CAS_MAT:'apple',snack1:'apple',snack2:'apple',REPAS_FROID_PAIN:'salad',REPAS_FROID_BOWL:'salad',coldMeal:'salad',REPAS_CHAUD:'plate',hotMeal:'plate',PRE_WO:'energy',POST_WO:'trophy'};
+const SlotIcon=({slotId,active=false,size=20})=>{
+  const c=active?'#C6A05B':'rgba(15,30,46,0.3)';
+  const p={fill:"none",stroke:c,strokeLinecap:"round",strokeLinejoin:"round",strokeWidth:"1"};
+  const wrap=(paths)=><svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{flexShrink:0}}>{paths}</svg>;
+  const t=SLOT_ICON_MAP[slotId]||'plate';
+  if(t==='sunrise')return wrap(<><path {...p} d="m0.5 21 23 0"/><path {...p} d="m0.5 14 2 0"/><path {...p} d="m3.722 6.222 1.414 1.414"/><path {...p} d="m11.5 3 0 2"/><path {...p} d="m19.278 6.222 -1.414 1.414"/><path {...p} d="m22.5 14 -2 0"/><path {...p} d="M16.379 19a7 7 0 1 0 -9.758 0"/></>);
+  if(t==='apple')return wrap(<><path {...p} d="M12 22.5c1.5 0 0.5 1 3.5 1s6 -6 6 -10 -2.5 -7 -5.5 -7 -3 1 -4 1 -1 -1 -4 -1 -5.5 3 -5.5 7 3 10 6 10 2 -1 3.5 -1Z"/><path {...p} d="M12 7.5v-2a2.006 2.006 0 0 0 -2 -2H8"/><path {...p} d="M14.628 4.918a4.5 4.5 0 0 0 3.829 -3.828 0.517 0.517 0 0 0 -0.585 -0.585 4.5 4.5 0 0 0 -3.828 3.829 0.515 0.515 0 0 0 0.584 0.584Z"/></>);
+  if(t==='salad')return wrap(<><path {...p} d="M0.5 14.5c0 5 5 9 11.5 9s11.5 -4 11.5 -9Z"/><path {...p} d="M10 11a2.2 2.2 0 0 0 -1.44 -1.19 2.26 2.26 0 0 0 -2.13 -2.43 2.65 2.65 0 0 0 -3.19 -2 2.63 2.63 0 0 0 -1.6 3.43 2.18 2.18 0 0 0 -0.85 2.48 2.17 2.17 0 0 0 0.34 0.72 1.91 1.91 0 0 0 -0.39 0.54"/><path {...p} d="M15.92 6.23A2.74 2.74 0 0 0 13.7 3.6 3.26 3.26 0 0 0 10.17 0.53a3.26 3.26 0 0 0 -2.57 3.9 2.61 2.61 0 0 0 -1.5 2.15"/><path {...p} d="M21.56 12.5A2.43 2.43 0 0 0 22.72 9a2.25 2.25 0 0 0 0.18 -3.2 2.64 2.64 0 0 0 -0.85 -3.69 2.64 2.64 0 0 0 -3.54 1.34 2.28 2.28 0 0 0 -2.63 2.36"/><path {...p} d="M10.23 12.5a3 3 0 1 1 5.54 0"/><path {...p} d="M15.16 9.24a2.48 2.48 0 0 1 0.26 -0.4A2.58 2.58 0 0 1 19.5 12a2.84 2.84 0 0 1 -0.49 0.49"/><path {...p} d="M4.5 9.34h0a5.94 5.94 0 0 1 1 3.16"/><path {...p} d="M10.5 3.84a13 13 0 0 1 1 4.9"/><path {...p} d="M20.5 5.34h0A14.77 14.77 0 0 0 18.39 8"/></>);
+  if(t==='energy')return wrap(<><path {...p} d="M11 20v-4.5H8.5L12 10v3.5h2.5L11 20Z"/><path {...p} d="M17 23.5H7L5.5 22V8.5l3 -3h7l3 3V22L17 23.5Z"/><path {...p} d="M7 5.5h10"/><path {...p} d="m10 5.5 -2 -2"/></>);
+  if(t==='trophy')return wrap(<><path {...p} d="M20.887 13.753A4 4 0 0 0 23.5 10V7.5a1 1 0 0 0 -1 -1h-2.048"/><path {...p} d="M3.113 13.753A4 4 0 0 1 0.5 10V7.5a1 1 0 0 1 1 -1h2.051"/><path {...p} d="M20.994 1.525a1 1 0 0 0 -1 -1.025H4.018a1 1 0 0 0 -1 1.025C3.365 15.739 10.971 11.678 10.971 17c-0.055 3.1 -1.349 4.239 -3.564 4.459a1 1 0 0 0 -0.9 1v0.041a1 1 0 0 0 1 1h9a1 1 0 0 0 1 -1v-0.046a1 1 0 0 0 -0.9 -1C14.364 21.24 12.971 20.1 12.971 17c0 -5.328 7.672 -1.323 8.023 -15.475Z"/><path {...p} d="M11.764 2.689a0.251 0.251 0 0 1 0.486 0l0.757 2.811h3.174a0.25 0.25 0 0 1 0.138 0.458L14.006 7.64l1.212 3.232a0.25 0.25 0 0 1 -0.38 0.291L12.005 9.14l-2.833 2.023a0.25 0.25 0 0 1 -0.38 -0.291L10 7.64 7.691 5.958a0.25 0.25 0 0 1 0.138 -0.458H11Z"/></>);
+  return wrap(<><path {...p} d="M6.376 19.535S7.1 15.322 5.04 13a0.324 0.324 0 0 1 0.007 -0.438c0.711 -0.778 2.513 0.021 4.326 3.345 0.473 0.867 1.461 0.822 2.32 0.332 1.632 -0.931 3.8 -3.359 5.3 -3.739 1.969 -0.5 2.648 0.7 2.269 1.079l-8.592 8.588Z"/><path {...p} d="m9.338 23.5 1.332 -1.333 -4.294 -2.632L2.773 23.5"/><path {...p} d="m23.459 11.5 -22.918 0"/><path {...p} d="M21.433 11.5c0.009 -0.167 0.026 -0.331 0.026 -0.5a9.5 9.5 0 0 0 -19 0c0 0.169 0.016 0.333 0.025 0.5"/><path {...p} d="m11.459 1.5 0 -1"/></>);
+};
 
 const IcLogo=({height=16})=><svg height={height} viewBox="70 125 250 100" fill="none"><g transform="translate(192,126)"><g fill="#f6f3ee"><g transform="translate(1.54,83.04)"><path d="M.63-48.84h10.89l11.51 37.19h.42l11.44-37.19h10.89L30.14.06H16.27z"/></g><g transform="translate(43.9,83.04)"><path d="M4.11-48.84h10.97V0H4.11z"/></g><g transform="translate(57.58,83.04)"><path d="M31.41-11.3H15.77L12.28 0H1.25l17.38-48.84h10.12L45.98 0H34.95zM28.75-19.61l-5.03-15.77h-.41l-4.89 15.77z"/></g></g></g><g transform="translate(78,142)"><g fill="#f6f3ee"><g transform="translate(1.29,77.92)"><path d="M20.56-33.45c2.84 0 5.23-.17 7.16-.52 1.93-.34 3.46-.88 4.59-1.62 1.14-.74 1.96-1.69 2.45-2.85.5-1.15.75-2.52.75-4.11h2.77v21.59h-2.77c0-1.58-.22-2.95-.67-4.11-.45-1.16-1.24-2.13-2.38-2.89-1.13-.77-2.66-1.35-4.59-1.75-1.92-.39-4.36-.59-7.31-.59v17.88c0 1.74.21 3.18.63 4.31.42 1.14 1.15 2.07 2.19 2.78 1.03.71 2.38 1.21 4.06 1.5 1.69.28 3.77.42 6.25.42 2.8 0 5.18-.2 7.13-.59 1.94-.39 3.58-1.07 4.89-2.02 1.32-.94 2.38-2.2 3.17-3.75.79-1.55 1.45-3.49 1.98-5.81h3l-1.19 15.58H3.56v-3c1.85-.05 3.33-.21 4.47-.47 1.13-.27 2.02-.72 2.64-1.36.63-.63 1.06-1.53 1.27-2.69.22-1.16.33-2.66.33-4.5v-36.86c0-1.84-.09-3.33-.28-4.47-.19-1.13-.56-2.03-1.11-2.69-.55-.66-1.36-1.11-2.42-1.34-1.05-.24-2.42-.41-4.11-.52v-3.02h45.72l.72 13.92h-2.77c-.32-2.1-.84-3.83-1.55-5.17-.71-1.34-1.68-2.41-2.92-3.2-1.24-.79-2.81-1.34-4.72-1.66-1.9-.32-4.19-.48-6.87-.48h-10.05c-.9 0-1.34.45-1.34 1.34z"/></g><g transform="translate(53.17,77.92)"><path d="M16.53-12.34c0 2.01.08 3.62.24 4.84.15 1.21.48 2.16.98 2.84.51.68 1.22 1.15 2.14 1.42.93.26 2.15.42 3.67.47v2.77H1.73v-2.77c1.58-.05 2.85-.22 3.8-.52.94-.29 1.69-.75 2.25-1.37.56-.63.93-1.52 1.11-2.66.19-1.13.28-2.62.28-4.47v-34.09c0-2.84-.04-5.23-.13-7.16-.07-1.93-.18-3.24-.34-3.92-.26-1.21-.88-2.03-1.86-2.44-.98-.43-2.73-.64-5.26-.64v-2.69l14.95-2.92z"/></g><g transform="translate(73.34,77.92)"><path d="M41.28-7.36c-4.48 5.44-10.04 8.16-16.69 8.16-3.1 0-5.92-.52-8.45-1.55-2.53-1.03-4.71-2.48-6.53-4.34-1.82-1.88-3.23-4.12-4.23-6.72s-1.5-5.5-1.5-8.67c0-3.22.52-6.2 1.58-8.94 1.06-2.74 2.55-5.08 4.47-7.03 1.93-1.96 4.22-3.49 6.88-4.59 2.66-1.1 5.58-1.66 8.75-1.66 5.11 0 9.07 1.39 11.86 4.16 2.8 2.76 4.2 6.72 4.2 11.89 0 .74-.15 1.19-.44 1.34-.29.16-.96.24-2.01.24H13.13c-.11.43-.19.95-.24 1.55-.05.6-.08 1.28-.08 2.01 0 2.74.33 5.23.98 7.48.67 2.24 1.62 4.15 2.86 5.74 1.24 1.57 2.71 2.8 4.42 3.67 1.72.87 3.63 1.3 5.74 1.3 2.22 0 4.27-.48 6.17-1.45 1.89-.98 3.84-2.58 5.84-4.8zM28.23-28.72c1.05 0 1.89-.02 2.53-.08.63-.05 1.11-.16 1.42-.31.32-.16.54-.38.64-.67.1-.29.16-.67.16-1.14 0-2.43-.78-4.37-2.34-5.81-1.55-1.46-3.67-2.19-6.36-2.19-5.7 0-9.23 3.4-10.59 10.21z"/></g></g></g></svg>;
 
@@ -235,6 +380,45 @@ const DEFAULT_ADVICES = [
     summaryObjective:"Ajouter crudités au déjeuner.",summaryBullets:["Prépare la veille.","Tomates cerises ou carottes.","Quelques bouchées comptent."],summaryTip:"Tomates cerises en tupperware = 30 sec.",linkedAlertTypes:[]},
 ];
 
+const MODULE_ICON=(module,size=15,color="currentColor",id)=>{
+  // Per-advice icon overrides (by advice_id prefix)
+  if(id){
+    if(id.startsWith('SWEET_ADD'))return <IcDrinksNoSugar size={size} color={color}/>;
+    if(id.startsWith('SWEET_'))return <IcSoftDrink size={size} color={color}/>;
+    if(id.startsWith('FF_'))return <IcBurger size={size} color={color}/>;
+    if(id.startsWith('IND_'))return <IcFactory size={size} color={color}/>;
+  }
+  if(!module)return <IcBulb size={size} color={color}/>;
+  if(module==='hydration'||module==='hydratation')return <IcWaterGlass size={size} color={color}/>;
+  if(module==='alcohol'||module==='alcohol_planned')return <IcWineGlass size={size} color={color}/>;
+  if(module==='coffee_sugar')return <IcSugar size={size} color={color}/>;
+  if(module.startsWith('coffee'))return <IcCoffee size={size} color={color}/>;
+  if(module==='protein'||module==='nutrition')return <IcProtein size={size} color={color}/>;
+  if(module==='lunch_mode')return <IcPastaWarm size={size} color={color}/>;
+  if(module==='lunch_rawveg'||module==='rawveg')return <IcSalad size={size} color={color}/>;
+  if(module==='restaurant')return <IcSoupBowl size={size} color={color}/>;
+  if(module==='fast_food')return <IcBurger size={size} color={color}/>;
+  if(module==='ultra_processed')return <IcFactory size={size} color={color}/>;
+  if(module==='spread')return <IcSpread size={size} color={color}/>;
+  if(module==='sweet_beverages')return <IcSoftDrink size={size} color={color}/>;
+  if(module==='sweet')return <IcSugar size={size} color={color}/>;
+  if(module==='pescetarian'||module==='pescovegetarien')return <IcFish size={size} color={color}/>;
+  if(module==='vegetarien'||module==='vegetarian'||module==='flexitarian')return <IcVegan size={size} color={color}/>;
+  if(module==='vegmilk'||module==='sans_lactose')return <IcVeganMilk size={size} color={color}/>;
+  if(module==='allergy'||module==='sans_gluten')return <IcFlash size={size} color={color}/>;
+  if(module==='muscle_gain')return <IcProtein size={size} color={color}/>;
+  if(module==='activity'||module==='activite')return <IcRunner size={size} color={color}/>;
+  if(module==='maintenance'||module==='weight_loss')return <IcTarget size={size} color={color}/>;
+  if(module==='sommeil')return <IcSleep size={size} color={color}/>;
+  if(module==='stress')return <IcStress size={size} color={color}/>;
+  if(module==='motivation')return <IcMsgStar size={size} color={color}/>;
+  if(module==='pedagogie')return <IcMenuWhy size={size} color={color}/>;
+  if(module==='cuisine')return <IcOliveOil size={size} color={color}/>;
+  if(module==='decouverte')return <IcEye size={size} color={color}/>;
+  if(module==='perspective')return <IcTelescope size={size} color={color}/>;
+  return <IcBulb size={size} color={color}/>;
+};
+
 const DEFAULT_MICRO_TIPS = [
   {tipId:"tip_01",category:"nutrition",textFr:"Les fibres ralentissent l'absorption du sucre. Commence ton repas par les légumes."},
   {tipId:"tip_02",category:"hydratation",textFr:"Un verre d'eau avant chaque repas aide à mieux écouter ta faim."},
@@ -312,8 +496,61 @@ function useHelpers(){
   }),[allEq,planTargets]);
 }
 
-const eqIconFile=(eqId)=>({pain:'pain',cereales_ig_modere:'cereales',feculents_chauds:'feculents',fruits_natures:'fruits',legumes_cuits:'legumes_cuits',legumes_crus:'legumes_crus',viandes_faibles_kcal:'Viandes_maigres',poissons_maigres:'poissons_maigres',poissons_gras:'poissons-gras-a',oleagineux_nature:'oleagineux',pl_0_riche_p:'lait_riche_en_p',pl_50_100_kcal:'Laitages_classique',fromages_20_30_mg:'fromages',assaisonnement_repas_froid:'assaisonnement_chaud_froid',assaisonnement_repas_chaud:'assaisonnement_chaud_froid',mg_cuisson:'matière_grasse_cuisson',mg_tartinables:'beurre',garnitures_sucrees_pain:'garniture_sucree_bowl',chocolat_noir_mt70:'chocolat',charcuteries_maigres:'viande_elevee_kcal',alcool_leger_1u:'alcool_leger',extras_except_patisserie:'extra_pdj',patisserie:'patisserie',oeufs:'Oeuf',legumineuses:'legumineuses',laits_vegetaux:'laits_vegetaux',graines:'graines',fruits_secs:'fruits_secs',soupes:'soupes',avocat:'avocat',poudre_proteine:'poudre_protéine',poissons_conserve:'Poisson_conserve',cafe_the:'café',eau:'eau',viandes_moderees_kcal:'viande_moderee_kcal',viandes_elevees_kcal:'viande_elevee_kcal',garnitures_sucrees_pl_bowls:'garniture_sucree_bowl',garniture_vegetales_legumes:'garniture_vegetales_legumes',garnitures_tartinables:'garnitures_tartinables',alcool_fort:'alcool_fort',alcool_mix:'alcool_mix',garnitures_sucrees_grasses:'garniture_sucree_grasse'})[eqId]||null;
-const EQ_ICONS={pain:IcBread,fruits_natures:IcApple,oleagineux_nature:IcAcorn,pl_0_riche_p:IcBottle,pl_50_100_kcal:IcBottle,fromages_20_30_mg:IcBottle,viandes_faibles_kcal:IcDrumstick,legumes_crus:IcCarrot};
+const eqIconFile=(eqId)=>({pain:'pain',cereales_ig_modere:'cereales',feculents_chauds:'feculents',feculents:'feculents',fruits_natures:'fruits',fruits_seches:'fruits_secs',legumes_cuits:'legumes_cuits',legumes_crus:'legumes_crus',viandes_faibles_kcal:'Viandes_maigres',poissons_maigres:'poissons_maigres',poissons_gras:'poissons-gras-a',poissons_conserves_gras:'Poisson_conserve',poissons_conserves_maigres:'Poisson_conserve',oleagineux_nature:'oleagineux',pl_0_riche_p:'lait_riche_en_p',laits_riche_p:'lait_riche_en_p',pl_50_100_kcal:'Laitages_classique',fromages_20_30_mg:'fromages',fromages_10_20_mg:'fromages',assaisonnement_repas_froid:'assaisonnement_chaud_froid',assaisonnement_repas_chaud:'assaisonnement_chaud_froid',mg_cuisson:'matière_grasse_cuisson',mg_tartinables:'beurre',garnitures_sucrees_pain:'garniture_sucree_bowl',chocolat_noir_mt70:'chocolat',charcuteries_maigres:'viande_elevee_kcal',alcool_leger_1u:'alcool_leger',extras_except_patisserie:'extra_pdj',extras_petit_dejeuner:'extra_pdj',patisserie:'patisserie',oeufs:'Oeuf',oeuf_poule:'Oeuf',legumineuses:'legumineuses',legumineuses_seches:'legumineuses',laits_vegetaux:'laits_vegetaux',laits_vege:'laits_vegetaux',graines:'graines',graines_nature:'graines',graines_riche_w3:'graines',fruits_secs:'fruits_secs',soupes:'soupes',soupe_faible_kcal:'soupes',avocat:'avocat',demi_avocat:'avocat',poudre_proteine:'poudre_protéine',complement_proteine_poudre:'poudre_protéine',poissons_conserve:'Poisson_conserve',cafe_the:'café',eau:'eau',viandes_moderees_kcal:'viande_moderee_kcal',viandes_elevees_kcal:'viande_elevee_kcal',garnitures_sucrees_pl_bowls:'garniture_sucree_bowl',toppings_pl_bowls:'garniture_sucree_bowl',toppings_repas_froid:'graines',garniture_vegetales_legumes:'garniture_vegetales_legumes',garnitures_tartinables_vege_legumes:'garniture_vegetales_legumes',garnitures_tartinables:'garnitures_tartinables',garnitures_tartinables_vege_riche_p:'legumineuses',alcool_fort:'alcool_fort',alcool_fort_1_3_1_8u:'alcool_fort',alcool_mix:'alcool_mix',garnitures_sucrees_grasses:'garniture_sucree_grasse',garnitures_sucrees_grasses_pain:'garniture_sucree_grasse',garnitures_sucrees_variees_pain:'garniture_sucree_grasse'})[eqId]||null;
+const EQ_ICONS={
+  // Glucides
+  pain:IcBread, cereales_ig_modere:IcCereal,
+  feculents_chauds:IcPotato, feculents:IcPotato,
+  combos_cereales_legumineuses:({size,color})=><IcDuo A={IcCereal} B={IcLimaBean} size={size} color={color}/>,
+  // Végétaux
+  fruits_natures:IcApple, legumes_crus:IcCarrot, legumes_cuits:IcSalad,
+  fruits_seches:IcFig, fruits_secs:IcFig,
+  // Végétaux plant-based
+  legumineuses:IcLimaBean, legumineuses_seches:IcLimaBean,
+  proteines_vege_tofu_150g:IcSoyBean,
+  graines:IcSeeds, graines_nature:IcSeeds, graines_riche_w3:IcSeeds,
+  laits_vegetaux:IcVeganMilk, laits_vege:IcVeganMilk,
+  garniture_vegetales_legumes:IcPea, garnitures_tartinables_vege_legumes:IcVegan,
+  garnitures_tartinables_vege_riche_p:IcLimaBean,
+  // Protéines animales
+  viandes_faibles_kcal:IcDrumstick, viandes_moderees_kcal:IcSteak, viandes_elevees_kcal:IcBacon,
+  charcuteries_maigres:IcBacon,
+  poissons_maigres:IcFish, poissons_gras:IcSalmon,
+  poissons_conserve:IcCan, poissons_conserves_gras:IcCan, poissons_conserves_maigres:IcCan,
+  oeufs:IcEgg, oeuf_poule:IcEgg,
+  recettes_plaisirs_p_viandes_75g:IcVeganFood,
+  proteine_mixte_2_3_1_3:({size,color})=><IcDuo A={IcSteak} B={IcLimaBean} size={size} color={color}/>,
+  // Laitages
+  pl_0_riche_p:IcMilkCan, laits_riche_p:IcMilkCan,
+  pl_50_100_kcal:IcMilkCarton,
+  fromages_20_30_mg:IcCheese, fromages_10_20_mg:IcCheese,
+  // Lipides
+  oleagineux_nature:IcAcorn, mg_cuisson:IcOliveOil, mg_tartinables:IcSpread,
+  avocat:IcAvocado, demi_avocat:IcAvocado,
+  // Assaisonnements
+  assaisonnement_repas_chaud:IcLadleHot, assaisonnement_repas_froid:IcLadle,
+  // Garnitures & toppings
+  garnitures_sucrees_pain:IcHoney,
+  garnitures_sucrees_variees_pain:({size,color})=><IcDuo A={IcHoney} B={IcJar} size={size} color={color}/>,
+  garnitures_sucrees_pl_bowls:IcCookie, toppings_pl_bowls:IcCookie,
+  garnitures_sucrees_grasses:IcJar, garnitures_sucrees_grasses_pain:IcJar,
+  toppings_repas_froid:IcSparkle,
+  chocolat_noir_mt70:IcChocolate,
+  // 6 extras
+  extras_except_patisserie:IcCroissant, extras_petit_dejeuner:IcCroissant,
+  biscuits:IcCookie,
+  extras_glaces:IcIceCream,
+  extras_lactes:IcMilkCarton,
+  extras_plaisir:IcCake, patisserie:IcCake,
+  // Boissons & alcools
+  cafe_the:IcCoffee, eau:IcWaterGlass,
+  alcool_leger_1u:IcWineGlass,
+  alcool_fort:IcSpirits, alcool_fort_1_3_1_8u:IcSpirits,
+  alcool_mix:IcCocktail,
+  // Protéines en poudre & divers
+  poudre_proteine:IcProtein, complement_proteine_poudre:IcProtein,
+  soupes:IcSoupBowl, soupe_faible_kcal:IcSoupBowl,
+};
 function EqIcon({eqId,size=18,color}){const obj=useObjective();const c=color||obj.accent;const Ic=EQ_ICONS[eqId];if(Ic)return <Ic size={size} color={c}/>;const f=eqIconFile(eqId);if(f)return <img src={`/icons/${f}.svg`} alt="" width={size} height={size} style={{opacity:.7}}/>;const {getEq}=useHelpers();const eq=getEq(eqId);const icon=eq?.icon;return <span style={{fontSize:size,lineHeight:1}}>{icon&&!icon.endsWith('.svg')?icon:"•"}</span>}
 
 /* ═══ CSS ═══ */
@@ -384,6 +621,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','DM Sans',system
 @keyframes overlayIn{from{opacity:0;backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0)}to{opacity:1;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}}
 .modal{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;margin:0 auto;max-height:90dvh;max-height:90vh;overflow-y:auto;padding:20px 18px calc(30px + env(safe-area-inset-bottom,16px));animation:sheetUp .35s cubic-bezier(.32,1.2,.54,1);box-shadow:0 -8px 40px rgba(0,0,0,.15),0 -2px 10px rgba(0,0,0,.06)}
 @keyframes sheetUp{0%{transform:translateY(100%)}60%{transform:translateY(-2%)}100%{transform:translateY(0)}}
+.overlay-closing{animation:overlayOut .28s ease-in forwards!important}@keyframes overlayOut{to{opacity:0;backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0)}}
+.modal-closing{animation:sheetDown .28s ease-in forwards!important}@keyframes sheetDown{to{transform:translateY(100%)}}
+.advice-page{position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;background:#fff;animation:pageSlideIn .3s cubic-bezier(.25,.46,.45,.94) both}@keyframes pageSlideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+.advice-page-out{animation:pageSlideOut .28s ease-in forwards!important}@keyframes pageSlideOut{to{transform:translateX(100%)}}
+.advice-page-inner{width:100%;max-width:430px;margin:0 auto;height:100%;display:flex;flex-direction:column}
+.advice-page-hdr{display:flex;align-items:center;gap:10px;padding:max(14px,env(safe-area-inset-top,14px)) 18px 14px;border-bottom:1px solid rgba(15,30,46,.06);flex-shrink:0;background:#fff}
+.advice-page-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 18px 20px}
+.advice-page-nav{display:flex;justify-content:space-between;align-items:center;padding:12px 18px calc(12px + env(safe-area-inset-bottom,16px));border-top:1px solid rgba(15,30,46,.06);flex-shrink:0;background:#fff}
+.advice-nav-btn{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:12px;border:1px solid rgba(15,30,46,.10);background:#fff;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;font-family:inherit;transition:all .15s ease}.advice-nav-btn:active{background:var(--accent-soft);border-color:var(--accent-border);transform:scale(.97)}
+.advice-section-card{border-radius:16px;border:1px solid rgba(15,30,46,.06);background:#FAFAF8;padding:16px;margin-bottom:14px}.advice-section-title{font-size:12px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
 .modal-handle{width:44px;height:5px;background:#E0E2E6;border-radius:99px;margin:0 auto 18px}
 .modal-title{font-size:20px;font-weight:700;color:var(--text);margin-bottom:6px;font-family:'Cormorant Garamond',serif;line-height:1.3}
 .modal-sub{font-size:13px;color:#6B7280;margin-bottom:16px;line-height:1.4}
@@ -631,7 +878,7 @@ function AperoSession({slotId,onClose,onBack,onLog,quickLog}){
     {loading&&<SkeletonRows rows={4} h={36}/>}
 
     {!loading&&items.length===0&&<div style={{textAlign:"center",padding:"32px 16px"}}>
-      <div style={{fontSize:32,marginBottom:10}}>🍻</div>
+      <div style={{display:"flex",justifyContent:"center",marginBottom:10}}><IcSitChampagne size={32} color="rgba(15,30,46,.25)"/></div>
       <div style={{fontSize:14,fontWeight:600,color:"#1A1A1A",marginBottom:6}}>Pas encore d'items apéro</div>
       <div style={{fontSize:12,color:"#6B7280",lineHeight:1.5}}>Les items apéro seront bientôt disponibles.<br/>En attendant, utilise la recherche pour logger tes consommations.</div>
     </div>}
@@ -961,7 +1208,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
       </div>}
       {peekEq.noteElevia&&<div style={{marginBottom:14,padding:10,background:obj.accentSoft,border:`1px solid ${obj.accentBorder}`,borderRadius:14,fontSize:12,color:"#1A1A1A",lineHeight:1.6}}>{peekEq.noteElevia}</div>}
       <div style={{fontSize:12,fontWeight:700,color:obj.accent,textTransform:"uppercase",letterSpacing:".3px",marginBottom:8}}>Tes équivalences</div>
-      {peekEq.items.length===0&&<div style={{textAlign:"center",padding:"24px 0"}}><div className="empty-icon" style={{fontSize:28,marginBottom:8}}>📋</div><div style={{fontSize:12,color:"#6B7280"}}>Aucune équivalence détaillée</div></div>}
+      {peekEq.items.length===0&&<div style={{textAlign:"center",padding:"24px 0"}}><div className="empty-icon" style={{display:"flex",justifyContent:"center",marginBottom:8}}><IcListEmpty size={28} color="rgba(15,30,46,0.2)"/></div><div style={{fontSize:12,color:"#6B7280"}}>Aucune équivalence détaillée</div></div>}
       {peekEq.items.map(item=>{
         const isRecipe=peekEq.type==='recette'||item.foodLabel?.toLowerCase().includes('recette');
         const hasV=item.variants&&item.variants.length>0&&!isRecipe;
@@ -992,7 +1239,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
     <div className="overlay" onClick={onClose}><div role="dialog" className="modal" onClick={e=>e.stopPropagation()} style={{maxHeight:"50%"}}>
       <div className="modal-handle"/>
       <div style={{textAlign:"center",padding:"10px 0 20px"}}>
-        <div style={{fontSize:40,marginBottom:12}}>🙌</div>
+        <div style={{display:"flex",justifyContent:"center",marginBottom:12}}><IcMsgStar size={40} color="rgba(15,30,46,.25)"/></div>
         <div className="modal-title">Tu peux le faire</div>
         <div className="modal-sub" style={{marginTop:8}}>{obj.hpEducation}</div>
         <button className="btn-primary" onClick={()=>setShowHpEdu(false)}>Compris</button>
@@ -1146,7 +1393,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
 
   return(
   <SwipeModal onClose={onClose}>
-    <div style={{display:"flex",alignItems:"baseline",gap:6,marginBottom:4}}><span className="modal-title" style={{margin:0}}>Ajouter à</span><span style={{fontSize:14,color:"rgba(15,30,46,.25)",fontWeight:300}}> — </span><span style={{fontSize:17,fontWeight:700,color:"var(--accent)",fontFamily:"'Cormorant Garamond',serif"}}>{SLOTS.find(s=>s.id===slotId)?.label?.replace(/\s*\(.*\)\s*$/,"")}</span></div>
+    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}><SlotIcon slotId={slotId} active={true} size={18}/><span className="modal-title" style={{margin:0}}>Ajouter à</span><span style={{fontSize:14,color:"rgba(15,30,46,.25)",fontWeight:300}}> — </span><span style={{fontSize:17,fontWeight:700,color:"var(--accent)",fontFamily:"'Cormorant Garamond',serif"}}>{SLOTS.find(s=>s.id===slotId)?.label?.replace(/\s*\(.*\)\s*$/,"")}</span></div>
 
     {view==="main"&&<>
       {/* Plan equivalences */}
@@ -1202,13 +1449,13 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
 
       {/* QL no results */}
       {!quickLog?.searching&&!quickLog?.browseLoading&&qlBrowseItems.length===0&&(qlSearch.length>=2||qlCatFilter)&&(
-        <div style={{textAlign:"center",padding:"20px 0"}}><div className="empty-icon" style={{fontSize:24,marginBottom:6}}>🔍</div><div style={{fontSize:13,color:"#6B7280"}}>Aucun résultat</div></div>
+        <div style={{textAlign:"center",padding:"20px 0"}}><div className="empty-icon" style={{display:"flex",justifyContent:"center",marginBottom:6}}><IcSearch size={24} color="rgba(15,30,46,0.2)"/></div><div style={{fontSize:13,color:"#6B7280"}}>Aucun résultat</div></div>
       )}
 
       {/* Bottom action buttons */}
       <div style={{display:"flex",gap:8,marginTop:14}}>
         <button onClick={()=>setView("catalogue")} style={{flex:1,padding:"10px 14px",borderRadius:14,background:"rgba(15,30,46,.02)",border:"1px solid rgba(15,30,46,.06)",display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
-          <span style={{fontSize:16}}>📚</span>
+          <span style={{display:"flex"}}><IcMenuWhy size={16} color="rgba(15,30,46,.45)"/></span>
           <div style={{flex:1,textAlign:"left"}}>
             <div style={{fontSize:12,fontWeight:700,color:"#1A1A1A"}}>Catalogue complet</div>
             <div style={{fontSize:10,color:"#6B7280",marginTop:1}}>Toutes les équivalences</div>
@@ -1216,7 +1463,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
           <span style={{fontSize:16,color:"#C8CDD3",fontWeight:300}}>›</span>
         </button>
         <button onClick={()=>setShowApero(true)} style={{padding:"10px 14px",borderRadius:14,background:"linear-gradient(135deg,rgba(232,134,58,.06),rgba(232,134,58,.02))",border:"1px solid rgba(232,134,58,.15)",display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
-          <span style={{fontSize:16}}>🍻</span>
+          <span style={{display:"flex"}}><IcSitChampagne size={16} color="#E8863A"/></span>
           <div style={{textAlign:"left"}}>
             <div style={{fontSize:12,fontWeight:700,color:"#E8863A"}}>Apéro</div>
           </div>
@@ -1229,7 +1476,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
       <button aria-label="Retour" className="hdr-back" onClick={()=>setView("main")} style={{marginBottom:8,padding:0}}>← Mon plan</button>
       <input className="search" placeholder="Rechercher…" value={search} onChange={e=>setSearch(e.target.value)}/>
       <div style={{display:"flex",gap:6,marginBottom:8,flexWrap:"wrap"}}>
-        {[{key:null,label:"Tout"},{key:"vegetarian",label:"Végé 🌱"},{key:"glutenFree",label:"Sans gluten"},{key:"lactoseFree",label:"Sans lactose"}].map(f=>{const sel=dietFilter===f.key;return <button key={f.key||"all"} onClick={()=>setDietFilter(f.key)} style={{padding:"4px 10px",borderRadius:99,fontSize:10,fontWeight:700,background:sel?`${obj.accent}15`:"#F5F4F1",border:`1px solid ${sel?obj.accentBorder:"rgba(15,30,46,.08)"}`,color:sel?obj.accent:"#6B7280",cursor:"pointer",fontFamily:"inherit"}}>{f.label}</button>})}
+        {[{key:null,label:"Tout"},{key:"vegetarian",label:"Végé"},{key:"glutenFree",label:"Sans gluten"},{key:"lactoseFree",label:"Sans lactose"}].map(f=>{const sel=dietFilter===f.key;return <button key={f.key||"all"} onClick={()=>setDietFilter(f.key)} style={{padding:"4px 10px",borderRadius:99,fontSize:10,fontWeight:700,background:sel?`${obj.accent}15`:"#F5F4F1",border:`1px solid ${sel?obj.accentBorder:"rgba(15,30,46,.08)"}`,color:sel?obj.accent:"#6B7280",cursor:"pointer",fontFamily:"inherit"}}>{f.label}</button>})}
       </div>
       {Object.entries(hpGroups).map(([type,eqs])=><div key={type}>
         <div className="eq-cat-header">{TYPE_LABELS[type]||type}</div>
@@ -1285,16 +1532,15 @@ function ParcoursList({milestones,milestoneDefs,accent,accentSoft,accentBorder})
 }
 
 /* ═══ DIETITIAN MESSAGES ═══ */
-const MSG_TYPE_ICONS={encouragement:"💬",adjustment:"🔧",milestone_comment:"🏅",bilan_feedback:"📋",alert:"⚠️",general:"💬"};
+/* MSG_TYPE_ICON function defined above */
 
 function DietMessageBanner({messages,accent,accentSoft,accentBorder,onMarkRead,onOpenInbox}){
   const unread=messages?.filter(m=>!m.read_at)||[];
   if(!unread.length)return null;
   const latest=unread[0];
-  const icon=MSG_TYPE_ICONS[latest.message_type]||"💬";
   return <div role="button" tabIndex={0} onClick={()=>{onMarkRead?.(latest.id);if(onOpenInbox)onOpenInbox()}} style={{padding:"12px 14px",borderRadius:14,background:`linear-gradient(135deg,${accentSoft},rgba(15,30,46,.02))`,border:`1px solid ${accentBorder}`,marginBottom:12,cursor:"pointer",animation:"cardIn .35s ease-out both"}}>
     <div style={{display:"flex",alignItems:"flex-start",gap:10}}>
-      <span style={{fontSize:20,flexShrink:0,marginTop:1}}>{icon}</span>
+      <span style={{flexShrink:0,marginTop:1,display:"flex"}}>{MSG_TYPE_ICON(latest.message_type,20,accent)}</span>
       <div style={{flex:1,minWidth:0}}>
         <div style={{display:"flex",alignItems:"center",gap:6}}>
           <div style={{fontSize:11,fontWeight:700,color:accent}}>{latest.sender_name||"Ton diététicien"}</div>
@@ -1330,7 +1576,6 @@ function DietInbox({messages,accent,accentSoft,accentBorder,onMarkRead,onBack}){
     </div>}
 
     {msgs.map((m,i)=>{
-      const icon=MSG_TYPE_ICONS[m.message_type]||"💬";
       const typeLabel=MSG_TYPE_LABELS[m.message_type]||"Message";
       const isUnread=!m.read_at;
       const date=new Date(m.created_at);
@@ -1355,7 +1600,7 @@ function DietInbox({messages,accent,accentSoft,accentBorder,onMarkRead,onBack}){
         }}>
           <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
             <div style={{width:32,height:32,borderRadius:10,background:isUnread?`linear-gradient(135deg,${accent},rgba(198,160,91,.8))`:"rgba(15,30,46,.06)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-              <span style={{fontSize:14,filter:isUnread?"brightness(10)":"none"}}>{icon}</span>
+              {MSG_TYPE_ICON(m.message_type,14,isUnread?"#fff":"rgba(15,30,46,0.4)")}
             </div>
             <div style={{flex:1,minWidth:0}}>
               <div style={{fontSize:12,fontWeight:700,color:isUnread?accent:"#6B7280"}}>{m.sender_name||"Ton diététicien"}</div>
@@ -1377,20 +1622,20 @@ function DietInbox({messages,accent,accentSoft,accentBorder,onMarkRead,onBack}){
 
 /* ═══ TAB: PLAN ═══ */
 const CHALLENGES_PW=[
-  {text:"Logge tes 3 repas principaux chaque jour",icon:"🎯"},
-  {text:"Essaie un fruit ou légume que tu n'as pas encore loggé",icon:"🥝"},
-  {text:"Atteins ta cible protéines 5 jours sur 7",icon:"💪"},
-  {text:"Reste dans ton budget kcal 6 jours cette semaine",icon:"✨"},
-  {text:"Remplis toutes tes équivalences clés au moins 1 jour",icon:"🏆"},
-  {text:"Zéro hors-plan pendant 3 jours consécutifs",icon:"🔒"},
+  {text:"Logge tes 3 repas principaux chaque jour",Ic:IcTarget},
+  {text:"Essaie un fruit ou légume que tu n'as pas encore loggé",Ic:IcApple},
+  {text:"Atteins ta cible protéines 5 jours sur 7",Ic:IcRunner},
+  {text:"Reste dans ton budget kcal 6 jours cette semaine",Ic:IcSparkle},
+  {text:"Remplis toutes tes équivalences clés au moins 1 jour",Ic:IcMsgStar},
+  {text:"Zéro hors-plan pendant 3 jours consécutifs",Ic:IcFlash},
 ];
 const CHALLENGES_GAIN=[
-  {text:"Atteins ta cible kcal chaque jour cette semaine",icon:"🎯"},
-  {text:"Varie tes sources de protéines sur 5 repas",icon:"🥩"},
-  {text:"Ne saute aucune collation pré ou post-entraînement",icon:"💪"},
-  {text:"Logge tous tes repas avant 21h chaque jour",icon:"⏰"},
-  {text:"Remplis 100% de tes équivalences clés 3 jours de suite",icon:"🏆"},
-  {text:"Essaie un féculent que tu n'as pas encore loggé",icon:"🍚"},
+  {text:"Atteins ta cible kcal chaque jour cette semaine",Ic:IcTarget},
+  {text:"Varie tes sources de protéines sur 5 repas",Ic:IcDrumstick},
+  {text:"Ne saute aucune collation pré ou post-entraînement",Ic:IcRunner},
+  {text:"Logge tous tes repas avant 21h chaque jour",Ic:IcHistory},
+  {text:"Remplis 100% de tes équivalences clés 3 jours de suite",Ic:IcMsgStar},
+  {text:"Essaie un féculent que tu n'as pas encore loggé",Ic:IcBread},
 ];
 function WeeklyChallenge({objectiveCode,accent,accentSoft,accentBorder}){
   const isGain=objectiveCode?.startsWith('GAIN');
@@ -1399,7 +1644,7 @@ function WeeklyChallenge({objectiveCode,accent,accentSoft,accentBorder}){
   const now=new Date();const start=new Date(now.getFullYear(),0,1);const weekNum=Math.ceil(((now-start)/86400000+start.getDay()+1)/7);
   const ch=challenges[weekNum%challenges.length];
   return <div style={{padding:"10px 14px",borderRadius:14,background:`linear-gradient(135deg,rgba(15,30,46,.02),${accentSoft})`,border:`1px solid ${accentBorder}`,display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
-    <span style={{fontSize:20,flexShrink:0}}>{ch.icon}</span>
+    <span style={{display:"flex",flexShrink:0}}><ch.Ic size={20} color={accent}/></span>
     <div>
       <div style={{fontSize:10,fontWeight:700,color:accent,textTransform:"uppercase",letterSpacing:".5px"}}>Challenge de la semaine</div>
       <div style={{fontSize:12,fontWeight:600,color:"#1A1A1A",marginTop:2,lineHeight:1.4}}>{ch.text}</div>
@@ -1417,18 +1662,17 @@ function StreakBanner({current,longest,accent,accentSoft,accentBorder,lastDate,f
         ?`Content de te revoir${firstName?` ${firstName}`:""} ! Reprends doucement.`
         :`${days} jours sans logger — une nouvelle série commence maintenant !`;
       return <div style={{display:"flex",alignItems:"center",gap:10,padding:"10px 14px",marginBottom:12,background:"rgba(59,130,246,.06)",border:"1px solid rgba(59,130,246,.15)",borderRadius:14}}>
-        <span style={{fontSize:18}}>👋</span>
+        <span style={{display:"flex"}}><IcMsgStar size={18} color="#3B82F6"/></span>
         <span style={{fontSize:12,fontWeight:600,color:"#3B82F6",lineHeight:1.4}}>{comebackMsg}</span>
       </div>
     }
   }
   if(!current||current<1)return null;
-  const icon=current>=7?'🔥':current>=3?'✨':'⭐';
   const isRecord=current===longest&&current>=3;
   // F13: Varied streak messages
   const streakMsg=current>=30?"Un mois complet !":current>=21?"3 semaines, la routine s'installe !":current>=14?"Deux semaines d'affilée !":current>=7?"Semaine parfaite !":current>=3?"Beau début !":"de suite";
   return <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8,padding:"8px 16px",marginBottom:12,background:accentSoft,border:`1px solid ${accentBorder}`,borderRadius:14}}>
-    <span style={{fontSize:18}}>{icon}</span>
+    {current>=7?<IcFlame size={20} color="#FF6B35"/>:current>=3?<IcFlash size={20} color="#FFB800"/>:<IcMsgStar size={18} color="#4A90E2"/>}
     <span style={{fontSize:13,fontWeight:700,color:accent}}>{current} jour{current>1?"s":""}</span>
     <span style={{fontSize:11,color:"rgba(15,30,46,.45)"}}>{streakMsg}</span>
     {isRecord&&<span style={{fontSize:10,fontWeight:700,color:"#34C759",background:"rgba(52,199,89,.08)",padding:"2px 8px",borderRadius:99}}>Record !</span>}
@@ -1638,7 +1882,7 @@ function PlanTab({logs,onAddLog,onDeleteLog,weekConsumed,weekNutrients,streak,on
           return {name:clean,hint};
         })();
         return <div className="slot" key={slot.id} style={{borderLeft:`3px solid ${sl.length>0?obj.accentBorder:"rgba(15,30,46,.06)"}`}}>
-          <div className="slot-header"><div className="slot-left"><div><div className="slot-name">{slotDisplay.name}</div>{slotDisplay.hint&&<div style={{fontSize:10,color:obj.accent,fontWeight:600,marginTop:1,opacity:.7}}>{slotDisplay.hint}</div>}<div className="slot-time">{sl.length>0?<><span style={{color:obj.accent,fontWeight:600}}>{Math.round(sk)} kcal</span></>:<span style={{color:"rgba(15,30,46,.25)",fontSize:11}}>Appuie sur + pour commencer</span>}</div></div></div><button aria-label="Ajouter un aliment" className="slot-add" data-tour={slotIdx===0?"slot-add":undefined} onClick={()=>setAddSlot(slot.id)}>+</button></div>
+          <div className="slot-header"><div className="slot-left"><SlotIcon slotId={slot.id} active={sl.length>0}/><div><div className="slot-name">{slotDisplay.name}</div>{slotDisplay.hint&&<div style={{fontSize:10,color:obj.accent,fontWeight:600,marginTop:1,opacity:.7}}>{slotDisplay.hint}</div>}<div className="slot-time">{sl.length>0?<><span style={{color:obj.accent,fontWeight:600}}>{Math.round(sk)} kcal</span></>:<span style={{color:"rgba(15,30,46,.25)",fontSize:11}}>Appuie sur + pour commencer</span>}</div></div></div><button aria-label="Ajouter un aliment" className="slot-add" data-tour={slotIdx===0?"slot-add":undefined} onClick={()=>setAddSlot(slot.id)}>+</button></div>
           {sl.length>0&&<div style={{marginTop:6}}>{sl.map(l=>{const isQl=typeof l.eqId==='string'&&l.eqId.startsWith('ql_');return <div className="log-item" role="button" tabIndex={0} key={l.id} onClick={()=>setConfirmDel(l)} style={{cursor:"pointer"}}><div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:0}}><span style={{width:22,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{isQl?<span style={{fontSize:14}}>🍽</span>:<EqIcon eqId={l.eqId} size={17}/>}</span><span className="log-name">{isQl?(l.qlLabel||getLogLabel(l.eqId,l.itemId)):getLogLabel(l.eqId,l.itemId)}</span>{isQl?<span style={{display:"inline-block",fontSize:9,fontWeight:700,background:"rgba(232,134,58,.08)",color:"#E8863A",padding:"2px 7px",borderRadius:99,marginLeft:6,border:"1px solid rgba(232,134,58,.15)"}}>Repas ext.</span>:l.isOutOfPlan&&<span className="chip-hp">HP</span>}</div><div style={{textAlign:"right",flexShrink:0,paddingLeft:8,display:"flex",alignItems:"baseline",gap:6}}><span style={{fontSize:12,fontWeight:700,color:"#1A1A1A"}}>{l.kcal}</span><span style={{fontSize:10,color:l.qtyPortion===1?obj.accentLine:"#E8863A",fontWeight:600,minWidth:38}}>{l.qtyPortion===1?"1 port.":l.qtyPortion+" port."}</span></div></div>})}</div>}
           {sl.length===0&&<div style={{height:4}}/>}
         </div>
@@ -1762,7 +2006,10 @@ function SwipeModal({onClose,children,style={}}){
   const startY=useRef(0);
   const currentY=useRef(0);
   const dragging=useRef(false);
-  const locked=useRef(false); // true = normal scroll wins, skip drag
+  const locked=useRef(false);
+  const [closing,setClosing]=useState(false);
+
+  const handleClose=useCallback(()=>{if(closing)return;setClosing(true);setTimeout(onClose,280)},[onClose,closing]);
 
   const onTouchStart=useCallback(e=>{
     const t=e.touches[0];
@@ -1773,14 +2020,13 @@ function SwipeModal({onClose,children,style={}}){
   },[]);
 
   const onTouchMove=useCallback(e=>{
-    if(locked.current)return; // scroll mode — don't interfere
+    if(locked.current)return;
     const dy=e.touches[0].clientY-startY.current;
-    // First significant move: decide drag vs scroll
     if(!dragging.current){
-      if(dy<0){locked.current=true;return;} // swiping up → normal scroll
+      if(dy<0){locked.current=true;return;}
       const modal=modalRef.current;
-      if(modal&&modal.scrollTop>2){locked.current=true;return;} // content scrolled → normal scroll
-      if(dy>6)dragging.current=true; // swiping down at scroll top → start drag
+      if(modal&&modal.scrollTop>2){locked.current=true;return;}
+      if(dy>6)dragging.current=true;
       else return;
     }
     currentY.current=dy;
@@ -1792,79 +2038,131 @@ function SwipeModal({onClose,children,style={}}){
     if(!dragging.current){locked.current=false;return;}
     dragging.current=false;
     locked.current=false;
-    if(currentY.current>70){onClose();}
+    if(currentY.current>70){handleClose();}
     else if(modalRef.current){modalRef.current.style.transform='';modalRef.current.style.transition='transform .2s ease-out';setTimeout(()=>{if(modalRef.current)modalRef.current.style.transition='';},200);}
-  },[onClose]);
+  },[handleClose]);
 
-  return <div className="overlay" onClick={onClose}>
-    <div ref={modalRef} role="dialog" className="modal" onClick={e=>e.stopPropagation()} style={style}
+  return <div className={`overlay${closing?' overlay-closing':''}`} onClick={handleClose}>
+    <div ref={modalRef} role="dialog" className={`modal${closing?' modal-closing':''}`} onClick={e=>e.stopPropagation()} style={style}
       onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
       <div style={{paddingBottom:8}}>
         <div className="modal-handle"/>
       </div>
-      <button onClick={onClose} aria-label="Fermer" style={{position:"absolute",top:12,right:14,width:30,height:30,borderRadius:99,background:"rgba(15,30,46,.06)",border:"none",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:14,color:"#9CA3AF",zIndex:1}}>✕</button>
+      <button onClick={handleClose} aria-label="Fermer" style={{position:"absolute",top:12,right:14,width:30,height:30,borderRadius:99,background:"rgba(15,30,46,.06)",border:"none",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:14,color:"#9CA3AF",zIndex:1}}>✕</button>
       {children}
     </div>
   </div>;
 }
-const SECTION_ICONS={
-  "pourquoi c'est fondamental":"💡","pourquoi c'est important":"💡",
-  "l'objectif":"🎯","le point":"📌",
-  "le plan d'action":"✅","la perspective":"🔭"
+const SECTION_ICON=(header,size=15,color="currentColor")=>{
+  const k=(header||'').toLowerCase();
+  if(k.includes("fondamental")||k.includes("important"))return <IcMenuWhy size={size} color={color}/>;
+  if(k.includes("objectif"))return <IcTarget size={size} color={color}/>;
+  if(k.includes("point"))return <IcFlash size={size} color={color}/>;
+  if(k.includes("plan d'action")||k.includes("plan d\u2019action"))return <IcCheck size={size} color={color}/>;
+  if(k.includes("perspective"))return <IcTelescope size={size} color={color}/>;
+  return <IcListEmpty size={size} color={color}/>;
 };
 
-/* ═══ ADVICE DETAIL MODAL ═══ */
-function AdviceDetail({adv,onClose,status}){const obj=useObjective();
+/* ═══ ADVICE DETAIL PAGE ═══ */
+function AdviceDetail({adv,onClose,status,advices,onSelectAdv}){
+  const obj=useObjective();
+  const [closing,setClosing]=useState(false);
   const [openSec,setOpenSec]=useState(new Set());
+  const scrollRef=useRef(null);
   const bodySections=useMemo(()=>parseAdviceBody(adv.body),[adv.body]);
   const namedSections=bodySections.filter(s=>s.header);
   const introSection=bodySections.find(s=>!s.header);
   const toggleSec=(i)=>setOpenSec(s=>{const n=new Set(s);n.has(i)?n.delete(i):n.add(i);return n});
-  return <SwipeModal onClose={onClose} style={{maxHeight:"85%",display:"flex",flexDirection:"column"}}>
-    <div style={{overflowY:"auto",flex:1,paddingBottom:8}}>
-      <div style={{fontSize:22,fontWeight:700,color:"var(--text)",fontFamily:"'Cormorant Garamond',serif",marginBottom:6,lineHeight:1.3}}>{adv.title}</div>
-      <div className="advice-badges" style={{marginBottom:16}}><span className={`badge ${adv.axis==="priority"?"badge-pri":"badge-sec"}`}>{adv.axis==="priority"?"Prioritaire":"Secondaire"}</span><span className="badge badge-st">{status||adv.module}</span></div>
 
-      <div style={{fontSize:14,color:"#374151",lineHeight:1.7,marginBottom:16}}>{adv.shortBody}</div>
+  const idx=advices?advices.findIndex(a=>a.id===adv.id):-1;
+  const prev=idx>0?advices[idx-1]:null;
+  const next=idx>=0&&idx<(advices||[]).length-1?advices[idx+1]:null;
 
-      <div style={{fontSize:14,fontWeight:700,color:"var(--text)",marginBottom:8,display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:14}}>🎯</span> Objectif</div>
-      <div style={{fontSize:14,color:"#374151",lineHeight:1.7,marginBottom:14}}>{adv.summaryObjective}</div>
-      <div style={{fontSize:14,fontWeight:700,color:"var(--text)",marginBottom:8,display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:14}}>✅</span> Plan d'action</div>
-      {adv.summaryBullets.map((b,i)=><div key={i} style={{fontSize:14,color:"#374151",lineHeight:1.7,paddingLeft:14,marginBottom:4,position:"relative"}}><span style={{position:"absolute",left:0,color:obj.accent,fontWeight:700}}>•</span>{b}</div>)}
-      {adv.summaryTip&&<div style={{marginTop:12,padding:"12px 14px",background:obj.accentSoft,border:`1px solid ${obj.accentBorder}`,borderRadius:14,fontSize:13,lineHeight:1.6,color:"#374151",display:"flex",gap:10,alignItems:"flex-start"}}><span style={{flexShrink:0,marginTop:2}}><IcBulb size={16} color={obj.accent}/></span><span>{adv.summaryTip}</span></div>}
+  useEffect(()=>{if(scrollRef.current)scrollRef.current.scrollTop=0;setOpenSec(new Set())},[adv.id]);
 
-      {introSection&&introSection.lines.length>0&&<div style={{marginTop:14,fontSize:14,color:"#374151",lineHeight:1.7,fontStyle:"italic"}}>{introSection.lines.map((l,i)=><span key={i}>{l.value} </span>)}</div>}
+  const handleClose=useCallback(()=>{if(closing)return;setClosing(true);setTimeout(onClose,300)},[onClose,closing]);
 
-      {namedSections.length>0&&<div style={{marginTop:16,display:"flex",flexDirection:"column",gap:6}}>
-        <div style={{fontSize:12,fontWeight:700,color:"#9CA3AF",textTransform:"uppercase",letterSpacing:".5px",marginBottom:2}}>Aller plus loin</div>
-        {namedSections.map((sec,si)=>{
-          const icon=SECTION_ICONS[sec.header.toLowerCase()]||"📋";
-          const isOpen=openSec.has(si);
-          return <div key={si} style={{borderRadius:14,border:`1px solid ${isOpen?obj.accentBorder:"rgba(15,30,46,.08)"}`,background:isOpen?`linear-gradient(135deg,rgba(14,30,46,.02),${obj.accentSoft})`:"#fff",overflow:"hidden",transition:"all .2s"}}>
-            <button onClick={()=>toggleSec(si)} style={{width:"100%",display:"flex",alignItems:"center",gap:8,padding:"12px 14px",background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",textAlign:"left"}}>
-              <span style={{fontSize:15,flexShrink:0}}>{icon}</span>
-              <span style={{flex:1,fontSize:13,fontWeight:700,color:isOpen?obj.accent:"var(--text)"}}>{sec.header}</span>
-              <span style={{fontSize:12,color:isOpen?obj.accent:"#9CA3AF",transform:isOpen?"rotate(180deg)":"rotate(0)",transition:"transform .2s",display:"inline-block"}}>▾</span>
-            </button>
-            {isOpen&&<div style={{padding:"0 14px 14px",animation:"fadeUp .2s ease-out"}}>
-              {sec.lines.map((line,li)=>
-                line.type==='kv'
-                  ?<div key={li} style={{display:"flex",gap:8,marginBottom:6,alignItems:"flex-start"}}>
-                    <span style={{width:5,height:5,borderRadius:"50%",background:obj.accent,flexShrink:0,marginTop:8}}/>
-                    <div style={{flex:1,fontSize:13,color:"#374151",lineHeight:1.7}}>
-                      <span style={{fontWeight:700,color:"var(--text)"}}>{line.key}</span>
-                      <span> — {line.value}</span>
-                    </div>
-                  </div>
-                  :<div key={li} style={{fontSize:13,color:"#4B5563",lineHeight:1.7,marginBottom:4}}>{line.value}</div>
-              )}
-            </div>}
+  return <div className={`advice-page${closing?' advice-page-out':''}`}>
+    <div className="advice-page-inner">
+      <div className="advice-page-hdr">
+        <button onClick={handleClose} style={{background:'none',border:'none',padding:'6px 2px',cursor:'pointer',display:'flex',alignItems:'center',gap:5,fontFamily:'inherit',fontSize:14,fontWeight:600,color:obj.accent}}>
+          <span style={{fontSize:20,lineHeight:1}}>‹</span> Retour
+        </button>
+        <div style={{flex:1}}/>
+        <span className={`badge ${adv.axis==='priority'?'badge-pri':'badge-sec'}`} style={{fontSize:10}}>{adv.axis==='priority'?'Prioritaire':'Secondaire'}</span>
+        {status&&<span className="badge badge-st" style={{fontSize:10,marginLeft:4}}>{status}</span>}
+      </div>
+
+      <div ref={scrollRef} className="advice-page-scroll">
+        <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:18}}>
+          <div style={{width:46,height:46,borderRadius:14,background:obj.accentSoft,border:`1px solid ${obj.accentBorder}`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+            {MODULE_ICON(adv.module,22,obj.accent,adv.id)}
           </div>
-        })}
+          <div style={{fontSize:22,fontWeight:700,color:'var(--text)',fontFamily:"'Cormorant Garamond',serif",lineHeight:1.25,flex:1}}>{adv.title}</div>
+        </div>
+
+        <div style={{fontSize:15,color:'#374151',lineHeight:1.7,marginBottom:22}}>{adv.shortBody}</div>
+
+        <div className="advice-section-card">
+          <div className="advice-section-title"><IcTarget size={13} color={obj.accent}/> Objectif</div>
+          <div style={{fontSize:14,color:'#1A1A1A',lineHeight:1.7,fontWeight:500}}>{adv.summaryObjective}</div>
+        </div>
+
+        <div className="advice-section-card">
+          <div className="advice-section-title"><IcCheck size={13} color={obj.accent}/> Plan d'action</div>
+          {adv.summaryBullets.map((b,i)=><div key={i} style={{fontSize:14,color:'#374151',lineHeight:1.7,paddingLeft:16,marginBottom:6,position:'relative'}}><span style={{position:'absolute',left:0,color:obj.accent,fontWeight:700,fontSize:16,lineHeight:'1.5'}}>•</span>{b}</div>)}
+        </div>
+
+        {adv.summaryTip&&<div style={{padding:'14px 16px',background:`linear-gradient(135deg,${obj.accentSoft},rgba(198,160,91,.04))`,border:`1px solid ${obj.accentBorder}`,borderRadius:16,fontSize:14,lineHeight:1.6,color:'#374151',display:'flex',gap:12,alignItems:'flex-start',marginBottom:20}}>
+          <span style={{flexShrink:0,marginTop:2}}><IcBulb size={18} color={obj.accent}/></span>
+          <span>{adv.summaryTip}</span>
+        </div>}
+
+        {introSection&&introSection.lines.length>0&&<div style={{fontSize:14,color:'#4B5563',lineHeight:1.7,fontStyle:'italic',marginBottom:20,paddingLeft:14,borderLeft:`3px solid ${obj.accentBorder}`}}>
+          {introSection.lines.map((l,i)=><span key={i}>{l.value} </span>)}
+        </div>}
+
+        {namedSections.length>0&&<div style={{marginBottom:16}}>
+          <div style={{fontSize:12,fontWeight:700,color:'#9CA3AF',textTransform:'uppercase',letterSpacing:'.5px',marginBottom:10}}>Aller plus loin</div>
+          <div style={{display:'flex',flexDirection:'column',gap:8}}>
+            {namedSections.map((sec,si)=>{
+              const isOpen=openSec.has(si);
+              const secIcon=SECTION_ICON(sec.header,15,isOpen?obj.accent:"rgba(15,30,46,0.35)");
+              return <div key={si} style={{borderRadius:14,border:`1px solid ${isOpen?obj.accentBorder:"rgba(15,30,46,.08)"}`,background:isOpen?`linear-gradient(135deg,rgba(14,30,46,.02),${obj.accentSoft})`:'#fff',overflow:'hidden',transition:'all .2s'}}>
+                <button onClick={()=>toggleSec(si)} style={{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'12px 14px',background:'none',border:'none',cursor:'pointer',fontFamily:'inherit',textAlign:'left'}}>
+                  <span style={{flexShrink:0,display:'flex'}}>{secIcon}</span>
+                  <span style={{flex:1,fontSize:13,fontWeight:700,color:isOpen?obj.accent:'var(--text)'}}>{sec.header}</span>
+                  <span style={{fontSize:12,color:isOpen?obj.accent:'#9CA3AF',transform:isOpen?'rotate(180deg)':'rotate(0)',transition:'transform .2s',display:'inline-block'}}>▾</span>
+                </button>
+                {isOpen&&<div style={{padding:'0 14px 14px',animation:'fadeUp .2s ease-out'}}>
+                  {sec.lines.map((line,li)=>
+                    line.type==='kv'
+                      ?<div key={li} style={{display:'flex',gap:8,marginBottom:6,alignItems:'flex-start'}}>
+                        <span style={{width:5,height:5,borderRadius:'50%',background:obj.accent,flexShrink:0,marginTop:8}}/>
+                        <div style={{flex:1,fontSize:13,color:'#374151',lineHeight:1.7}}>
+                          <span style={{fontWeight:700,color:'var(--text)'}}>{line.key}</span>
+                          <span> — {line.value}</span>
+                        </div>
+                      </div>
+                      :<div key={li} style={{fontSize:13,color:'#4B5563',lineHeight:1.7,marginBottom:4}}>{line.value}</div>
+                  )}
+                </div>}
+              </div>
+            })}
+          </div>
+        </div>}
+      </div>
+
+      {(prev||next)&&<div className="advice-page-nav">
+        {prev?<button className="advice-nav-btn" onClick={()=>{if(onSelectAdv)onSelectAdv(prev)}}>
+          <span style={{fontSize:16}}>‹</span> Précédent
+        </button>:<div/>}
+        {next?<button className="advice-nav-btn" onClick={()=>{if(onSelectAdv)onSelectAdv(next)}}>
+          Suivant <span style={{fontSize:16}}>›</span>
+        </button>:<div/>}
       </div>}
     </div>
-    <button className="btn-primary" style={{marginTop:10,flexShrink:0}} onClick={onClose}>Fermer</button>
-  </SwipeModal>
+  </div>
 }
 
 /* ═══ TAB: CONSEILS ═══ */
@@ -1902,14 +2200,20 @@ function AdviceTab({onCreateBilan,isWarmup,weekConsumed,weekNutrients,daysLogged
   const evalRecheck=useMemo(()=>ADVICES.filter(a=>advStatuses[a.id]?.status==='recheck'),[ADVICES,advStatuses]);
   const evalSplit=useMemo(()=>({active:[...pri,...sec],recheck:evalRecheck}),[pri,sec,evalRecheck]);
 
+  const handleSelectAdv=(a)=>{setSelAdv(a);setReadSet(s=>new Set([...s,a.id]))};
+  const adviceNavList=view==='focus'?[...pri,...sec]:ADVICES;
+
   function AdvItem({a}){
     const isRead=readSet.has(a.id);
     return(
     <div className="advice-item" role="button" tabIndex={0} onClick={()=>{setSelAdv(a);setReadSet(s=>new Set([...s,a.id]))}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8}}>
         <div style={{flex:1,minWidth:0}}>
-          <div className="advice-title">{a.title}</div>
-          <div style={{fontSize:13,color:"#6B7280",lineHeight:1.5,marginTop:5}}>{a.shortBody}</div>
+          <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:2}}>
+            <span style={{flexShrink:0,display:"flex"}}>{MODULE_ICON(a.module,15,"rgba(15,30,46,0.4)",a.id)}</span>
+            <div className="advice-title">{a.title}</div>
+          </div>
+          <div style={{fontSize:13,color:"#6B7280",lineHeight:1.5,marginTop:3}}>{a.shortBody}</div>
         </div>
         <button onClick={e=>{e.stopPropagation();setReadSet(s=>{const n=new Set(s);if(n.has(a.id))n.delete(a.id);else n.add(a.id);return n})}} style={{flexShrink:0,display:"flex",alignItems:"center",gap:4,background:isRead?"rgba(52,199,89,.08)":obj.accentSoft,border:`1px solid ${isRead?"rgba(52,199,89,.25)":obj.accentBorder}`,borderRadius:99,padding:"4px 10px",cursor:"pointer",transition:"all .2s"}}>
           {isRead&&<IcCheck size={10} color="#34C759"/>}
@@ -1931,17 +2235,20 @@ function AdviceTab({onCreateBilan,isWarmup,weekConsumed,weekNutrients,daysLogged
       <div className="section-label">Axes prioritaires</div>{pri.map(a=><AdvItem key={a.id} a={a}/>)}
       <div className="section-label">Axes secondaires</div>{sec.map(a=><AdvItem key={a.id} a={a}/>)}
       {isWarmup?<div className="card" style={{textAlign:"center",marginTop:16,opacity:.5}}><div style={{fontSize:14,fontWeight:700,color:"#6B7280"}}>Évaluation disponible après ta première semaine</div></div>
-      :<div className="card" role="button" tabIndex={0} style={{textAlign:"center",marginTop:16,cursor:"pointer"}} onClick={()=>setEvalOpen(true)}><div style={{fontSize:14,fontWeight:700,color:"#1A1A1A"}}>Évaluer ma semaine →</div><div style={{fontSize:12,color:"#6B7280",marginTop:4}}>Disponible dimanche</div></div>}
+      :(()=>{const isSunday=new Date().getDay()===0;return isSunday
+        ?<div className="card" role="button" tabIndex={0} style={{textAlign:"center",marginTop:16,cursor:"pointer"}} onClick={()=>setEvalOpen(true)}><div style={{fontSize:14,fontWeight:700,color:"#1A1A1A"}}>Évaluer ma semaine →</div><div style={{fontSize:12,color:"#6B7280",marginTop:4}}>Bilan de la semaine</div></div>
+        :<div className="card" style={{textAlign:"center",marginTop:16,opacity:.45,cursor:"not-allowed"}}><div style={{fontSize:14,fontWeight:700,color:"#6B7280"}}>Évaluer ma semaine</div><div style={{fontSize:12,color:"#9CA3AF",marginTop:4}}>Disponible dimanche</div></div>
+      })()}
     </>:<>
       <input className="search" placeholder="Rechercher un conseil…" value={biblioQ} onChange={e=>setBiblioQ(e.target.value)}/>
       {Object.entries(byStatus).map(([st,advs])=>{const filtered=biblioQ?advs.filter(a=>(a.title+a.shortBody).toLowerCase().includes(biblioQ.toLowerCase())):advs;return filtered.length>0&&<div key={st}><div className="section-label">{st}</div>{filtered.map(a=><AdvItem key={a.id} a={a}/>)}</div>})}
     </>}
-    {selAdv&&<AdviceDetail adv={selAdv} onClose={()=>setSelAdv(null)} status={getStatus(selAdv)}/>}
+    {selAdv&&<AdviceDetail adv={selAdv} onClose={()=>setSelAdv(null)} status={getStatus(selAdv)} advices={adviceNavList} onSelectAdv={handleSelectAdv}/>}
     {evalOpen&&<div className="overlay" onClick={()=>setEvalOpen(false)}><div role="dialog" className="modal" onClick={e=>e.stopPropagation()}>
       <div className="modal-handle"/><div className="modal-title">Évaluation {(()=>{const ps=d?._planStartDate?new Date(d._planStartDate):null;if(!ps)return"";const dow=ps.getDay();let start=ps;if(dow>=3||dow===0){start=new Date(ps);start.setDate(start.getDate()+(dow===0?1:8-dow));start.setHours(0,0,0,0)}const w=Math.floor(Math.max(0,(new Date()-start)/86400000)/7)+1;return `semaine ${w}`})()}</div><div className="modal-sub">Comment s'est passée ta semaine ?</div>
       {/* Active advices — full evaluation */}
       {evalSplit.active.map(a=><div key={a.id} style={{marginBottom:12}}>
-        <div style={{fontSize:13,fontWeight:700,color:"#1A1A1A",marginBottom:6}}>{a.title}</div>
+        <div style={{fontSize:13,fontWeight:700,color:"#1A1A1A",marginBottom:6,display:"flex",alignItems:"center",gap:7}}><span style={{flexShrink:0,opacity:.55}}>{MODULE_ICON(a.module,14,undefined,a.id)}</span>{a.title}</div>
         <div style={{display:"flex",gap:6}}>{[{v:2,l:"Solide",c:"#34C759"},{v:1,l:"En progrès",c:obj.accent},{v:0,l:"Pas encore",c:"#E5342D"}].map(o=>{const sel=evalScores[a.id]===o.v;return <button key={o.v} onClick={()=>setEvalScores(s=>({...s,[a.id]:o.v}))} style={{flex:1,padding:"8px 4px",borderRadius:10,fontSize:11,fontWeight:700,background:sel?`${o.c}10`:"#F5F4F1",border:`1px solid ${sel?`${o.c}40`:"rgba(15,30,46,.10)"}`,color:sel?o.c:"#6B7280",cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:5}}><span style={{width:6,height:6,borderRadius:3,background:o.c,flexShrink:0}}/>{o.l}</button>})}</div>
       </div>)}
 
@@ -1951,26 +2258,26 @@ function AdviceTab({onCreateBilan,isWarmup,weekConsumed,weekNutrients,daysLogged
           <div style={{fontSize:11,fontWeight:700,color:obj.accent,textTransform:"uppercase",letterSpacing:".04em",marginBottom:8}}>Re-check — toujours acquis ?</div>
         </div>
         {evalSplit.recheck.map(a=><div key={a.id} style={{marginBottom:12}}>
-          <div style={{fontSize:13,fontWeight:700,color:"#1A1A1A",marginBottom:6,display:"flex",alignItems:"center",gap:8}}>{a.title}<span style={{fontSize:9,fontWeight:700,color:obj.accent,background:obj.accentSoft,padding:"2px 8px",borderRadius:99,border:`1px solid ${obj.accentBorder}`}}>Acquis</span></div>
+          <div style={{fontSize:13,fontWeight:700,color:"#1A1A1A",marginBottom:6,display:"flex",alignItems:"center",gap:7}}><span style={{flexShrink:0,opacity:.55}}>{MODULE_ICON(a.module,14,undefined,a.id)}</span>{a.title}<span style={{fontSize:9,fontWeight:700,color:obj.accent,background:obj.accentSoft,padding:"2px 8px",borderRadius:99,border:`1px solid ${obj.accentBorder}`}}>Acquis</span></div>
           <div style={{display:"flex",gap:6}}>{[{v:2,l:"Toujours solide",c:"#34C759"},{v:0,l:"À retravailler",c:"#E5342D"}].map(o=>{const sel=evalScores[a.id]===o.v;return <button key={o.v} onClick={()=>setEvalScores(s=>({...s,[a.id]:o.v}))} style={{flex:1,padding:"8px 4px",borderRadius:10,fontSize:11,fontWeight:700,background:sel?`${o.c}10`:"#F5F4F1",border:`1px solid ${sel?`${o.c}40`:"rgba(15,30,46,.10)"}`,color:sel?o.c:"#6B7280",cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:5}}><span style={{width:6,height:6,borderRadius:3,background:o.c,flexShrink:0}}/>{o.l}</button>})}</div>
         </div>)}
       </>}
       {/* Wellbeing sliders */}
       <div style={{marginTop:16,paddingTop:14,borderTop:"1px solid rgba(15,30,46,.08)"}}>
         <div style={{fontSize:13,fontWeight:700,color:"#1A1A1A",marginBottom:10}}>Comment tu te sens ?</div>
-        {[{key:"energy",label:"Énergie",emoji:["😴","😑","😊","💪","⚡"]},
-          {key:"hunger",label:"Gestion faim",emoji:["😫","😕","😌","😊","🎯"]},
-          {key:"sleep",label:"Sommeil",emoji:["😵","😴","😐","😊","😴💤"]},
-          {key:"stress",label:"Stress",emoji:["🔴","🟠","🟡","🟢","💚"]}
-        ].map(s=><div key={s.key} style={{marginBottom:10}}>
+        {[{key:"energy",label:"Énergie",Ic:IcBattery,inv:false},
+          {key:"hunger",label:"Gestion faim",Ic:IcDrool,inv:false},
+          {key:"sleep",label:"Sommeil",Ic:IcSleep,inv:false},
+          {key:"stress",label:"Stress",Ic:IcStress,inv:true}
+        ].map(s=>{const v=evalWellbeing[s.key];const score=s.inv?6-v:v;const col=score>=5?"#34C759":score>=4?"#7CB97C":score>=3?"#E8863A":score>=2?"#E8633A":"#E5342D";return <div key={s.key} style={{marginBottom:10}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
             <span style={{fontSize:12,fontWeight:600,color:"#6B7280"}}>{s.label}</span>
-            <span style={{fontSize:14}}>{s.emoji[evalWellbeing[s.key]-1]}</span>
+            <span style={{display:"flex"}}><s.Ic size={20} color={col}/></span>
           </div>
           <div style={{display:"flex",gap:4}}>
             {[1,2,3,4,5].map(v=>{const sel=evalWellbeing[s.key]===v;return <button key={v} onClick={()=>setEvalWellbeing(p=>({...p,[s.key]:v}))} style={{flex:1,padding:"6px 0",borderRadius:8,fontSize:12,fontWeight:700,background:sel?`${obj.accent}15`:"#F5F4F1",border:`1px solid ${sel?obj.accentBorder:"rgba(15,30,46,.08)"}`,color:sel?obj.accent:"#999",cursor:"pointer",fontFamily:"inherit"}}>{v}</button>})}
           </div>
-        </div>)}
+        </div>})}
       </div>
       <button className="btn-primary" style={{marginTop:12}} onClick={()=>{
         if(onCreateBilan){
@@ -2107,7 +2414,7 @@ function BilanDetail({bilan,allBilans,onBack}){
       <div className="card-title">Observations</div>
       <div style={{marginTop:8}}>
         {bd.insights.map((ins,i)=><div key={i} style={{display:"flex",gap:8,alignItems:"flex-start",marginBottom:8,padding:"8px 10px",borderRadius:10,background:ins.type==="strength"?"rgba(52,199,89,.06)":ins.type==="weak"?"rgba(232,134,58,.06)":"rgba(15,30,46,.03)"}}>
-          <span style={{fontSize:14,flexShrink:0,marginTop:1}}>{ins.icon}</span>
+          <span style={{flexShrink:0,marginTop:1,display:"flex"}}>{ins.type==="strength"?<IcCheck size={14} color="#34C759"/>:ins.type==="weak"?<IcFlash size={14} color="#E8863A"/>:<IcBulb size={14} color="rgba(15,30,46,0.35)"/>}</span>
           <div style={{fontSize:12,color:ins.type==="strength"?"#1A6B35":ins.type==="weak"?"#9A4C1A":"#374151",lineHeight:1.6,fontWeight:500}}>{ins.text}</div>
         </div>)}
       </div>
@@ -2128,10 +2435,13 @@ function BilanDetail({bilan,allBilans,onBack}){
     {bd&&bd.wellbeing&&<div className="card">
       <div className="card-title">Bien-être</div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginTop:8}}>
-        {[{k:"energy",l:"Énergie",e:["😴","😑","😊","💪","⚡"]},{k:"hunger",l:"Faim",e:["😫","😕","😌","😊","🎯"]},{k:"sleep",l:"Sommeil",e:["😵","😴","😐","😊","😴"]},{k:"stress",l:"Stress",e:["🔴","🟠","🟡","🟢","💚"]}].map(s=>{
+        {[{k:"energy",l:"Énergie",Ic:IcBattery},{k:"hunger",l:"Faim",Ic:IcDrool},{k:"sleep",l:"Sommeil",Ic:IcSleep},{k:"stress",l:"Stress",inv:true,Ic:IcStress}].map(s=>{
           const v=bd.wellbeing[s.k]||3;
+          const score=s.inv?6-v:v;
+          const col=score>=5?"#34C759":score>=4?obj.accent:score>=3?"#6B7280":"#E8863A";
+          const Ic=s.Ic;
           return <div key={s.k} style={{display:"flex",alignItems:"center",gap:6,padding:"6px 10px",borderRadius:8,background:"rgba(15,30,46,.03)"}}>
-            <span style={{fontSize:16}}>{s.e[v-1]}</span>
+            <span style={{display:"flex",flexShrink:0}}><Ic size={16} color={col}/></span>
             <div><div style={{fontSize:11,fontWeight:600,color:"#6B7280"}}>{s.l}</div><div style={{fontSize:11,color:"#9CA3AF"}}>{v}/5</div></div>
           </div>
         })}
@@ -2163,7 +2473,7 @@ function HistoryTab({logs,onDeleteLog}){
       <div style={{fontSize:13,color:"#1A1A1A",marginTop:8,lineHeight:1.5}}><strong>{latest.label}</strong> <span style={{display:"inline-block",width:8,height:8,borderRadius:4,background:latestCol,verticalAlign:"middle",marginLeft:2}}/></div>
       <div className="card-link" role="button" tabIndex={0} onClick={()=>setViewBilan(latest)} style={{cursor:"pointer"}}>Voir le rapport complet →</div>
     </div>:<div style={{textAlign:"center",padding:"28px 24px",background:obj.accentSoft,border:`1px dashed ${obj.accentBorder}`,borderRadius:20,marginTop:12}}>
-      <div style={{fontSize:26,marginBottom:10}}>📊</div>
+      <div style={{display:"flex",justifyContent:"center",marginBottom:10}}><IcMenuMeasures size={26} color="rgba(15,30,46,.25)"/></div>
       <div style={{fontSize:15,fontWeight:700,color:"#1A1A1A",marginBottom:6}}>Pas encore de bilan</div>
       <div style={{fontSize:13,color:"#6B7280",lineHeight:1.6}}>Ton premier bilan sera disponible dimanche, après ta première semaine complète. Continue à logger tes repas !</div>
     </div>}
@@ -2181,7 +2491,7 @@ function HistoryTab({logs,onDeleteLog}){
     {logs.length>0?<div className="card" style={{padding:0,overflow:"hidden"}}>{logs.slice().reverse().slice(0,8).map((l,i,arr)=><div key={l.id} role="button" tabIndex={0} onClick={()=>setConfirmDel(l)} style={{padding:"10px 14px",borderBottom:i<arr.length-1?"1px solid rgba(15,30,46,.06)":"none",cursor:"pointer",transition:"background .15s"}}>
       <div className="flex-between"><span style={{display:"flex",alignItems:"center",gap:8,fontSize:13,fontWeight:700,color:"#1A1A1A"}}><EqIcon eqId={l.eqId} size={15}/>{getLogLabel(l.eqId,l.itemId)}{l.isOutOfPlan&&<span className="chip-hp">HP</span>}</span><span style={{fontSize:12,fontWeight:700,color:"#6B7280"}}>{l.kcal} kcal</span></div>
       <div style={{fontSize:11,color:"#6B7280",marginTop:2,paddingLeft:23}}>{SLOTS.find(s=>s.id===l.slotId)?.label} · P{l.p} L{l.l} G{l.g}</div>
-    </div>)}</div>:<div style={{textAlign:"center",padding:"24px 20px",border:"1px dashed rgba(15,30,46,.10)",borderRadius:16}}><div className="empty-icon" style={{fontSize:24,marginBottom:6}}>🍽</div><div style={{fontSize:13,color:"#6B7280"}}>Tes ajouts du jour apparaîtront ici. Commence par logger ton premier repas !</div></div>}
+    </div>)}</div>:<div style={{textAlign:"center",padding:"24px 20px",border:"1px dashed rgba(15,30,46,.10)",borderRadius:16}}><div className="empty-icon" style={{display:"flex",justifyContent:"center",marginBottom:6}}><SlotIcon slotId="REPAS_CHAUD" active={false} size={28}/></div><div style={{fontSize:13,color:"#6B7280"}}>Tes ajouts du jour apparaîtront ici. Commence par logger ton premier repas !</div></div>}
     {confirmDel&&<div className="overlay" onClick={()=>setConfirmDel(null)}><div style={{position:"absolute",bottom:0,left:0,right:0,background:"#fff",borderRadius:"24px 24px 0 0",padding:"20px 20px 32px",animation:"slideUp .25s ease-out"}} onClick={e=>e.stopPropagation()}>
       <div className="modal-handle"/>
       <div style={{textAlign:"center",marginBottom:16}}>
@@ -2235,7 +2545,7 @@ function ProfileTab({ signOut, onAddMeasurement, onDeleteMeasurement, milestones
       <button aria-label="Retour" className="hdr-back" onClick={()=>setSubScreen(null)} style={{marginBottom:12,padding:0}}>← Retour</button>
       <div className="page-title">Suivi & Graphiques</div>
       <div style={{textAlign:"center",padding:"40px 20px"}}>
-        <div style={{fontSize:40,marginBottom:16}}>📏</div>
+        <div style={{display:"flex",justifyContent:"center",marginBottom:16}}><IcMenuMeasures size={40} color="rgba(15,30,46,0.2)"/></div>
         <div style={{fontSize:16,fontWeight:700,color:"#1A1A1A",marginBottom:8}}>Aucune mesure enregistrée</div>
         <div style={{fontSize:13,color:"#6B7280",lineHeight:1.6,marginBottom:24}}>Ajoute ta première mesure pour suivre ton évolution. Le poids suffit pour commencer — tu pourras compléter avec le tour de taille et la masse grasse quand tu voudras.</div>
         <button className="btn-primary" onClick={()=>setShowMeasureForm(true)}>+ Ajouter ma première mesure</button>
@@ -2720,7 +3030,6 @@ function ProfileTab({ signOut, onAddMeasurement, onDeleteMeasurement, milestones
       {id:"sit_stress",title:"Quand tu as envie de craquer",body:"Attends 10 minutes — souvent ça passe. Si ça persiste, choisis un aliment de ton plan."},
     ];
     const capsList=capsules.length>0?capsules:capsFallback;
-    const icons=["🍽️","🥂","📅","✈️","👨‍👩‍👧","🎉","💼","💪","🏋️","😌"];
     const letters=["É","L","E","V","I","A"];
     return <div className="page screen-slide">
       <button aria-label="Retour" className="hdr-back" onClick={()=>setSubScreen(null)} style={{marginBottom:12,padding:0}}>← Retour</button>
@@ -2737,7 +3046,7 @@ function ProfileTab({ signOut, onAddMeasurement, onDeleteMeasurement, milestones
         const isStructured=columns.length>0;
         return <div key={c.id||i} className="card" role="button" tabIndex={0} style={{marginBottom:10,padding:0,overflow:"hidden",cursor:"pointer"}} onClick={()=>setExpandedCapsule(isOpen?null:c.id)}>
           <div style={{display:"flex",alignItems:"center",gap:12,padding:"14px 16px"}}>
-            <span style={{width:32,height:32,borderRadius:10,background:`linear-gradient(135deg,${obj.accentSoft},rgba(198,160,91,.06))`,border:`1px solid ${obj.accentBorder}`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16}}>{c.icon||icons[i%icons.length]}</span>
+            <span style={{width:32,height:32,borderRadius:10,background:`linear-gradient(135deg,${obj.accentSoft},rgba(198,160,91,.06))`,border:`1px solid ${obj.accentBorder}`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>{(()=>{const SitIc=CAPSULE_ICON(c.id);return SitIc?<SitIc size={17} color="#0F1E2E"/>:<IcBulb size={17} color="rgba(15,30,46,.35)"/>;})()}</span>
             <div style={{flex:1,minWidth:0}}>
               <div style={{fontSize:14,fontWeight:600,color:"#1A1A1A"}}>{c.title}</div>
               {c.subtitle&&<div style={{fontSize:11,color:"#6B7280",marginTop:1}}>{c.subtitle}</div>}
@@ -2822,7 +3131,7 @@ function ProfileTab({ signOut, onAddMeasurement, onDeleteMeasurement, milestones
     const PLAN_TARGETS_EQ=d?.PLAN_TARGETS||{};
     const eqInPlan=(eqId)=>eqId in PLAN_TARGETS_EQ;
     const slotLabel=(sid)=>({PDJ:'Petit-déjeuner',REPAS_FROID_PAIN:'Repas froid',REPAS_FROID_BOWL:'Repas froid bowl',REPAS_CHAUD:'Repas chaud',COLLATION:'Collation',PRE_WO:'Avant entraînement',POST_WO:'Après entraînement',EN_CAS_MAT:'En-cas matin'})[sid]||sid;
-    const EqImg=({eqId,size=18,fallback})=>{const f=eqIconFile(eqId);return f?<img src={`/icons/${f}.svg`} alt="" width={size} height={size} style={{opacity:.7,flexShrink:0}}/>:<span style={{fontSize:size,lineHeight:1,flexShrink:0}}>{fallback||"•"}</span>};
+    const EqImg=({eqId,size=18,fallback,color="rgba(15,30,46,0.4)"})=>{const Ic=EQ_ICONS[eqId];if(Ic)return <Ic size={size} color={color}/>;const f=eqIconFile(eqId);return f?<img src={`/icons/${f}.svg`} alt="" width={size} height={size} style={{opacity:.7,flexShrink:0}}/>:<span style={{fontSize:size,lineHeight:1,flexShrink:0}}>{fallback||"•"}</span>};
     const typeGroups={vvpo:{label:"Protéines (VVPO)",icon:"Viandes_maigres"},carbs:{label:"Féculents & céréales",icon:"pain"},veg:{label:"Légumes",icon:"legumes_cuits"},fruits:{label:"Fruits",icon:"fruits"},dairy:{label:"Produits laitiers",icon:"Laitages_classique"},fat:{label:"Matières grasses",icon:"oleagineux"},extras:{label:"Extras & plaisir",icon:"chocolat"},drinks:{label:"Boissons",icon:"alcool_leger"},alcohol:{label:"Boissons",icon:"alcool_leger"}};
     const q=eqSearch.toLowerCase().trim();
     const filtered=q?planEqs.filter(eq=>eq.label.toLowerCase().includes(q)||eq.items?.some(it=>it.foodLabel.toLowerCase().includes(q))):planEqs;
@@ -2950,7 +3259,7 @@ function ProfileTab({ signOut, onAddMeasurement, onDeleteMeasurement, milestones
         <div style={{display:"flex",flexDirection:"column",gap:8}}>
           {eqs.map(eq=>renderEqCompact(eq))}
         </div>
-        {eqs.length===0&&<div style={{textAlign:"center",padding:32}}><div className="empty-icon" style={{fontSize:28,marginBottom:8}}>📦</div><div style={{color:"#9CA3AF",fontSize:14}}>Aucune équivalence dans cette catégorie.</div></div>}
+        {eqs.length===0&&<div style={{textAlign:"center",padding:32}}><div className="empty-icon" style={{display:"flex",justifyContent:"center",marginBottom:8}}><IcListEmpty size={28} color="rgba(15,30,46,0.2)"/></div><div style={{color:"#9CA3AF",fontSize:14}}>Aucune équivalence dans cette catégorie.</div></div>}
       </div>
     }
 
@@ -2962,7 +3271,7 @@ function ProfileTab({ signOut, onAddMeasurement, onDeleteMeasurement, milestones
       <input type="text" value={eqSearch} onChange={e=>setEqSearch(e.target.value)} placeholder="Rechercher un aliment..." style={{width:"100%",padding:"10px 14px",borderRadius:12,border:`1px solid ${obj.accentBorder}`,fontSize:14,fontFamily:"inherit",background:"#fff",marginBottom:16,boxSizing:"border-box",outline:"none"}}/>
       {q?<div style={{display:"flex",flexDirection:"column",gap:8}}>
         {filtered.map(eq=>renderEqCompact(eq))}
-        {filtered.length===0&&<div style={{textAlign:"center",padding:32}}><div className="empty-icon" style={{fontSize:28,marginBottom:8}}>🔍</div><div style={{color:"#9CA3AF",fontSize:14}}>Aucun résultat pour "{eqSearch}"</div></div>}
+        {filtered.length===0&&<div style={{textAlign:"center",padding:32}}><div className="empty-icon" style={{display:"flex",justifyContent:"center",marginBottom:8}}><IcSearch size={28} color="rgba(15,30,46,0.2)"/></div><div style={{color:"#9CA3AF",fontSize:14}}>Aucun résultat pour "{eqSearch}"</div></div>}
       </div>:<div style={{display:"flex",flexDirection:"column",gap:8}}>
         {Object.entries(typeGroups).map(([type,grp])=>{
           const eqs=grouped[type];
@@ -2978,7 +3287,7 @@ function ProfileTab({ signOut, onAddMeasurement, onDeleteMeasurement, milestones
     </div>
   }
 
-  const menuLetter=(ch)=><span style={{width:28,height:28,borderRadius:8,background:`linear-gradient(135deg,${obj.accentSoft},rgba(198,160,91,.06))`,border:`1px solid ${obj.accentBorder}`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}><IcMonoE size={13} color={obj.accent} letter={ch}/></span>;
+  const menuIcon=(Ic)=><span style={{width:28,height:28,borderRadius:8,background:`linear-gradient(135deg,${obj.accentSoft},rgba(198,160,91,.06))`,border:`1px solid ${obj.accentBorder}`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}><Ic size={15} color={obj.accent}/></span>;
 
   return <div className="page">
     <div className="profile-card">
@@ -3002,7 +3311,7 @@ function ProfileTab({ signOut, onAddMeasurement, onDeleteMeasurement, milestones
           </>
         })()}
       </div>}
-      {!hasMeasures&&<div style={{padding:"16px 0",textAlign:"center"}}><div className="empty-icon" style={{fontSize:22,marginBottom:4}}>📏</div><div style={{fontSize:13,color:"#9CA3AF"}}>Aucune mesure enregistrée</div></div>}
+      {!hasMeasures&&<div style={{padding:"16px 0",textAlign:"center"}}><div className="empty-icon" style={{display:"flex",justifyContent:"center",marginBottom:4}}><IcMenuMeasures size={22} color="rgba(15,30,46,0.2)"/></div><div style={{fontSize:13,color:"#9CA3AF"}}>Aucune mesure enregistrée</div></div>}
     </div>
     {milestoneDefs&&milestoneDefs.length>0&&<>
       <div className="section-label">Mon parcours</div>
@@ -3011,16 +3320,16 @@ function ProfileTab({ signOut, onAddMeasurement, onDeleteMeasurement, milestones
       </div>
     </>}
     <div className="section-label">Outils</div>
-    <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("why")}>{menuLetter("É")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Pourquoi ce plan est le tien</span><span style={{fontSize:16,color:"#C8CDD3",fontWeight:300}}>›</span></div>
-    <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("measures")}>{menuLetter("L")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Suivi mesures & graphiques</span><span style={{fontSize:16,color:"#C8CDD3",fontWeight:300}}>›</span></div>
-    <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("equivalences")}>{menuLetter("E")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Mes équivalences</span><span style={{fontSize:16,color:"#C8CDD3",fontWeight:300}}>›</span></div>
-    <div className="menu-item" role="button" tabIndex={0} onClick={()=>window.open("https://www.elevianutrition.com/espace-client","_blank")} style={{background:"linear-gradient(135deg,rgba(198,160,91,.08) 0%,rgba(198,160,91,.02) 100%)",border:`1px solid ${obj.accentBorder}`}}>{menuLetter("V")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Mes recettes personnalisées</span><span style={{fontSize:11,fontWeight:700,color:obj.accent,background:obj.accentSoft,borderRadius:99,padding:"2px 8px"}}>Nouveau</span><span style={{fontSize:16,color:"#C8CDD3",fontWeight:300}}>›</span></div>
-    <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("messages")}>{menuLetter("I")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Messages de ton diététicien</span>{dietUnread>0&&<span style={{fontSize:10,fontWeight:700,color:"#fff",background:obj.accent,borderRadius:99,padding:"2px 8px",minWidth:18,textAlign:"center"}}>{dietUnread}</span>}<span style={{fontSize:16,color:"#C8CDD3",fontWeight:300}}>›</span></div>
+    <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("why")}>{menuIcon(IcMenuWhy)}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Pourquoi ce plan est le tien</span><span style={{fontSize:16,color:"#C8CDD3",fontWeight:300}}>›</span></div>
+    <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("measures")}>{menuIcon(IcMenuMeasures)}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Suivi mesures & graphiques</span><span style={{fontSize:16,color:"#C8CDD3",fontWeight:300}}>›</span></div>
+    <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("equivalences")}>{menuIcon(IcMenuEq)}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Mes équivalences</span><span style={{fontSize:16,color:"#C8CDD3",fontWeight:300}}>›</span></div>
+    <div className="menu-item" role="button" tabIndex={0} onClick={()=>window.open("https://www.elevianutrition.com/espace-client","_blank")} style={{background:"linear-gradient(135deg,rgba(198,160,91,.08) 0%,rgba(198,160,91,.02) 100%)",border:`1px solid ${obj.accentBorder}`}}>{menuIcon(IcMenuRecipes)}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Mes recettes personnalisées</span><span style={{fontSize:11,fontWeight:700,color:obj.accent,background:obj.accentSoft,borderRadius:99,padding:"2px 8px"}}>Nouveau</span><span style={{fontSize:16,color:"#C8CDD3",fontWeight:300}}>›</span></div>
+    <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("messages")}>{menuIcon(IcMenuMessages)}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Messages de ton diététicien</span>{dietUnread>0&&<span style={{fontSize:10,fontWeight:700,color:"#fff",background:obj.accent,borderRadius:99,padding:"2px 8px",minWidth:18,textAlign:"center"}}>{dietUnread}</span>}<span style={{fontSize:16,color:"#C8CDD3",fontWeight:300}}>›</span></div>
     <div className="section-label">Apprendre</div>
-    <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("guides")}>{menuLetter("A")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Guides & ressources</span><span style={{fontSize:16,color:"#C8CDD3",fontWeight:300}}>›</span></div>
-    {(d?.PROGRESSION?.length>0)&&<div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("progression")}>{menuLetter("É")}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Ma roadmap</span><span style={{fontSize:16,color:"#C8CDD3",fontWeight:300}}>›</span></div>}
+    <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("guides")}>{menuIcon(IcMenuGuides)}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Guides & ressources</span><span style={{fontSize:16,color:"#C8CDD3",fontWeight:300}}>›</span></div>
+    {(d?.PROGRESSION?.length>0)&&<div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("progression")}>{menuIcon(IcMenuRoadmap)}<span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Ma roadmap</span><span style={{fontSize:16,color:"#C8CDD3",fontWeight:300}}>›</span></div>}
     <div className="section-label">Réglages</div>
-    <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("settings")}><span style={{width:28,height:28,borderRadius:8,background:"rgba(15,30,46,.06)",border:"1px solid rgba(15,30,46,.10)",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,color:"#6B7280"}}>⚙</span><span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Paramètres</span><span style={{fontSize:16,color:"#C8CDD3",fontWeight:300}}>›</span></div>
+    <div className="menu-item" role="button" tabIndex={0} onClick={()=>setSubScreen("settings")}><span style={{width:28,height:28,borderRadius:8,background:"rgba(15,30,46,.06)",border:"1px solid rgba(15,30,46,.10)",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}><IcMenuSettings size={15} color="#6B7280"/></span><span style={{fontSize:14,fontWeight:600,color:"#1A1A1A",flex:1}}>Paramètres</span><span style={{fontSize:16,color:"#C8CDD3",fontWeight:300}}>›</span></div>
     <div style={{textAlign:"center",marginTop:20,fontSize:11,color:"rgba(15,30,46,.50)"}}>Élevia v2.3.0 (build 42)</div>
   </div>
 }
@@ -3040,7 +3349,7 @@ export default function EleviaApp({ session, signOut, planData, logs: externalLo
     const root=document.getElementById('root');
     if(!root)return;
     const check=()=>{
-      const overlay=root.querySelector('.overlay');
+      const overlay=root.querySelector('.overlay')||root.querySelector('.advice-page');
       const tbar=root.querySelector('.tbar');
       if(tbar) tbar.style.display=overlay?'none':'';
     };

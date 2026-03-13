@@ -4,38 +4,8 @@ import { getObjectiveConfig, getScoreLabel } from './objectiveConfig.js'
  * Transform Supabase rows into the exact shapes expected by elevia-prototype.jsx
  */
 
-// Fallback stepper data for assaisonnement items missing usual values in DB.
-// Matches migration 234 — will be ignored once the migration is applied
-// (because the normal stepper logic takes precedence when usual_g_per_unit is set).
-const ASSAISONNEMENT_STEPPER_FALLBACK = {
-  // PROFILE items (huiles) — resolved via calc_usual_rules brackets
-  huile_dolive:    { mode: 'PROFILE', profileId: 'FAT_OIL_CAC_5ML' },
-  huile_dolivecolza: { mode: 'PROFILE', profileId: 'FAT_OIL_CAC_5ML' },
-  // FIXED items simples
-  beurre:          { mode: 'FIXED', g: 12,   sg: 'noisette',        pl: 'noisettes' },
-  mayonnaise_a_lhuile_de_colza_et_aux_oeufs: { mode: 'FIXED', g: 12, sg: 'c. à soupe rase', pl: 'c. à soupe rases' },
-  mayonnaise_allegee: { mode: 'FIXED', g: 15, sg: 'c. à soupe',     pl: 'c. à soupe' },
-  creme_40:        { mode: 'FIXED', g: 12.5, sg: 'c. à soupe',     pl: 'c. à soupe' },
-  creme_35:        { mode: 'FIXED', g: 15,   sg: 'c. à soupe',     pl: 'c. à soupe' },
-  creme_20:        { mode: 'FIXED', g: 15,   sg: 'c. à soupe',     pl: 'c. à soupe' },
-  vinaigrette_vandemoortele_ciboulette:          { mode: 'FIXED', g: 15, sg: 'c. à soupe', pl: 'c. à soupe' },
-  vinaigrette_vandemoortele_fines_herbes_allegee: { mode: 'FIXED', g: 15, sg: 'c. à soupe', pl: 'c. à soupe' },
-  // Recettes sauces CHAUD — portion = total_weight_g
-  bechamel_classique:         { mode: 'FIXED', g: 80,  sg: 'portion', pl: 'portions', maxU: 2 },
-  jus_de_viande_au_beurre:    { mode: 'FIXED', g: 100, sg: 'portion', pl: 'portions', maxU: 2 },
-  sauce_moutarde:             { mode: 'FIXED', g: 40,  sg: 'portion', pl: 'portions', maxU: 2 },
-  sauce_a_lamande:            { mode: 'FIXED', g: 40,  sg: 'portion', pl: 'portions', maxU: 2 },
-  sauce_pesto:                { mode: 'FIXED', g: 24,  sg: 'portion', pl: 'portions', maxU: 2 },
-  sauce_aux_herbes_et_ricotta: { mode: 'FIXED', g: 68, sg: 'portion', pl: 'portions', maxU: 2 },
-  sauce_miso_et_sesame:       { mode: 'FIXED', g: 44,  sg: 'portion', pl: 'portions', maxU: 2 },
-  sauce_tomatee:              { mode: 'FIXED', g: 100, sg: 'portion', pl: 'portions', maxU: 2 },
-  // Recettes sauces FROID
-  vinaigrette_tahini:         { mode: 'FIXED', g: 30,  sg: 'portion', pl: 'portions', maxU: 2 },
-  sauce_yaourt_grec:          { mode: 'FIXED', g: 56,  sg: 'portion', pl: 'portions', maxU: 2 },
-  sauce_yaourt:               { mode: 'FIXED', g: 70,  sg: 'portion', pl: 'portions', maxU: 2 },
-  sauce_avocat_lime:          { mode: 'FIXED', g: 78,  sg: 'portion', pl: 'portions', maxU: 2 },
-  vinaigrette_moutarde_miel:  { mode: 'FIXED', g: 38,  sg: 'portion', pl: 'portions', maxU: 2 },
-}
+// Migration 255 sets FIXED usual values for ALL assaisonnement items in DB.
+// No hardcoded fallback needed — all values come from ref_eq_items/plan_items.
 
 export function transformPlanData({ profile, plan, equivalences, items, slots, slotMapping, targets, advices, microTips, refMicroTips, measurements, bilans, refEqMaster, refEqItems, videoGuides, recipes, progression, capsules, usualRules, itemVariants, questionnaireResponses }) {
 
@@ -176,31 +146,6 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
           }
         }
         if (pid && rulesByProfile[pid]) return resolveProfileStepper(it, Number(eq.qty_plan_grams) || 0)
-        // Fallback for assaisonnement items missing usual values in DB
-        // 1) Try specific item_id match
-        const fb = ASSAISONNEMENT_STEPPER_FALLBACK[it.item_id]
-        if (fb) {
-          if (fb.mode === 'PROFILE' && rulesByProfile[fb.profileId]) {
-            return resolveProfileStepper({ ...it, usual_profile_id: fb.profileId }, Number(eq.qty_plan_grams) || 0)
-          }
-          if (fb.mode === 'FIXED') {
-            return { usualGPerUnit: fb.g, usualUnitSg: fb.sg, usualUnitPl: fb.pl, unitStep: 1, defaultUnits: 1, minUnits: 0, maxUnits: fb.maxU || 10 }
-          }
-        }
-        // 2) Generic fallback: any assaisonnement item → "portion" based on qty_1x
-        if (eq.eq_id?.startsWith('assaisonnement') && Number(it.qty_1x) > 0) {
-          const q1x = Number(it.qty_1x)
-          // Huiles (small qty, item_id contains 'huile') → try PROFILE
-          if (it.item_id?.includes('huile') && rulesByProfile['FAT_OIL_CAC_5ML']) {
-            return resolveProfileStepper({ ...it, usual_profile_id: 'FAT_OIL_CAC_5ML' }, Number(eq.qty_plan_grams) || 0)
-          }
-          // Sauces/recettes (qty > 20g) → "portion"
-          if (q1x > 20) {
-            return { usualGPerUnit: q1x, usualUnitSg: 'portion', usualUnitPl: 'portions', unitStep: 1, defaultUnits: 1, minUnits: 0, maxUnits: 2 }
-          }
-          // Small condiments (mayo, crème, vinaigrette) → "c. à soupe"
-          return { usualGPerUnit: 15, usualUnitSg: 'c. à soupe', usualUnitPl: 'c. à soupe', unitStep: 1, defaultUnits: 1, minUnits: 0, maxUnits: 6 }
-        }
         return null
       })(),
       nutrientsPerUnit: (it.kcal_per_unit != null && Number(it.kcal_per_unit) > 0) ? {
@@ -213,24 +158,8 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
     })),
   }))
 
-  // --- POST-PROCESS: Force stepper on assaisonnement items that still lack one ---
-  for (const eq of CATALOGUE) {
-    if (!eq.eqId?.startsWith('assaisonnement')) continue
-    for (const item of eq.items) {
-      if (item.stepper && item.stepper.usualGPerUnit > 0) continue // already good
-      const q = item.qty1x || eq.qtyPlanGrams || 10
-      // Assign stepper based on item characteristics
-      if (item.itemId?.includes('huile') && rulesByProfile['FAT_OIL_CAC_5ML']) {
-        item.stepper = resolveProfileStepper({ item_id: item.itemId, usual_profile_id: 'FAT_OIL_CAC_5ML', qty_1x: q, app_unit_step: 1 }, eq.qtyPlanGrams || 0)
-      } else if (q > 20) {
-        // Sauce/recette → "portion"
-        item.stepper = { usualGPerUnit: q, usualUnitSg: 'portion', usualUnitPl: 'portions', unitStep: 1, defaultUnits: 1, minUnits: 0, maxUnits: 2 }
-      } else {
-        // Condiment → "c. à soupe" (15g standard)
-        item.stepper = { usualGPerUnit: 15, usualUnitSg: 'c. à soupe', usualUnitPl: 'c. à soupe', unitStep: 1, defaultUnits: 1, minUnits: 0, maxUnits: 6 }
-      }
-    }
-  }
+  // All assaisonnement items now have FIXED usual values in DB (migration 255).
+  // No post-processing needed.
 
   // --- SAFETY: Hide EQs with 0 items after allergen filtering (except COMPLETION_ONLY) ---
   const CATALOGUE_FILTERED = CATALOGUE.filter(eq => {
@@ -461,30 +390,7 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
             maxUnits: Number(it.app_max_units) || 10,
           } : (it.usual_mode === 'PROFILE' && it.usual_profile_id)
             ? resolveProfileStepper(it, 0)
-            : (() => {
-              // 1) Specific item_id match
-              const fb = ASSAISONNEMENT_STEPPER_FALLBACK[it.item_id]
-              if (fb) {
-                if (fb.mode === 'PROFILE' && rulesByProfile[fb.profileId]) {
-                  return resolveProfileStepper({ ...it, usual_profile_id: fb.profileId }, 0)
-                }
-                if (fb.mode === 'FIXED') {
-                  return { usualGPerUnit: fb.g, usualUnitSg: fb.sg, usualUnitPl: fb.pl, unitStep: 1, defaultUnits: 1, minUnits: 0, maxUnits: fb.maxU || 10 }
-                }
-              }
-              // 2) Generic assaisonnement fallback
-              if (ref.eq_id?.startsWith('assaisonnement') && Number(it.qty_1x) > 0) {
-                const q1x = Number(it.qty_1x)
-                if (it.item_id?.includes('huile') && rulesByProfile['FAT_OIL_CAC_5ML']) {
-                  return resolveProfileStepper({ ...it, usual_profile_id: 'FAT_OIL_CAC_5ML' }, 0)
-                }
-                if (q1x > 20) {
-                  return { usualGPerUnit: q1x, usualUnitSg: 'portion', usualUnitPl: 'portions', unitStep: 1, defaultUnits: 1, minUnits: 0, maxUnits: 2 }
-                }
-                return { usualGPerUnit: 15, usualUnitSg: 'c. à soupe', usualUnitPl: 'c. à soupe', unitStep: 1, defaultUnits: 1, minUnits: 0, maxUnits: 6 }
-              }
-              return null
-            })(),
+            : null,
           nutrientsPerUnit,
         }
       }),
@@ -554,15 +460,30 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
     }))
 
   // --- CAPSULES (situation guides) ---
-  // Map client goal codes to capsule objective codes
-  const CAPSULE_GOAL_MAP = { PW: 'PDP', MAINT: 'MAINTIEN', GAIN_LEAN: 'GAIN_LEAN', GAIN_COMFORT: 'GAIN_COMFORT' }
-  const capsuleObj = CAPSULE_GOAL_MAP[objectiveCode] || objectiveCode
+  // Capsule objective_codes may use any variant of the goal name.
+  // Build a set of all aliases for the current plan's objective so matching is robust.
+  const CAPSULE_OBJ_ALIASES = {
+    PW:          ['PDP','PW','weight_loss'],
+    weight_loss: ['PDP','PW','weight_loss'],
+    PDP:         ['PDP','PW','weight_loss'],
+    MAINT:           ['MAINTIEN','MAINT','maintenance'],
+    maintenance:     ['MAINTIEN','MAINT','maintenance'],
+    MAINTIEN:        ['MAINTIEN','MAINT','maintenance'],
+    GAIN_LEAN:       ['GAIN_LEAN','recomposition'],
+    recomposition:   ['GAIN_LEAN','recomposition'],
+    GAIN_COMFORT:    ['GAIN_COMFORT','GAIN_GUIDE','muscle_gain'],
+    muscle_gain:     ['GAIN_COMFORT','GAIN_GUIDE','muscle_gain'],
+    GAIN_GUIDE:      ['GAIN_COMFORT','GAIN_GUIDE','muscle_gain'],
+  }
+  const capsuleAliases = CAPSULE_OBJ_ALIASES[objectiveCode] || [objectiveCode]
 
   // Questionnaire filter matcher
   function matchesCapsuleFilter(filterRules, questionnaire) {
     if (!filterRules) return false
     for (const [field, expected] of Object.entries(filterRules)) {
       const actual = questionnaire?.[field]
+      // If the questionnaire field is absent, don't hide the capsule (default = show)
+      if (actual === undefined || actual === null) continue
       if (Array.isArray(expected)) {
         if (!expected.includes(actual)) return false
       } else {
@@ -575,8 +496,8 @@ export function transformPlanData({ profile, plan, equivalences, items, slots, s
   const qr = questionnaireResponses || plan.auto_calculation_log || null
   const CAPSULES = (capsules || []).filter(c => {
     if (c.objective_codes && c.objective_codes.length > 0) {
-      // Objective-specific: must match the mapped objective code
-      return c.objective_codes.includes(capsuleObj)
+      // Objective-specific: match if ANY capsule code is in our aliases
+      return c.objective_codes.some(code => capsuleAliases.includes(code))
     }
     // Universal capsule: must match questionnaire filter
     if (c.filter_rules) {

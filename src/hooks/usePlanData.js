@@ -37,7 +37,7 @@ export function usePlanData(session) {
         const results = await Promise.all([
           supabase.from('client_plans').select('*').eq('id', planId).single(),
           supabase.from('plan_equivalences').select('*').eq('plan_id', planId).order('display_order'),
-          supabase.from('plan_items').select('*').eq('plan_id', planId).order('item_order'),
+          supabase.from('plan_items').select('*').eq('plan_id', planId).eq('is_active', true).order('item_order'),
           supabase.from('plan_slots').select('*').eq('plan_id', planId).order('slot_order'),
           supabase.from('plan_slot_mapping').select('*').eq('plan_id', planId).order('display_order'),
           supabase.from('plan_targets').select('*').eq('plan_id', planId),

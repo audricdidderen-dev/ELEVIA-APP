@@ -123,11 +123,13 @@ export function computeBilan({
   // Phase (weeks since plan start)
   const phase = computePhase(planCreatedAt, measurements)
 
-  // Insights
-  const insights = [
+  // Insights (capped at 8 to avoid overwhelming UI)
+  const allInsights = [
     ...generateNutritionInsights(breakdown, obj, firstName, wellbeing, daysLogged, phase),
     ...generateBodyInsights(measurements, obj, phase, clientHeight),
   ]
+  // Prioritize: strength/weak first, then neutral/info — cap at 8
+  const insights = capInsights(allInsights, 8)
 
   // Feedback paragraph
   const feedback = generateFeedback(breakdown, overall, obj, trend, firstName, wellbeing, daysLogged, phase, milestones, prevBilan)
@@ -273,7 +275,9 @@ function generateNutritionInsights(bd, obj, firstName, wb, daysLogged, phase) {
 
   // ── Kcal — objective-specific ──
   const kr = bd.kcal.ratio
-  const kcalDay = Math.round(bd.kcal.actual / 7)
+  // Use actual logged days for per-day averages (avoid misleading numbers with low data)
+  const effectiveDays = d >= 3 ? 7 : Math.max(d, 1)
+  const kcalDay = Math.round(bd.kcal.actual / effectiveDays)
   const kcalTargetDay = Math.round(bd.kcal.target / 7)
   const kcalPct = Math.round(kr * 100)
 
@@ -330,7 +334,7 @@ function generateNutritionInsights(bd, obj, firstName, wb, daysLogged, phase) {
 
   // ── Protein — universal center, objective-contextualized ──
   const pr = bd.protein.ratio
-  const protDay = Math.round(bd.protein.actual / 7)
+  const protDay = Math.round(bd.protein.actual / effectiveDays)
   const protTargetDay = Math.round(bd.protein.target / 7)
   const protPct = Math.round(pr * 100)
 
@@ -620,13 +624,27 @@ function generateFeedback(bd, score, obj, trend, firstName, wb, daysLogged, phas
   const parts = []
 
   // 1. Opener (score-tier × objective × phase)
-  parts.push(pick(getOpeners(score, name, obj, ph), 1))
+  // If high score but a weak axis exists, filter out "all-clear" openers
+  const hasWeakAxis = worst.score < 70
+  let openers = getOpeners(score, name, obj, ph)
+  if (hasWeakAxis && score >= 85) {
+    openers = openers.filter(o =>
+      !o.includes('tous les plans') && !o.includes('Rien à redire') && !o.includes('tout est aligné') && !o.includes('impeccable')
+    )
+    if (openers.length === 0) openers = getOpeners(score, name, obj, ph) // fallback
+  }
+  parts.push(pick(openers, 1))
 
   // 2. Strength (data-driven)
   parts.push(pick(getStrengthLines(best, obj, bd), 2))
 
   // 3. Weakness (only if worst axis < 70)
+  // Guard: if score≥85 but worst axis <70, the opener tone is too positive.
+  // Insert a transition to avoid contradiction.
   if (worst.score < 70) {
+    if (score >= 85) {
+      parts.push(`Un axe mérite ton attention :`)
+    }
     parts.push(pick(getWeaknessLines(worst, obj, bd), 3))
   }
 
@@ -978,7 +996,7 @@ function getWeaknessLines(axis, obj, bd) {
         `En maintien, logger est ce qui empêche le glissement progressif. Vise au moins 5 jours cette semaine.`,
       ],
       COMFORT: [
-        `Logger sans pression, même 3 repas par jour, suffit à garder le cap.`,
+        `Logger sans pression, même tes repas principaux, suffit à garder le cap.`,
       ],
     },
   }
@@ -1101,7 +1119,7 @@ function getClosers(score, obj, ph) {
     ]
     if (obj === 'GAIN') return [
       'Concentre-toi sur une chose : atteindre ta cible calorique chaque jour.',
-      'Pas besoin de tout changer — assure le minimum : 3 repas complets + 1 collation.',
+      'Pas besoin de tout changer — assure-toi de consommer tous les repas et collations prévus dans ton plan.',
     ]
     if (obj === 'RECOMP') return [
       'Recentre-toi sur les protéines et la régularité — c\'est la base de la recomposition.',
@@ -1118,14 +1136,14 @@ function getClosers(score, obj, ph) {
 
   // ── <55 ──
   if (obj === 'PW') return [
-    'Reviens à l\'essentiel : 3 repas complets, loggés chaque jour.',
+    'Reviens à l\'essentiel : tes repas complets, loggés chaque jour.',
     'Pas besoin d\'être parfait — juste régulier. Commence demain matin.',
     'Chaque semaine est indépendante. Celle-ci commence maintenant.',
     ph === 'adaptation' ? 'Les premières semaines sont les plus dures. Chaque effort compte, même petit.' : null,
   ].filter(Boolean)
   if (obj === 'GAIN') return [
     'L\'essentiel : mange suffisamment et régulièrement. Le reste suivra.',
-    'Reviens aux fondamentaux — 3 repas + 2 collations, loggés chaque jour.',
+    'Reviens aux fondamentaux — chaque repas et collation de ton plan, loggés chaque jour.',
   ]
   if (obj === 'RECOMP') return [
     'La recomposition est exigeante — reprends le cadre une semaine à la fois.',
@@ -1164,10 +1182,10 @@ function generateTips(bd, obj, measurements, phase, daysLogged, wb) {
 
   // ── Primary tip (weakest axis) ──
   if (weakest.key === 'kcal') {
-    if (bd.kcal.ratio > 1.1 && isPW) {
-      tips.push('Prépare tes repas à l\'avance pour contrôler les quantités. Le batch cooking du dimanche est un levier puissant.')
-    } else if (bd.kcal.ratio > 1.1 && isPW) {
+    if (bd.kcal.ratio > 1.2 && isPW) {
       tips.push('Pèse tes féculents (riz, pâtes, pain) 3 jours cette semaine — l\'œil sous-estime souvent les portions après quelques semaines.')
+    } else if (bd.kcal.ratio > 1.1 && isPW) {
+      tips.push('Prépare tes repas à l\'avance pour contrôler les quantités. Le batch cooking du dimanche est un levier puissant.')
     } else if (bd.kcal.ratio < 0.85 && isGain) {
       tips.push('Revois les collations prévues dans ton plan et assure-toi de ne pas en sauter. Chaque repas et collation comptent pour atteindre ta cible.')
     } else if (bd.kcal.ratio < 0.85 && isPW) {
@@ -1268,6 +1286,17 @@ function generateTips(bd, obj, measurements, phase, daysLogged, wb) {
 // ═══════════════════════════════════════════════
 // HELPERS
 // ═══════════════════════════════════════════════
+
+/**
+ * Cap insights to avoid overwhelming UI.
+ * Prioritize strength/weak over neutral.
+ */
+function capInsights(insights, max) {
+  if (insights.length <= max) return insights
+  const priority = insights.filter(i => i.type === 'strength' || i.type === 'weak')
+  const neutral = insights.filter(i => i.type !== 'strength' && i.type !== 'weak')
+  return [...priority, ...neutral].slice(0, max)
+}
 
 /**
  * Deterministic per-section selection — uses salt to avoid
