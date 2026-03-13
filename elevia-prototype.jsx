@@ -1321,7 +1321,7 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
 
       {/* ═══ MAIN ═══ */}
       {screen==='main'&&<>
-        <div style={{fontSize:11,fontWeight:700,color:"rgba(15,30,46,.35)",textTransform:"uppercase",letterSpacing:".5px",marginBottom:6}}>Tes équivalences pour ce repas</div>
+        <div style={{fontSize:12,fontWeight:700,color:"rgba(15,30,46,.35)",textTransform:"uppercase",letterSpacing:".6px",margin:"12px 0 10px"}}>Tes équivalences pour ce repas</div>
         {planEqs.map(eq=>{
           const wc=WEEK_CONSUMED[eq.eqId]||0,wt=PLAN_TARGETS[eq.eqId]||0;
           const sqSlots=SLOT_QTY[eq.eqId]||{};
