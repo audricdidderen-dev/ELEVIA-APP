@@ -638,8 +638,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','DM Sans',system
 @keyframes fsmIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 .fsm-card.modal-closing{animation:fsmOut .22s ease-in forwards!important}@keyframes fsmOut{to{opacity:0;transform:translateY(40px)}}
 .fsm-nav{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top,0px) + 12px) 18px 10px;border-bottom:1px solid rgba(15,30,46,.06);background:var(--bg);min-height:44px}
-.fsm-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding:0 18px 18px}.fsm-body::-webkit-scrollbar{display:none}
-.fsm-footer{flex-shrink:0;padding:8px 18px calc(6px + env(safe-area-inset-bottom,8px));border-top:1px solid rgba(15,30,46,.06);background:var(--bg)}
+.fsm-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding:0 18px 6px}.fsm-body::-webkit-scrollbar{display:none}
+.fsm-footer{flex-shrink:0;padding:12px 18px calc(10px + env(safe-area-inset-bottom,8px));border-top:1px solid rgba(15,30,46,.06);background:var(--bg)}
 .advice-page{position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;background:#fff;animation:pageSlideIn .3s cubic-bezier(.25,.46,.45,.94) both}@keyframes pageSlideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
 .advice-page-out{animation:pageSlideOut .28s ease-in forwards!important}@keyframes pageSlideOut{to{transform:translateX(100%)}}
 .advice-page-inner{width:100%;max-width:430px;margin:0 auto;height:100%;display:flex;flex-direction:column}
@@ -1231,18 +1231,18 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
   // Footer content (fixed at bottom of card)
   let footerCTA=null;
   if(screen==='main'){
-    footerCTA=<div style={{display:"flex",gap:8}}>
-      <button onClick={()=>setView("catalogue")} style={{flex:1,padding:"10px 14px",borderRadius:14,background:"rgba(15,30,46,.02)",border:"1px solid rgba(15,30,46,.06)",display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
-        <span style={{display:"flex"}}><IcMenuWhy size={16} color="rgba(15,30,46,.45)"/></span>
+    footerCTA=<div style={{display:"flex",gap:10}}>
+      <button onClick={()=>setView("catalogue")} style={{flex:1,padding:"14px 16px",borderRadius:16,background:"rgba(15,30,46,.02)",border:"1px solid rgba(15,30,46,.08)",display:"flex",alignItems:"center",gap:10,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
+        <span style={{display:"flex"}}><IcMenuWhy size={20} color="rgba(15,30,46,.4)"/></span>
         <div style={{flex:1,textAlign:"left"}}>
-          <div style={{fontSize:12,fontWeight:700,color:"#1A1A1A"}}>Catalogue complet</div>
-          <div style={{fontSize:10,color:"#6B7280",marginTop:1}}>Toutes les équivalences</div>
+          <div style={{fontSize:13,fontWeight:700,color:"#1A1A1A"}}>Catalogue complet</div>
+          <div style={{fontSize:11,color:"#6B7280",marginTop:1}}>Toutes les équivalences</div>
         </div>
-        <span style={{fontSize:16,color:"#C8CDD3",fontWeight:300}}>›</span>
+        <span style={{fontSize:18,color:"#C8CDD3",fontWeight:300}}>›</span>
       </button>
-      <button onClick={()=>setShowApero(true)} style={{padding:"10px 14px",borderRadius:14,background:"linear-gradient(135deg,rgba(232,134,58,.06),rgba(232,134,58,.02))",border:"1px solid rgba(232,134,58,.15)",display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}>
-        <span style={{display:"flex"}}><IcSitChampagne size={16} color="#E8863A"/></span>
-        <div style={{textAlign:"left"}}><div style={{fontSize:12,fontWeight:700,color:"#E8863A"}}>Apéro</div></div>
+      <button onClick={()=>setShowApero(true)} style={{padding:"14px 16px",borderRadius:16,background:"linear-gradient(135deg,rgba(232,134,58,.06),rgba(232,134,58,.02))",border:"1px solid rgba(232,134,58,.18)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:4,cursor:"pointer",fontFamily:"inherit",transition:"all .15s",minWidth:80}}>
+        <span style={{display:"flex"}}><IcSitChampagne size={22} color="#E8863A"/></span>
+        <div style={{fontSize:13,fontWeight:700,color:"#E8863A"}}>Apéro</div>
       </button>
     </div>;
   } else if(screen==='peek'){
@@ -1291,10 +1291,10 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
     {/* Header — like advice-page */}
     <div className="fsm-nav">
       <button className="hdr-back" onClick={screen==='main'?onClose:goBack} style={{padding:0,flexShrink:0}}>← {screen==='main'?'Fermer':'Retour'}</button>
-      {screen==='main'&&<div style={{display:"flex",alignItems:"center",gap:6,flex:1,minWidth:0}}>
-        <SlotIcon slotId={slotId} active={true} size={16}/>
-        <span style={{fontSize:15,fontWeight:700,color:"var(--text)"}}>Ajouter à</span>
-        <span style={{fontSize:15,fontWeight:700,color:"var(--accent)",fontFamily:"'Cormorant Garamond',serif"}}>{slotName}</span>
+      {screen==='main'&&<div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:0}}>
+        <SlotIcon slotId={slotId} active={true} size={18}/>
+        <span style={{fontSize:17,fontWeight:700,color:"var(--text)",fontFamily:"'Cormorant Garamond',serif"}}>Ajouter à</span>
+        <span style={{fontSize:17,fontWeight:700,color:"var(--accent)",fontFamily:"'Cormorant Garamond',serif"}}>{slotName}</span>
       </div>}
       {screen==='peek'&&<div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:0}}>
         <EqIcon eqId={peekEq.eqId} size={18}/> <span style={{fontSize:15,fontWeight:700,color:"var(--text)"}}>{peekEq.label}</span>
@@ -1334,8 +1334,8 @@ function AddModal({slotId,onClose,onLog,everLoggedHp,weekConsumed,todayLogs,quic
           </div>
         })}
 
-        <div style={{borderTop:"1px solid rgba(15,30,46,.06)",margin:"14px 0 10px"}}/>
-        <input className="search" placeholder="Autre chose ? Pizza, sushi, kebab..." value={qlSearch} onChange={e=>handleQlSearch(e.target.value)} style={{marginBottom:8}}/>
+        <div style={{borderTop:"1px solid rgba(15,30,46,.06)",margin:"10px 0 8px"}}/>
+        <input className="search" placeholder="Autre chose ? Pizza, sushi, kebab..." value={qlSearch} onChange={e=>handleQlSearch(e.target.value)}/>
 
         {(quickLog?.categories||[]).length>0&&(qlSearch.length>=2||qlCatFilter)&&<div style={{display:"flex",gap:5,marginBottom:8,overflowX:"auto",paddingBottom:4}}>
           {(quickLog?.categories||[]).map(cat=>{
